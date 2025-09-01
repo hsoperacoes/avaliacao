@@ -497,4 +497,328 @@
                                 </label>
                             </div>
                         </div>
+                        <!-- Relacionamento -->
+                        <div class="question-section">
+                            <div class="question-title">Como o candidato se relaciona com a equipe?</div>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="relacionamento" value="muito_bem" required>
+                                    <span class="radio-custom"></span>
+                                    Muito bem
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="relacionamento" value="bem" required>
+                                    <span class="radio-custom"></span>
+                                    Bem
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="relacionamento" value="regular" required>
+                                    <span class="radio-custom"></span>
+                                    Regular
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="relacionamento" value="mal" required>
+                                    <span class="radio-custom"></span>
+                                    Mal
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Perguntas Específicas -->
+                <div class="form-block">
+                    <div class="block-header">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>Perguntas ao Candidato</h3>
+                    </div>
+                    <div class="block-content">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="pergunta_candidato">Pergunte ao candidato:</label>
+                                <textarea id="pergunta_candidato" name="pergunta_candidato" 
+                                    placeholder="Exemplo: Você se considera uma pessoa organizada? Como você se organiza no trabalho?"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="resposta_candidato">Resposta do candidato:</label>
+                                <textarea id="resposta_candidato" name="resposta_candidato" 
+                                    placeholder="Registre aqui a resposta do candidato..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Situações Práticas -->
+                <div class="form-block">
+                    <div class="block-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Situações Práticas</h3>
+                    </div>
+                    <div class="block-content">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="situacao_apresentada">Situação apresentada pelo candidato:</label>
+                                <textarea id="situacao_apresentada" name="situacao_apresentada" 
+                                    placeholder="Descreva uma situação onde você teve que resolver um problema no trabalho..."></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="como_resolveu">Como o candidato resolveu:</label>
+                                <textarea id="como_resolveu" name="como_resolveu" 
+                                    placeholder="Registre como o candidato lidou com a situação..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Avaliação Geral -->
+                <div class="form-block">
+                    <div class="block-header">
+                        <i class="fas fa-star"></i>
+                        <h3>Avaliação Geral</h3>
+                    </div>
+                    <div class="block-content">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>O candidato está apto para a vaga?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="apto_vaga" value="sim" required>
+                                        <span class="radio-custom"></span>
+                                        Sim
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="apto_vaga" value="nao" required>
+                                        <span class="radio-custom"></span>
+                                        Não
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="apto_vaga" value="em_parte" required>
+                                        <span class="radio-custom"></span>
+                                        Em parte
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="observacoes_gerais">Observações gerais:</label>
+                                <textarea id="observacoes_gerais" name="observacoes_gerais" 
+                                    placeholder="Adicione observações importantes sobre o candidato..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Dados do Avaliador -->
+                <div class="form-block">
+                    <div class="block-header">
+                        <i class="fas fa-user-check"></i>
+                        <h3>Dados do Avaliador</h3>
+                    </div>
+                    <div class="block-content">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="nome_avaliador">Nome do Avaliador *</label>
+                                <input type="text" id="nome_avaliador" name="nome_avaliador" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cargo_avaliador">Cargo *</label>
+                                <input type="text" id="cargo_avaliador" name="cargo_avaliador" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="data_avaliacao">Data da Avaliação *</label>
+                                <input type="date" id="data_avaliacao" name="data_avaliacao" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Avaliação
+                    </button>
+                    <button type="reset" class="btn-reset">
+                        <i class="fas fa-eraser"></i>
+                        Limpar Formulário
+                    </button>
+                </div>
+                
+                <!-- Navegação -->
+                <div class="form-actions" style="margin-top: 20px; border-top: 2px solid #555; padding-top: 20px;">
+                    <a href="home.html" class="btn-submit" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-home"></i>
+                        Voltar ao Home
+                    </a>
+                    <a href="funcionarios.html" class="btn-reset" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
+                        <i class="fas fa-users"></i>
+                        Lista de Funcionários
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Definir data atual como padrão
+        document.addEventListener("DOMContentLoaded", function() {
+            const today = new Date().toISOString().split("T")[0];
+            document.getElementById("data_avaliacao").value = today;
+        });
+
+        // Função para enviar email
+        function sendEmail(formData) {
+            const emailData = {
+                to: "hs.operacoes.loja@gmail.com",
+                subject: `Avaliação de Candidato - ${formData.nome}`,
+                body: `
+                    <h2>AVALIAÇÃO DE CANDIDATO</h2>
+                    
+                    <h3>DADOS PESSOAIS</h3>
+                    <p><strong>Nome:</strong> ${formData.nome}</p>
+                    <p><strong>Idade:</strong> ${formData.idade}</p>
+                    <p><strong>Telefone:</strong> ${formData.telefone}</p>
+                    <p><strong>E-mail:</strong> ${formData.email}</p>
+                    
+                    <h3>ANÁLISE DE COMPETÊNCIAS</h3>
+                    <p><strong>Comunicação:</strong> ${formData.comunicacao}</p>
+                    <p><strong>Atitude:</strong> ${formData.atitude}</p>
+                    <p><strong>Relacionamento:</strong> ${formData.relacionamento}</p>
+                    
+                    <h3>PERGUNTAS E RESPOSTAS</h3>
+                    <p><strong>Pergunta:</strong> ${formData.pergunta_candidato || "Não informado"}</p>
+                    <p><strong>Resposta:</strong> ${formData.resposta_candidato || "Não informado"}</p>
+                    
+                    <h3>SITUAÇÕES PRÁTICAS</h3>
+                    <p><strong>Situação apresentada:</strong> ${formData.situacao_apresentada || "Não informado"}</p>
+                    <p><strong>Como resolveu:</strong> ${formData.como_resolveu || "Não informado"}</p>
+                    
+                    <h3>AVALIAÇÃO GERAL</h3>
+                    <p><strong>Apto para a vaga:</strong> ${formData.apto_vaga}</p>
+                    <p><strong>Observações:</strong> ${formData.observacoes_gerais || "Nenhuma observação"}</p>
+                    
+                    <h3>DADOS DO AVALIADOR</h3>
+                    <p><strong>Avaliador:</strong> ${formData.nome_avaliador}</p>
+                    <p><strong>Cargo:</strong> ${formData.cargo_avaliador}</p>
+                    <p><strong>Data da Avaliação:</strong> ${formData.data_avaliacao}</p>
+                `
+            };
+
+            // Simular envio de email (em produção, seria integrado com um serviço de email)
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Email enviado:", emailData);
+                    resolve(true);
+                }, 2000);
+            });
+        }
+
+        // Manipular envio do formulário
+        document.getElementById("candidateForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            const loadingMessage = document.getElementById("loadingMessage");
+            const successMessage = document.getElementById("successMessage");
+            const form = e.target;
+            
+            // Mostrar loading
+            loadingMessage.style.display = "block";
+            
+            // Coletar dados do formulário
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            try {
+                // Enviar email
+                await sendEmail(data);
+                
+                // Salvar avaliação no localStorage
+                saveEvaluation(data);
+                
+                // Se candidato foi aprovado, perguntar se deseja adicionar à lista de funcionários
+                if (data.apto_vaga === "sim") {
+                    const addToEmployees = confirm(
+                        `Candidato aprovado! Deseja adicionar ${data.nome} à lista de funcionários para iniciar o processo de onboarding?`
+                    );
+                    
+                    if (addToEmployees) {
+                        addApprovedCandidateToEmployees(data);
+                    }
+                }
+                
+                // Esconder loading e mostrar sucesso
+                loadingMessage.style.display = "none";
+                successMessage.style.display = "block";
+                
+                // Limpar formulário após 3 segundos
+                setTimeout(() => {
+                    form.reset();
+                    successMessage.style.display = "none";
+                    // Redefinir data atual
+                    const today = new Date().toISOString().split("T")[0];
+                    document.getElementById("data_avaliacao").value = today;
+                }, 3000);
+                
+            } catch (error) {
+                loadingMessage.style.display = "none";
+                alert("Erro ao enviar avaliação. Tente novamente.");
+                console.error("Erro:", error);
+            }
+        });
+
+        // Salvar avaliação no localStorage
+        function saveEvaluation(data) {
+            const evaluations = JSON.parse(localStorage.getItem("evaluations") || "[]");
+            const evaluation = {
+                id: Date.now().toString(),
+                ...data,
+                timestamp: new Date().toISOString()
+            };
+            evaluations.push(evaluation);
+            localStorage.setItem("evaluations", JSON.stringify(evaluations));
+        }
+
+        // Adicionar candidato aprovado à lista de funcionários
+        function addApprovedCandidateToEmployees(data) {
+            const employees = JSON.parse(localStorage.getItem("employees") || "[]");
+            
+            // Verificar se já existe
+            const exists = employees.some(emp => emp.name === data.nome && emp.email === data.email);
+            if (exists) {
+                alert("Este candidato já está na lista de funcionários.");
+                return;
+            }
+            
+            const newEmployee = {
+                id: Date.now().toString(),
+                name: data.nome,
+                position: "A definir", // Pode ser editado depois na lista de funcionários
+                startDate: new Date().toISOString().split("T")[0], // Data atual como padrão
+                manager: data.nome_avaliador,
+                email: data.email,
+                status: "pending",
+                progress: 0,
+                onboardingData: {
+                    completedTasks: [],
+                    lastUpdate: new Date().toISOString()
+                },
+                evaluationData: data // Manter dados da avaliação
+            };
+            
+            employees.push(newEmployee);
+            localStorage.setItem("employees", JSON.stringify(employees));
+            
+            alert(`${data.nome} foi adicionado à lista de funcionários! Você pode gerenciar o onboarding na seção \"Lista de Funcionários\".`);
+        }
+
+        // Animação dos blocos
+        const blocks = document.querySelectorAll(".form-block");
+        blocks.forEach((block, index) => {
+            block.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
 
