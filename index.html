@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de RH - Redirecionando...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .loading-container {
+            text-align: center;
+        }
+        
+        .loading-icon {
+            font-size: 3em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-icon">⚙️</div>
+        <h1>Sistema de Gestão de RH</h1>
+        <p>Redirecionando para a página inicial...</p>
+    </div>
+
+    <script>
+        // Redirecionar para home.html após 2 segundos
+        setTimeout(() => {
+            window.location.href = 'home.html';
+        }, 2000);
+    </script>
+</body>
+</html>
