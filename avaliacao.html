@@ -99,17 +99,17 @@
             background: #2a2a2a;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,.3);
-            color: #e0e0e0;
+            box-shadow: 0 4px 10px rgba(0,0,0,.2);
+            border-top: none;
+            border-left: 5px solid #4CAF50;
         }
 
         .form-block {
             background: #3a3a3a;
             padding: 25px;
             border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.2);
-            border-left: 5px solid #4CAF50;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.3);
             opacity: 0;
             transform: translateY(20px);
             animation: fade-in-up .5s forwards;
@@ -126,24 +126,25 @@
             color: #4CAF50;
             margin-bottom: 20px;
             font-size: 1.8em;
-            border-bottom: 2px solid rgba(76, 175, 80, .3);
+            border-bottom: 2px solid #4CAF50;
             padding-bottom: 10px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
+            color: #e0e0e0;
             font-weight: bold;
-            color: #bbb;
         }
 
         .form-group input[type="text"],
         .form-group input[type="email"],
         .form-group input[type="tel"],
+        .form-group input[type="number"],
         .form-group input[type="date"],
         .form-group textarea {
             width: calc(100% - 20px);
@@ -153,16 +154,16 @@
             background-color: #444;
             color: #e0e0e0;
             font-size: 1em;
-            transition: border-color .3s ease, box-shadow .3s ease;
+            transition: border-color .3s ease;
         }
 
         .form-group input[type="text"]:focus,
         .form-group input[type="email"]:focus,
         .form-group input[type="tel"]:focus,
+        .form-group input[type="number"]:focus,
         .form-group input[type="date"]:focus,
         .form-group textarea:focus {
             border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, .3);
             outline: none;
         }
 
@@ -171,26 +172,12 @@
             min-height: 80px;
         }
 
-        .question-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #444;
-            border-radius: 8px;
-            border-left: 3px solid #2196F3;
-        }
-
-        .question-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #fff;
-            font-size: 1.1em;
-        }
-
         .radio-group,
         .checkbox-group {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
+            margin-top: 10px;
         }
 
         .radio-option,
@@ -210,37 +197,34 @@
         .checkbox-custom {
             width: 20px;
             height: 20px;
-            border-radius: 50%;
             border: 2px solid #bbb;
-            margin-right: 8px;
+            border-radius: 50%; /* Para radio */
+            margin-right: 10px;
             position: relative;
             transition: all .2s ease;
+            flex-shrink: 0;
         }
 
         .checkbox-custom {
-            border-radius: 4px;
+            border-radius: 5px; /* Para checkbox */
         }
 
-        .radio-option input[type="radio"]:checked + .radio-custom {
+        .radio-option input[type="radio"]:checked + .radio-custom,
+        .checkbox-option input[type="checkbox"]:checked + .checkbox-custom {
             background-color: #4CAF50;
             border-color: #4CAF50;
         }
 
         .radio-option input[type="radio"]:checked + .radio-custom::after {
             content: '';
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             background-color: #fff;
             border-radius: 50%;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-        }
-
-        .checkbox-option input[type="checkbox"]:checked + .checkbox-custom {
-            background-color: #4CAF50;
-            border-color: #4CAF50;
         }
 
         .checkbox-option input[type="checkbox"]:checked + .checkbox-custom::after {
@@ -253,23 +237,57 @@
             transform: translate(-50%, -50%);
         }
 
-        .btn-submit {
-            display: block;
-            width: 100%;
+        .question-section {
+            margin-bottom: 20px;
             padding: 15px;
-            background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
-            color: #fff;
-            border: none;
+            background-color: #444;
             border-radius: 8px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all .3s ease;
-            margin-top: 20px;
+            border-left: 4px solid #FFC107;
         }
 
-        .btn-submit:hover {
-            background: linear-gradient(90deg, #45a049 0%, #3d8b40 100%);
+        .question-title {
+            font-weight: bold;
+            color: #FFC107;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #4CAF50 0%, #388E3C 100%);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,.4);
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+
+        .btn-secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,.4);
         }
@@ -283,19 +301,22 @@
             display: none;
         }
 
-        .message.loading {
-            background-color: #2196F3;
-            color: #fff;
-        }
-
         .message.success {
-            background-color: #4CAF50;
-            color: #fff;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .message.error {
-            background-color: #f44336;
-            color: #fff;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.loading {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
 
         /* Footer */
@@ -317,17 +338,17 @@
                 padding: 20px;
             }
 
-            .form-group input[type="text"],
-            .form-group input[type="email"],
-            .form-group input[type="tel"],
-            .form-group input[type="date"],
-            .form-group textarea {
-                width: 100%;
+            .form-block h2 {
+                font-size: 1.5em;
             }
 
-            .radio-group,
-            .checkbox-group {
+            .action-buttons {
                 flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -346,8 +367,12 @@
                 font-size: .9em;
             }
 
-            .form-block h2 {
-                font-size: 1.5em;
+            .form-container {
+                padding: 20px;
+            }
+
+            .form-block {
+                padding: 15px;
             }
         }
     </style>
@@ -356,78 +381,74 @@
     <div class="container">
         <header class="form-header">
             <h1>Avaliação de Candidatos</h1>
-            <p>Preencha o formulário para avaliar o desempenho e as competências do candidato.</p>
+            <p>Preencha os dados para avaliar um futuro funcionário.</p>
         </header>
 
         <nav class="navbar">
-            <a href="home.html"><i class="fas fa-home"></i> Home</a>
-            <a href="funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
+            <a href="./home.html"><i class="fas fa-home"></i> Home</a>
+            <a href="./funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
         </nav>
 
         <div class="form-container">
             <form id="evaluationForm">
-                <!-- Bloco 1: Dados do Candidato -->
+                <!-- Bloco 1: Dados Pessoais do Candidato -->
                 <div class="form-block">
-                    <h2><i class="fas fa-user"></i> Dados do Candidato</h2>
+                    <h2>Dados Pessoais do Candidato</h2>
                     <div class="form-group">
-                        <label for="nome">Nome Completo *</label>
+                        <label for="nome">Nome Completo:</label>
                         <input type="text" id="nome" name="nome" required>
                     </div>
                     <div class="form-group">
-                        <label for="idade">Idade</label>
-                        <input type="text" id="idade" name="idade">
+                        <label for="idade">Idade:</label>
+                        <input type="number" id="idade" name="idade" required>
                     </div>
                     <div class="form-group">
-                        <label for="telefone">Telefone</label>
-                        <input type="tel" id="telefone" name="telefone">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">E-mail *</label>
+                        <label for="email">E-mail:</label>
                         <input type="email" id="email" name="email" required>
                     </div>
                 </div>
 
                 <!-- Bloco 2: Perguntas ao Candidato -->
                 <div class="form-block">
-                    <h2><i class="fas fa-question-circle"></i> Perguntas ao Candidato</h2>
+                    <h2>Perguntas ao Candidato</h2>
                     <div class="form-group">
-                        <label for="percebeu">O que você percebeu?</label>
-                        <textarea id="percebeu" name="percebeu"></textarea>
+                        <label for="pergunta1">De qual emprego ele mais gostou?</label>
+                        <textarea id="pergunta1" name="pergunta1" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="rotina_empregos">Como era a rotina dele nos empregos anteriores?</label>
-                        <textarea id="rotina_empregos" name="rotina_empregos"></textarea>
+                        <label for="pergunta2">Como era a rotina dele nos empregos anteriores?</label>
+                        <textarea id="pergunta2" name="pergunta2" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="motivou_hering">O que o motivou a buscar uma oportunidade na Hering?</label>
-                        <textarea id="motivou_hering" name="motivou_hering"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="emprego_gostou">De qual emprego ele mais gostou?</label>
-                        <textarea id="emprego_gostou" name="emprego_gostou"></textarea>
+                        <label for="pergunta3">O que o motivou a buscar uma oportunidade na Hering?</label>
+                        <textarea id="pergunta3" name="pergunta3" required></textarea>
                     </div>
                 </div>
 
                 <!-- Bloco 3: Avaliando as Competências -->
                 <div class="form-block">
-                    <h2><i class="fas fa-star"></i> Avaliando as Competências</h2>
+                    <h2>Avaliando as Competências</h2>
 
                     <!-- Foco em Resultado -->
                     <div class="question-section">
                         <div class="question-title">Foco em Resultado: Conte-me sobre algum resultado inesperado, onde você que tenha ultrapassado as expectativas ou metas.</div>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="foco_resultado" value="sim" required>
+                                <input type="radio" name="focoResultado" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="foco_resultado" value="nao" required>
+                                <input type="radio" name="focoResultado" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="foco_resultado" value="em_parte" required>
+                                <input type="radio" name="focoResultado" value="em_parte" required>
                                 <span class="radio-custom"></span>
                                 Em parte
                             </label>
@@ -439,17 +460,17 @@
                         <div class="question-title">Relacionamento: Conte-me uma situação onde você teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="relacionamento_conflito" value="sim" required>
+                                <input type="radio" name="relacionamento" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="relacionamento_conflito" value="nao" required>
+                                <input type="radio" name="relacionamento" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="relacionamento_conflito" value="em_parte" required>
+                                <input type="radio" name="relacionamento" value="em_parte" required>
                                 <span class="radio-custom"></span>
                                 Em parte
                             </label>
@@ -480,7 +501,7 @@
 
                     <!-- Comunicação -->
                     <div class="question-section">
-                        <div class="question-title">Comunicação: Conte-me uma situação em que algo que você tenha dito foi interpretado de maneira equívoca pelos seus colegas ou pelo seu gestor.</div>
+                        <div class="question-title">Comunicação: Conte-me uma situação em que algo você tenha dito foi interpretado de maneira equívoca pelos seus colegas ou pelo seu gestor.</div>
                         <div class="radio-group">
                             <label class="radio-option">
                                 <input type="radio" name="comunicacao" value="sim" required>
@@ -503,22 +524,22 @@
 
                 <!-- Bloco 4: Domínio Técnico -->
                 <div class="form-block">
-                    <h2><i class="fas fa-cogs"></i> Domínio Técnico</h2>
+                    <h2>Domínio Técnico</h2>
                     <div class="question-section">
                         <div class="question-title">Conte-me uma situação em que o seu conhecimento técnico fez a diferença na sua função.</div>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="dominio_tecnico" value="sim" required>
+                                <input type="radio" name="dominioTecnico" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="dominio_tecnico" value="nao" required>
+                                <input type="radio" name="dominioTecnico" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="dominio_tecnico" value="em_parte" required>
+                                <input type="radio" name="dominioTecnico" value="em_parte" required>
                                 <span class="radio-custom"></span>
                                 Em parte
                             </label>
@@ -528,22 +549,22 @@
 
                 <!-- Bloco 5: Trabalho em Equipe -->
                 <div class="form-block">
-                    <h2><i class="fas fa-users"></i> Trabalho em Equipe</h2>
+                    <h2>Trabalho em Equipe</h2>
                     <div class="question-section">
-                        <div class="question-title">Conte-me uma situação em que você não gostava de um colega de trabalho e como se para a situação apresentada pelo candidato evidenciou a competência?</div>
+                        <div class="question-title">Conte-me uma situação em que você não gostava de um colega de trabalho e como fez para a situação apresentada pelo candidato evidenciou a competência?</div>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="trabalho_equipe" value="sim" required>
+                                <input type="radio" name="trabalhoEquipe" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="trabalho_equipe" value="nao" required>
+                                <input type="radio" name="trabalhoEquipe" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="trabalho_equipe" value="em_parte" required>
+                                <input type="radio" name="trabalhoEquipe" value="em_parte" required>
                                 <span class="radio-custom"></span>
                                 Em parte
                             </label>
@@ -553,22 +574,22 @@
 
                 <!-- Bloco 6: Solução de Problemas -->
                 <div class="form-block">
-                    <h2><i class="fas fa-lightbulb"></i> Solução de Problemas</h2>
+                    <h2>Solução de Problemas</h2>
                     <div class="question-section">
                         <div class="question-title">Conte-me uma situação em que você encontrou um espaço desorganizado e como você a situação apresentada pelo candidato evidenciou a competência?</div>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="solucao_problemas" value="sim" required>
+                                <input type="radio" name="solucaoProblemas" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="solucao_problemas" value="nao" required>
+                                <input type="radio" name="solucaoProblemas" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="solucao_problemas" value="em_parte" required>
+                                <input type="radio" name="solucaoProblemas" value="em_parte" required>
                                 <span class="radio-custom"></span>
                                 Em parte
                             </label>
@@ -576,36 +597,41 @@
                     </div>
                 </div>
 
-                <!-- Bloco 7: Escolaridade e Curso -->
+                <!-- Bloco 7: Escolaridade e Conhecimento -->
                 <div class="form-block">
-                    <h2><i class="fas fa-graduation-cap"></i> Escolaridade e Curso</h2>
+                    <h2>Escolaridade e Conhecimento</h2>
                     <div class="form-group">
-                        <label>3º Passo - Escolaridade / Grau de Instrução:</label>
+                        <label>Grau de Instrução:</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="escolaridade" value="ensino_medio_cursando" required>
+                                <input type="radio" name="grauInstrucao" value="ensino_fundamental" required>
                                 <span class="radio-custom"></span>
-                                Ensino Médio Cursando ou Incompleto
+                                Ensino Fundamental
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="escolaridade" value="ensino_medio_completo" required>
+                                <input type="radio" name="grauInstrucao" value="ensino_medio_incompleto" required>
                                 <span class="radio-custom"></span>
-                                Ensino Médio Completo
+                                Ensino Médio Incompleto
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="escolaridade" value="ensino_superior_cursando" required>
+                                <input type="radio" name="grauInstrucao" value="ensino_medio" required>
                                 <span class="radio-custom"></span>
-                                Ensino Superior Cursando ou Incompleto
+                                Ensino Médio
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="escolaridade" value="ensino_superior_completo" required>
+                                <input type="radio" name="grauInstrucao" value="ensino_superior_cursando" required>
+                                <span class="radio-custom"></span>
+                                Ensino Superior Cursando
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="grauInstrucao" value="ensino_superior_completo" required>
                                 <span class="radio-custom"></span>
                                 Ensino Superior Completo
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Em caso de cursos que necessitam de estágio, o candidato:</label>
+                        <label>Em caso de cursos que necessitem de estágio, o candidato:</label>
                         <div class="radio-group">
                             <label class="radio-option">
                                 <input type="radio" name="estagio" value="ja_realizou" required>
@@ -613,36 +639,26 @@
                                 Já realizou o estágio
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="estagio" value="nao_realizou" required>
-                                <span class="radio-custom"></span>
-                                Não realizou o estágio
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="estagio" value="ainda_vai_realizar" required>
-                                <span class="radio-custom"></span>
-                                Ainda irá realizar
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="estagio" value="nao_obrigatorio" required>
+                                <input type="radio" name="estagio" value="nao_e_obrigatorio" required>
                                 <span class="radio-custom"></span>
                                 Não é obrigatório
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="curso_superior">Em caso de curso superior: Curso Escolhido:</label>
-                        <input type="text" id="curso_superior" name="curso_superior">
+                        <label for="curso">Em caso de curso superior, curso escolhido:</label>
+                        <input type="text" id="curso" name="curso">
                     </div>
                     <div class="form-group">
                         <label>Pretende seguir carreira na área?</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="carreira_area" value="sim" required>
+                                <input type="radio" name="carreiraArea" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="carreira_area" value="nao" required>
+                                <input type="radio" name="carreiraArea" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
@@ -652,35 +668,35 @@
 
                 <!-- Bloco 8: Aspectos Pessoais e Familiares -->
                 <div class="form-block">
-                    <h2><i class="fas fa-home"></i> Aspectos Pessoais e Familiares</h2>
+                    <h2>Aspectos Pessoais e Familiares</h2>
                     <div class="form-group">
                         <label>Mora com:</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="mora_com" value="pais" required>
+                                <input type="radio" name="moraCom" value="pais" required>
                                 <span class="radio-custom"></span>
                                 Pais
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="mora_com" value="marido_esposa" required>
+                                <input type="radio" name="moraCom" value="marido_esposa" required>
                                 <span class="radio-custom"></span>
                                 Marido/Esposa
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="mora_com" value="sozinho" required>
+                                <input type="radio" name="moraCom" value="sozinho" required>
                                 <span class="radio-custom"></span>
                                 Sozinho
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="mora_com" value="outros" required>
+                                <input type="radio" name="moraCom" value="outros" required>
                                 <span class="radio-custom"></span>
                                 Outros
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Profissão dos pais:</label>
-                        <input type="text" id="profissao_pais" name="profissao_pais">
+                        <label for="profissaoConjuge">Profissão do(a) cônjuge:</label>
+                        <input type="text" id="profissaoConjuge" name="profissaoConjuge">
                     </div>
                     <div class="form-group">
                         <label>O imóvel onde mora é:</label>
@@ -706,12 +722,12 @@
                         <label>Contribui financeiramente em casa?</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="contribui_financeiramente" value="sim" required>
+                                <input type="radio" name="contribuicaoFinanceira" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="contribui_financeiramente" value="nao" required>
+                                <input type="radio" name="contribuicaoFinanceira" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
@@ -719,64 +735,63 @@
                     </div>
                 </div>
 
-                <!-- Bloco 9: Informações Adicionais -->
+                <!-- Bloco 9: Sonhos e Expectativas -->
                 <div class="form-block">
-                    <h2><i class="fas fa-info-circle"></i> Informações Adicionais</h2>
+                    <h2>Sonhos e Expectativas</h2>
                     <div class="form-group">
-                        <label for="melhor_sonho">Qual seu maior sonho?</label>
-                        <textarea id="melhor_sonho" name="melhor_sonho"></textarea>
+                        <label for="maiorSonho">Qual o seu maior sonho?</label>
+                        <textarea id="maiorSonho" name="maiorSonho" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="como_se_define">Como você se define?</label>
-                        <textarea id="como_se_define" name="como_se_define"></textarea>
+                        <label for="comoSeDefine">Como você se define?</label>
+                        <textarea id="comoSeDefine" name="comoSeDefine" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="espera_hering">O que espera com a Hering?</label>
-                        <textarea id="espera_hering" name="espera_hering"></textarea>
+                        <label for="expectativaHering">O que espera com a Hering?</label>
+                        <textarea id="expectativaHering" name="expectativaHering" required></textarea>
                     </div>
                 </div>
 
                 <!-- Bloco 10: Avaliação Final -->
                 <div class="form-block">
-                    <h2><i class="fas fa-check-circle"></i> Avaliação Final</h2>
+                    <h2>Avaliação Final</h2>
                     <div class="form-group">
-                        <label>Candidato Apto para a Vaga?</label>
+                        <label for="parecerGerente">Parecer do Gerente:</label>
+                        <textarea id="parecerGerente" name="parecerGerente" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="nomeAvaliador">Nome do Gerente Avaliador:</label>
+                        <input type="text" id="nomeAvaliador" name="nomeAvaliador" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataAvaliacao">Data da Avaliação:</label>
+                        <input type="date" id="dataAvaliacao" name="dataAvaliacao" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Candidato aprovado para onboarding?</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="apto" value="sim" required>
+                                <input type="radio" name="aprovadoOnboarding" value="sim" required>
                                 <span class="radio-custom"></span>
                                 Sim
                             </label>
                             <label class="radio-option">
-                                <input type="radio" name="apto" value="nao" required>
+                                <input type="radio" name="aprovadoOnboarding" value="nao" required>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="nome_avaliador">Nome do Avaliador *</label>
-                        <input type="text" id="nome_avaliador" name="nome_avaliador" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="data_avaliacao">Data da Avaliação *</label>
-                        <input type="date" id="data_avaliacao" name="data_avaliacao" required>
-                    </div>
                 </div>
 
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-paper-plane"></i> Enviar Avaliação
-                </button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
+                    <button type="reset" class="btn btn-secondary"><i class="fas fa-eraser"></i> Limpar Formulário</button>
+                </div>
 
-                <div id="loadingMessage" class="message loading">
-                    <i class="fas fa-spinner fa-spin"></i> Enviando avaliação...
-                </div>
-                <div id="successMessage" class="message success">
-                    <i class="fas fa-check-circle"></i> Avaliação enviada com sucesso!
-                </div>
-                <div id="errorMessage" class="message error">
-                    <i class="fas fa-times-circle"></i> Erro ao enviar avaliação. Por favor, tente novamente.
-                </div>
+                <div id="loadingMessage" class="message loading">Enviando avaliação...</div>
+                <div id="successMessage" class="message success">Avaliação enviada com sucesso!</div>
+                <div id="errorMessage" class="message error">Erro ao enviar avaliação. Tente novamente.</div>
             </form>
         </div>
 
@@ -787,18 +802,24 @@
 
     <script>
         const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec"; // SEU URL DO APPS SCRIPT AQUI
+        const EMAIL_TARGET = "hs.operacoes.loja@gmail.com"; // E-mail para onde a avaliação será enviada
 
         document.addEventListener("DOMContentLoaded", function( ) {
-            const today = new Date().toISOString().split("T")[0];
-            document.getElementById("data_avaliacao").value = today;
+            // Preencher a data de avaliação com a data atual
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById("dataAvaliacao").value = `${yyyy}-${mm}-${dd}`;
 
             const form = document.getElementById("evaluationForm");
             const loadingMessage = document.getElementById("loadingMessage");
             const successMessage = document.getElementById("successMessage");
             const errorMessage = document.getElementById("errorMessage");
 
-            form.addEventListener("submit", async function(e) {
-                e.preventDefault();
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault();
+
                 loadingMessage.style.display = "block";
                 successMessage.style.display = "none";
                 errorMessage.style.display = "none";
@@ -808,42 +829,95 @@
                 for (let [key, value] of formData.entries()) {
                     data[key] = value;
                 }
-                
-                try {
-                    // Se candidato foi aprovado, perguntar se deseja adicionar à lista de funcionários
-                    let createEmployee = false;
-                    if (data.apto === "sim") {
-                        createEmployee = confirm(`${data.nome} foi aprovado! Deseja adicioná-lo à lista de funcionários para iniciar o processo de onboarding?`);
-                    }
 
-                    // Salvar avaliação e, se confirmado, criar funcionário
-                    const success = await saveEvaluation(data, createEmployee);
-                    
-                    if (!success) {
-                        throw new Error("Falha ao salvar avaliação");
-                    }
-                    
-                    // Esconder loading e mostrar sucesso
-                    loadingMessage.style.display = "none";
-                    successMessage.style.display = "block";
-                    
-                    // Limpar formulário após 3 segundos
-                    setTimeout(() => {
+                // Adicionar data de envio
+                data.dataEnvio = new Date().toLocaleString();
+
+                // Enviar e-mail
+                const emailSent = await sendEmail(data);
+
+                if (emailSent) {
+                    // Salvar avaliação no Google Sheets
+                    const evaluationSaved = await saveEvaluation(data, data.aprovadoOnboarding === "sim");
+
+                    if (evaluationSaved) {
+                        loadingMessage.style.display = "none";
+                        successMessage.style.display = "block";
                         form.reset();
-                        successMessage.style.display = "none";
-                        // Redefinir data atual
-                        const today = new Date().toISOString().split("T")[0];
-                        document.getElementById("data_avaliacao").value = today;
-                    }, 3000);
-                    
-                } catch (error) {
+                        // Re-preencher a data de avaliação com a data atual após o reset
+                        document.getElementById("dataAvaliacao").value = `${yyyy}-${mm}-${dd}`;
+                    } else {
+                        loadingMessage.style.display = "none";
+                        errorMessage.style.display = "block";
+                    }
+                } else {
                     loadingMessage.style.display = "none";
                     errorMessage.style.display = "block";
-                    console.error("Erro:", error);
                 }
             });
 
-            // Salvar avaliação via API
+            async function sendEmail(data) {
+                try {
+                    const response = await fetch(`${BASE_API_URL}?path=sendEmail&method=POST`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain', // Apps Script espera text/plain para postData
+                        },
+                        body: JSON.stringify({
+                            to: EMAIL_TARGET,
+                            subject: `Nova Avaliação de Candidato: ${data.nome}`,
+                            body: `Detalhes da Avaliação:\n\n` +
+                                  `Nome: ${data.nome}\n` +
+                                  `Idade: ${data.idade}\n` +
+                                  `Telefone: ${data.telefone}\n` +
+                                  `E-mail: ${data.email}\n\n` +
+                                  `--- Perguntas ao Candidato ---\n` +
+                                  `De qual emprego ele mais gostou?: ${data.pergunta1}\n` +
+                                  `Como era a rotina dele nos empregos anteriores?: ${data.pergunta2}\n` +
+                                  `O que o motivou a buscar uma oportunidade na Hering?: ${data.pergunta3}\n\n` +
+                                  `--- Avaliando as Competências ---\n` +
+                                  `Foco em Resultado: ${data.focoResultado}\n` +
+                                  `Relacionamento: ${data.relacionamento}\n` +
+                                  `Atitude: ${data.atitude}\n` +
+                                  `Comunicação: ${data.comunicacao}\n\n` +
+                                  `--- Domínio Técnico ---\n` +
+                                  `Conhecimento técnico fez a diferença?: ${data.dominioTecnico}\n\n` +
+                                  `--- Trabalho em Equipe ---\n` +
+                                  `Situação de trabalho em equipe: ${data.trabalhoEquipe}\n\n` +
+                                  `--- Solução de Problemas ---\n` +
+                                  `Espaço desorganizado: ${data.solucaoProblemas}\n\n` +
+                                  `--- Escolaridade e Conhecimento ---\n` +
+                                  `Grau de Instrução: ${data.grauInstrucao}\n` +
+                                  `Estágio: ${data.estagio}\n` +
+                                  `Curso: ${data.curso || 'N/A'}\n` +
+                                  `Carreira na área: ${data.carreiraArea}\n\n` +
+                                  `--- Aspectos Pessoais e Familiares ---\n` +
+                                  `Mora com: ${data.moraCom}\n` +
+                                  `Profissão Cônjuge: ${data.profissaoConjuge || 'N/A'}\n` +
+                                  `Imóvel: ${data.imovel}\n` +
+                                  `Contribui financeiramente: ${data.contribuicaoFinanceira}\n\n` +
+                                  `--- Sonhos e Expectativas ---\n` +
+                                  `Maior Sonho: ${data.maiorSonho}\n` +
+                                  `Como se define: ${data.comoSeDefine}\n` +
+                                  `Expectativa com Hering: ${data.expectativaHering}\n\n` +
+                                  `--- Avaliação Final ---\n` +
+                                  `Parecer do Gerente: ${data.parecerGerente}\n` +
+                                  `Nome do Gerente Avaliador: ${data.nomeAvaliador}\n` +
+                                  `Data da Avaliação: ${data.dataAvaliacao}\n` +
+                                  `Aprovado para Onboarding: ${data.aprovadoOnboarding === 'sim' ? 'Sim' : 'Não'}\n\n` +
+                                  `Data de Envio: ${data.dataEnvio}`
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    return result.success;
+                } catch (error) {
+                    console.error("Erro ao enviar e-mail:", error);
+                    return false;
+                }
+            }
+
+            // Salvar avaliação no Google Sheets e criar funcionário se aprovado
             async function saveEvaluation(data, createEmployee) {
                 try {
                     const response = await fetch(`${BASE_API_URL}?path=evaluations&method=POST`, {
@@ -852,8 +926,12 @@
                             'Content-Type': 'text/plain', // Apps Script espera text/plain para postData
                         },
                         body: JSON.stringify({
-                            ...data,
-                            createEmployee: createEmployee
+                            evaluationData: data,
+                            createEmployee: createEmployee,
+                            employeeName: data.nome,
+                            employeeEmail: data.email,
+                            employeeManager: data.nomeAvaliador,
+                            employeeStartDate: new Date().toISOString().split('T')[0] // Data atual como padrão
                         })
                     });
                     
