@@ -1,59 +1,518 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão de RH - Redirecionando...</title>
+    <title>Sistema de Gestão de RH - Home</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Reset e configurações básicas */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
             background: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        
-        .loading-container {
+            padding: 60px 30px;
             text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.3);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
         }
-        
-        .loading-icon {
-            font-size: 3em;
-            color: #4CAF50;
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon {
+            font-size: 4em;
             margin-bottom: 20px;
-            animation: spin 1s linear infinite;
+            color: #4CAF50;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .header h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
         }
-        
-        h1 {
-            font-size: 1.5em;
+
+        .header h2 {
+            font-size: 1.6em;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #ecf0f1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: .9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Cards de navegação */
+        .navigation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .nav-card {
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-card:hover::before {
+            left: 100%;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            border-color: #4CAF50;
+            box-shadow: 0 15px 35px rgba(0,0,0,.4);
+        }
+
+        .nav-card.evaluation {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .nav-card.onboarding {
+            border-left: 4px solid #2196F3;
+        }
+
+        .nav-card.employees {
+            border-left: 4px solid #FF9800;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-card.evaluation .card-icon {
+            color: #4CAF50;
+        }
+
+        .nav-card.onboarding .card-icon {
+            color: #2196F3;
+        }
+
+        .nav-card.employees .card-icon {
+            color: #FF9800;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-description {
+            font-size: 1.1em;
+            color: #bbb;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-top: 20px;
+            text-align: left;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-features li {
+            color: #ddd;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        /* Estatísticas */
+        .stats-section {
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 40px 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
+        }
+
+        .stats-title {
+            text-align: center;
+            color: #fff;
+            font-size: 2em;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+        }
+
+        .stat-item {
+            background: #3a3a3a;
+            padding: 25px 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #4CAF50;
             margin-bottom: 10px;
         }
-        
-        p {
-            color: #bbb;
+
+        .stat-label {
+            color: #ddd;
+            font-size: 1.1em;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #888;
+            padding: 30px 0;
+            border-top: 2px solid #333;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .footer-links a {
+            color: #4CAF50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #45a049;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .navigation-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .nav-card {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .header h2 {
+                font-size: 1.3em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .nav-card {
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .nav-card:nth-child(1) { animation-delay: 0.1s; }
+        .nav-card:nth-child(2) { animation-delay: 0.2s; }
+        .nav-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading-container">
-        <div class="loading-icon">⚙️</div>
-        <h1>Sistema de Gestão de RH</h1>
-        <p>Redirecionando para a página inicial...</p>
+    <div class="container">
+        <!-- Header -->
+        <header class="header fade-in">
+            <div class="header-content">
+                <i class="fas fa-users-cog header-icon"></i>
+                <h1>SISTEMA DE GESTÃO DE RH</h1>
+                <h2>Plataforma Integrada de Recursos Humanos</h2>
+                <p>Gerencie todo o processo desde a avaliação de candidatos até o onboarding completo dos novos funcionários</p>
+            </div>
+        </header>
+
+        <!-- Navegação Principal -->
+        <div class="navigation-grid">
+            <!-- Card Avaliação de Candidatos -->
+            <a href="avaliacao.html" class="nav-card evaluation">
+                <i class="fas fa-user-check card-icon"></i>
+                <h3 class="card-title">Avaliação de Candidatos</h3>
+                <p class="card-description">
+                    Realize avaliações completas de candidatos durante o processo seletivo
+                </p>
+                <ul class="card-features">
+                    <li>Coleta de dados pessoais</li>
+                    <li>Análise de competências</li>
+                    <li>Perguntas personalizadas</li>
+                    <li>Situações práticas</li>
+                    <li>Envio automático por email</li>
+                </ul>
+            </a>
+
+            <!-- Card Lista de Funcionários -->
+            <a href="funcionarios.html" class="nav-card employees">
+                <i class="fas fa-users card-icon"></i>
+                <h3 class="card-title">Lista de Funcionários</h3>
+                <p class="card-description">
+                    Gerencie funcionários aprovados e seus processos de onboarding
+                </p>
+                <ul class="card-features">
+                    <li>Candidatos aprovados</li>
+                    <li>Status de onboarding</li>
+                    <li>Progresso individual</li>
+                    <li>Relatórios detalhados</li>
+                    <li>Gestão centralizada</li>
+                </ul>
+            </a>
+
+            <!-- Card Sistema de Onboarding -->
+            <a href="onboarding.html" class="nav-card onboarding">
+                <i class="fas fa-route card-icon"></i>
+                <h3 class="card-title">Sistema de Onboarding</h3>
+                <p class="card-description">
+                    Acompanhe a jornada completa de integração dos novos funcionários
+                </p>
+                <ul class="card-features">
+                    <li>Checklist por etapas</li>
+                    <li>Progresso visual</li>
+                    <li>6 passos estruturados</li>
+                    <li>Salvamento automático</li>
+                    <li>Relatórios de progresso</li>
+                </ul>
+            </a>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-section fade-in">
+            <h3 class="stats-title">
+                <i class="fas fa-chart-bar"></i>
+                Estatísticas do Sistema
+            </h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCandidates">0</div>
+                    <div class="stat-label">Candidatos Avaliados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="approvedCandidates">0</div>
+                    <div class="stat-label">Candidatos Aprovados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeEmployees">0</div>
+                    <div class="stat-label">Funcionários Ativos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedOnboarding">0</div>
+                    <div class="stat-label">Onboarding Concluído</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Sistema de Gestão de RH. Desenvolvido para otimizar processos de recursos humanos.</p>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-question-circle"></i> Ajuda</a>
+                <a href="#"><i class="fas fa-cog"></i> Configurações</a>
+                <a href="#"><i class="fas fa-file-alt"></i> Documentação</a>
+            </div>
+        </footer>
     </div>
 
     <script>
-        // Redirecionar para home.html após 2 segundos
-        setTimeout(() => {
-            window.location.href = 'home.html';
-        }, 2000);
+        // Simular estatísticas (em produção, viriam de um banco de dados)
+        function loadStatistics() {
+            // Buscar dados do localStorage
+            const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
+            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            // Calcular estatísticas
+            const totalCandidates = evaluations.length;
+            const approvedCandidates = evaluations.filter(e => e.apto_vaga === 'sim').length;
+            const activeEmployees = employees.length;
+            const completedOnboarding = employees.filter(e => e.onboardingComplete).length;
+            
+            // Animar números
+            animateNumber('totalCandidates', totalCandidates);
+            animateNumber('approvedCandidates', approvedCandidates);
+            animateNumber('activeEmployees', activeEmployees);
+            animateNumber('completedOnboarding', completedOnboarding);
+        }
+
+        function animateNumber(elementId, targetNumber) {
+            const element = document.getElementById(elementId);
+            const duration = 2000; // 2 segundos
+            const steps = 60;
+            const increment = targetNumber / steps;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetNumber) {
+                    current = targetNumber;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, duration / steps);
+        }
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStatistics();
+            
+            // Adicionar efeito de hover nos cards
+            const cards = document.querySelectorAll('.nav-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-10px) scale(1)';
+                });
+            });
+        });
+
+        // Função para verificar se há dados salvos
+        function checkSavedData() {
+            const evaluations = localStorage.getItem('evaluations');
+            const employees = localStorage.getItem('employees');
+            
+            if (!evaluations) {
+                localStorage.setItem('evaluations', JSON.stringify([]));
+            }
+            
+            if (!employees) {
+                localStorage.setItem('employees', JSON.stringify([]));
+            }
+        }
+
+        // Inicializar dados se necessário
+        checkSavedData();
     </script>
 </body>
 </html>
+
