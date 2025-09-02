@@ -97,51 +97,63 @@
         /* Informações do Funcionário */
         .employee-info {
             background: #2a2a2a;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             margin-bottom: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,.2);
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
-            justify-content: space-between;
             border-left: 5px solid #2196F3;
         }
 
         .employee-info div {
-            flex: 1 1 auto;
-            min-width: 150px;
-            color: #e0e0e0;
+            flex: 1;
+            min-width: 200px;
         }
 
         .employee-info h2 {
+            color: #e0e0e0;
             font-size: 1.8em;
-            color: #2196F3;
             margin-bottom: 5px;
         }
 
         .employee-info p {
-            font-size: 1em;
             color: #bbb;
+            font-size: 0.95em;
         }
 
         /* Barra de Progresso */
         .progress-container {
-            width: 100%;
-            background-color: #444;
-            border-radius: 20px;
-            height: 25px;
-            overflow: hidden;
-            margin-top: 15px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,.2);
+            border-left: 5px solid #4CAF50;
         }
 
-        .progress-bar {
+        .progress-container h3 {
+            color: #e0e0e0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            background-color: #444;
+            border-radius: 10px;
+            height: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-inner {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
-            border-radius: 20px;
+            background: linear-gradient(90deg, #4CAF50 0%, #388E3C 100%);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -171,56 +183,50 @@
         }
 
         .step-header {
-            padding: 20px;
-            background: #3a3a3a;
-            color: #fff;
             display: flex;
             align-items: center;
+            padding: 20px;
             cursor: pointer;
-            transition: background-color .3s ease;
+            background: #3a3a3a;
+            color: #e0e0e0;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
         }
 
         .step-header:hover {
-            background-color: #4a4a4a;
-        }
-
-        .step-header h3 {
-            margin: 0;
-            font-size: 1.5em;
-            flex-grow: 1;
+            background: #444;
         }
 
         .step-header i {
-            font-size: 1.2em;
             margin-right: 15px;
             color: #FF9800;
         }
 
+        .step-header h3 {
+            flex-grow: 1;
+            margin: 0;
+        }
+
         .step-toggle {
-            transition: transform .3s ease;
+            transition: transform 0.3s ease;
         }
 
         .step-content {
-            padding: 0 20px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
-        }
-
-        .step-section.open .step-content {
-            max-height: 1000px; /* Valor grande o suficiente para conter o conteúdo */
             padding: 20px;
+            display: none;
+            border-top: 1px solid #333;
         }
 
-        .step-section.open .step-toggle {
-            transform: rotate(180deg);
+        .step-content.expanded {
+            display: block;
         }
 
         .checklist-item {
             display: flex;
-            align-items: flex-start;
-            padding: 15px 0;
-            border-bottom: 1px solid #444;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
             cursor: pointer;
             transition: background-color .2s ease;
         }
@@ -230,43 +236,38 @@
         }
 
         .checklist-item:hover {
-            background-color: #3a3a3a;
+            background-color: #333;
         }
 
         .checklist-item .checkbox-custom {
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border: 2px solid #bbb;
             border-radius: 5px;
             margin-right: 15px;
-            position: relative;
-            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all .2s ease;
         }
 
         .checklist-item.completed .checkbox-custom {
-            background-color: #2ecc71;
-            border-color: #2ecc71;
+            background-color: #4CAF50;
+            border-color: #4CAF50;
         }
 
         .checklist-item.completed .checkbox-custom::after {
-            content: '\2713'; /* Checkmark */
-            font-size: 18px;
+            content: '\f00c'; /* FontAwesome check icon */
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
             color: #fff;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .checklist-item div {
-            flex-grow: 1;
+            font-size: 14px;
         }
 
         .checklist-item .item-text {
             color: #e0e0e0;
             font-weight: bold;
-            font-size: 1.1em;
+            flex-grow: 1;
         }
 
         .checklist-item .item-description {
@@ -283,13 +284,12 @@
         /* Botões de Ação */
         .action-buttons {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            justify-content: flex-end;
+            gap: 15px;
             margin-top: 30px;
-            flex-wrap: wrap;
         }
 
-        .btn {
+        .action-buttons .btn {
             padding: 12px 25px;
             border: none;
             border-radius: 8px;
@@ -299,26 +299,25 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
+        }
+
+        .action-buttons .btn-primary {
+            background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%);
             color: #fff;
         }
 
-        .btn-primary {
-            background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%);
-        }
-
-        .btn-primary:hover {
+        .action-buttons .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,.4);
         }
 
-        .btn-secondary {
-            background: #666;
+        .action-buttons .btn-secondary {
+            background-color: #666;
+            color: #fff;
         }
 
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,.4);
+        .action-buttons .btn-secondary:hover {
+            background-color: #555;
         }
 
         /* Footer */
@@ -341,45 +340,18 @@
                 align-items: flex-start;
             }
 
-            .step-header h3 {
-                font-size: 1.3em;
-            }
-
-            .checklist-item {
-                padding: 10px 0;
+            .employee-info div {
+                min-width: unset;
+                width: 100%;
             }
 
             .action-buttons {
                 flex-direction: column;
+                align-items: stretch;
             }
 
-            .btn {
+            .action-buttons .btn {
                 width: 100%;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                padding: 30px 15px;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .navbar a {
-                margin: 0 5px;
-                padding: 8px 15px;
-                font-size: .9em;
-            }
-
-            .employee-info {
-                padding: 20px;
-            }
-
-            .step-header h3 {
-                font-size: 1.1em;
             }
         }
     </style>
@@ -387,266 +359,225 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>Sistema de Onboarding</h1>
-            <p>Acompanhe o progresso do novo funcionário.</p>
+            <h1>Onboarding de Novo Funcionário</h1>
+            <p>Acompanhe o progresso de integração do seu novo colaborador.</p>
         </header>
 
         <nav class="navbar">
-            <a href="home.html"><i class="fas fa-home"></i> Home</a>
-            <a href="funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
+            <a href="./home.html"><i class="fas fa-home"></i> Home</a>
+            <a href="./funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
         </nav>
 
-        <div class="employee-info" id="employeeInfo">
-            <!-- Informações do funcionário serão carregadas aqui -->
+        <div class="employee-info">
             <div>
-                <h2 id="employeeName">Carregando...</h2>
-                <p>Cargo: <span id="employeePosition"></span></p>
-                <p>Gerente: <span id="employeeManager"></span></p>
-                <p>Início: <span id="employeeStartDate"></span></p>
+                <h2><span id="employeeName">Carregando...</span></h2>
+                <p><strong>Cargo:</strong> <span id="employeePosition">Carregando...</span></p>
             </div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar">0%</div>
+            <div>
+                <p><strong>Gerente:</strong> <span id="employeeManager">Carregando...</span></p>
+                <p><strong>Início:</strong> <span id="employeeStartDate">Carregando...</span></p>
             </div>
         </div>
 
-        <!-- Seções de Passo a Passo -->
-        <div class="onboarding-steps">
-            <!-- 1º Passo - Primeiro Dia -->
-            <div class="step-section" id="stepSection1">
-                <div class="step-header" onclick="toggleStep('step1')">
-                    <i class="fas fa-sun"></i>
-                    <h3>1º Passo - Primeiro Dia</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle1"></i>
+        <div class="progress-container">
+            <h3>Progresso do Onboarding</h3>
+            <div class="progress-bar-outer">
+                <div class="progress-bar-inner" id="progressBar">0%</div>
+            </div>
+        </div>
+
+        <!-- 1º Passo - Primeiro Dia -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step1')">
+                <i class="fas fa-sun"></i>
+                <h3>1º Passo - Primeiro Dia</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle1"></i>
+            </div>
+            <div class="step-content" id="step1">
+                <div class="checklist-item" data-task-id="1.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">1.1 - Anúncio de vaga</div>
+                        <div class="item-description">Verificar se a vaga foi anunciada corretamente</div>
+                    </div>
                 </div>
-                <div class="step-content" id="step1">
-                    <div class="checklist-item" data-task-id="1" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.1 - Anúncio de vaga</div>
-                            <div class="item-description">Publicação da vaga em plataformas</div>
-                        </div>
+                <div class="checklist-item" data-task-id="1.2" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">1.2 - Recebimento de currículo</div>
+                        <div class="item-description">Confirmar recebimento e triagem inicial</div>
                     </div>
-                    <div class="checklist-item" data-task-id="2" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.2 - Recebimento de currículo</div>
-                            <div class="item-description">Triagem inicial de currículos</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="3" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.3 - Compartilhar com Amanda e buscar informações</div>
-                            <div class="item-description">Coleta de dados adicionais</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="4" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.4 - Marcar entrevista</div>
-                            <div class="item-description">Agendamento da entrevista com o candidato</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="5" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.5 - Compartilhar com Silvana para tirar mais uma opinião sobre contratação</div>
-                            <div class="item-description">Feedback de outros membros da equipe</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="6" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.6 - Validar com Jose Eduardo</div>
-                            <div class="item-description">Aprovação final do processo</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="7" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">1.7 - Acionar Amanda para processo, fazer o registro, fazer o cadastro no Linx, fazer o cadastro no OTO e fazer o cadastro no Academia Hering</div>
-                            <div class="item-description">Finalização do processo de contratação</div>
-                        </div>
+                </div>
+                <div class="checklist-item" data-task-id="1.3" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">1.3 - Compartilhar com Amanda e buscar</div>
+                        <div class="item-description">Revisão e feedback de Amanda</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 2º Passo - Primeiro Dia de Trabalho -->
-            <div class="step-section" id="stepSection2">
-                <div class="step-header" onclick="toggleStep('step2')">
-                    <i class="fas fa-briefcase"></i>
-                    <h3>2º Passo - Primeiro Dia de Trabalho</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle2"></i>
+        <!-- 2º Passo - Segundo Dia -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step2')">
+                <i class="fas fa-cloud"></i>
+                <h3>2º Passo - Segundo Dia</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle2"></i>
+            </div>
+            <div class="step-content" id="step2">
+                <div class="checklist-item" data-task-id="2.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">2.1 - Fazer integração na empresa</div>
+                        <div class="item-description">Apresentação da equipe e ambiente</div>
+                    </div>
                 </div>
-                <div class="step-content" id="step2">
-                    <div class="checklist-item" data-task-id="8" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">2.1 - Fazer integração na empresa</div>
-                            <div class="item-description">Apresentação da equipe e ambiente</div>
-                        </div>
+                <div class="checklist-item" data-task-id="2.2" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">2.2 - Apresentar todas Ferramentas</div>
+                        <div class="item-description">Introdução às ferramentas de trabalho</div>
                     </div>
-                    <div class="checklist-item" data-task-id="9" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">2.2 - Apresentar todas ferramentas</div>
-                            <div class="item-description">Treinamento em sistemas e softwares</div>
-                        </div>
+                </div>
+                <div class="checklist-item" data-task-id="2.3" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">2.3 - Apresentar chão de loja</div>
+                        <div class="item-description">Visita guiada pela loja</div>
                     </div>
-                    <div class="checklist-item" data-task-id="10" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">2.3 - Apresentar todo estoque</div>
-                            <div class="item-description">Visita e organização do estoque</div>
-                        </div>
-                    </div>
-                    <div class="checklist-item" data-task-id="11" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">2.4 - Apresentar chão de loja</div>
-                            <div class="item-description">Conhecimento do layout da loja</div>
-                        </div>
+                </div>
+                <div class="checklist-item" data-task-id="2.4" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">2.4 - Apresentar choque</div>
+                        <div class="item-description">Primeiro contato com a realidade do trabalho</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 3º Passo - Segundo Dia -->
-            <div class="step-section" id="stepSection3">
-                <div class="step-header" onclick="toggleStep('step3')">
-                    <i class="fas fa-calendar-day"></i>
-                    <h3>3º Passo - Segundo Dia</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle3"></i>
-                </div>
-                <div class="step-content" id="step3">
-                    <div class="checklist-item" data-task-id="12" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">3.1 - Prática com ferramentas e Loja (Academia Hering, Indeva e Oto)</div>
-                            <div class="item-description">Treinamento prático no ambiente de trabalho</div>
-                        </div>
+        <!-- 3º Passo - Terceiro Dia -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step3')">
+                <i class="fas fa-leaf"></i>
+                <h3>3º Passo - Terceiro Dia</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle3"></i>
+            </div>
+            <div class="step-content" id="step3">
+                <div class="checklist-item" data-task-id="3.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">3.1 - Prática com ferramentas e Loja</div>
+                        <div class="item-description">Treinamento prático no ambiente de trabalho</div>
                     </div>
-                    <div class="checklist-item" data-task-id="13" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">3.2 - Somente avançar desse passo após completar no Academia Hering as agendas de Boa Vindas, Atendimento 360 e Produto</div>
-                            <div class="item-description">Conclusão dos treinamentos obrigatórios</div>
-                        </div>
+                </div>
+                <div class="checklist-item" data-task-id="3.2" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">3.2 - Ensino superior ou técnico</div>
+                        <div class="item-description">Verificar necessidades de capacitação</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 4º Passo - Terceiro Dia -->
-            <div class="step-section" id="stepSection4">
-                <div class="step-header" onclick="toggleStep('step4')">
-                    <i class="fas fa-calendar-alt"></i>
-                    <h3>4º Passo - Terceiro Dia</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle4"></i>
+        <!-- 4º Passo - Quarto e Quinto Dia -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step4')">
+                <i class="fas fa-tasks"></i>
+                <h3>4º Passo - Quarto e Quinto Dia</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle4"></i>
+            </div>
+            <div class="step-content" id="step4">
+                <div class="checklist-item" data-task-id="4.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">4.1 - Conhecer estoque, conhecer ranking de produtos</div>
+                        <div class="item-description">Estudo dos produtos mais vendidos</div>
+                    </div>
                 </div>
-                <div class="step-content" id="step4">
-                    <div class="checklist-item" data-task-id="14" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">4.1 - Conhecer estoque, conhecer ranking de produtos e sua importância no portfólio</div>
-                            <div class="item-description">Estudo aprofundado de produtos e vendas</div>
-                        </div>
+                <div class="checklist-item" data-task-id="4.2" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">4.2 - Produtos e sua importância no portfólio</div>
+                        <div class="item-description">Compreender estratégia de produtos</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 5º Passo - Quarto, Quinto e Sexto dia -->
-            <div class="step-section" id="stepSection5">
-                <div class="step-header" onclick="toggleStep('step5')">
-                    <i class="fas fa-calendar-week"></i>
-                    <h3>5º Passo - Quarto, Quinto e Sexto dia</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle5"></i>
+        <!-- 5º Passo - Primeira Semana -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step5')">
+                <i class="fas fa-calendar-week"></i>
+                <h3>5º Passo - Primeira Semana</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle5"></i>
+            </div>
+            <div class="step-content" id="step5">
+                <div class="checklist-item" data-task-id="5.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">5.1 - Iniciar atendimento com acompanhamento</div>
+                        <div class="item-description">Primeiros atendimentos supervisionados</div>
+                    </div>
                 </div>
-                <div class="step-content" id="step5">
-                    <div class="checklist-item" data-task-id="15" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">5.1 - Iniciar atendimento com acompanhamento 100% da gerente</div>
-                            <div class="item-description">Atendimento supervisionado pela gerente</div>
-                        </div>
+                <div class="checklist-item" data-task-id="5.2" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">5.2 - 100% da gerente</div>
+                        <div class="item-description">Acompanhamento total pela gerente</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 6º Passo - Sétimo dia -->
-            <div class="step-section" id="stepSection6">
-                <div class="step-header" onclick="toggleStep('step6')">
-                    <i class="fas fa-calendar-check"></i>
-                    <h3>6º Passo - Sétimo dia</h3>
-                    <i class="fas fa-chevron-down step-toggle" id="toggle6"></i>
-                </div>
-                <div class="step-content" id="step6">
-                    <div class="checklist-item" data-task-id="16" onclick="toggleTask(this)">
-                        <div class="checkbox-custom"></div>
-                        <div>
-                            <div class="item-text">6.1 - Validação da semana pelo gerente e repassada</div>
-                            <div class="item-description">Revisão e feedback da primeira semana</div>
-                        </div>
+        <!-- 6º Passo - Validação Final -->
+        <div class="step-section">
+            <div class="step-header" onclick="toggleStep('step6')">
+                <i class="fas fa-check-double"></i>
+                <h3>6º Passo - Validação Final</h3>
+                <i class="fas fa-chevron-down step-toggle" id="toggle6"></i>
+            </div>
+            <div class="step-content" id="step6">
+                <div class="checklist-item" data-task-id="6.1" onclick="toggleTask(this)">
+                    <div class="checkbox-custom"></div>
+                    <div>
+                        <div class="item-text">6.1 - Validação da semana pelo gerente e repassada</div>
+                        <div class="item-description">Revisão final do progresso com a gerente</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="action-buttons">
-            <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-file-alt"></i> Gerar Relatório</button>
-            <a href="funcionarios.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Voltar para Lista</a>
+            <button class="btn btn-secondary" onclick="generateReport()"><i class="fas fa-file-alt"></i> Gerar Relatório</button>
+            <button class="btn btn-primary" onclick="saveProgress()"><i class="fas fa-save"></i> Salvar Progresso</button>
         </div>
-
-        <footer>
-            <p>&copy; 2025 Sistema de Gestão de RH. Todos os direitos reservados.</p>
-        </footer>
     </div>
+
+    <footer>
+        <p>&copy; 2025 Sistema de Gestão de RH. Todos os direitos reservados.</p>
+    </footer>
 
     <script>
         const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec"; // SEU URL DO APPS SCRIPT AQUI
         let employeeData = null;
-        const totalTasks = 16; // Total de tarefas no checklist
+        const totalTasks = 14; // Total de tarefas no checklist
 
-        document.addEventListener("DOMContentLoaded", ( ) => {
+        document.addEventListener("DOMContentLoaded", async function( ) {
             const urlParams = new URLSearchParams(window.location.search);
-            const employeeId = urlParams.get('id');
+            const employeeId = urlParams.get("id");
 
             if (employeeId) {
-                loadEmployeeOnboarding(employeeId);
+                await loadEmployeeData(employeeId);
             } else {
-                alert("ID do funcionário não fornecido. Redirecionando para a lista de funcionários.");
-                window.location.href = "funcionarios.html";
+                alert("ID do funcionário não encontrado na URL. Redirecionando para a lista de funcionários.");
+                window.location.href = "./funcionarios.html";
+                return;
             }
-        });
 
-        async function loadEmployeeOnboarding(employeeId) {
-            try {
-                const response = await fetch(`${BASE_API_URL}?path=employees/${employeeId}&method=GET`);
-                const result = await response.json();
-
-                if (result.success && result.data) {
-                    employeeData = result.data;
-                    renderEmployeeInfo();
-                    loadOnboardingProgress();
-                } else {
-                    alert("Funcionário não encontrado ou erro ao carregar dados.");
-                    window.location.href = "funcionarios.html";
-                }
-            } catch (error) {
-                console.error("Erro ao carregar dados do funcionário:", error);
-                alert("Erro de conexão. Verifique sua internet e tente novamente.");
-                window.location.href = "funcionarios.html";
-            }
-        }
-
-        function renderEmployeeInfo() {
-            if (employeeData) {
-                document.getElementById("employeeName").textContent = employeeData.name;
-                document.getElementById("employeePosition").textContent = employeeData.position || 'N/A';
-                document.getElementById("employeeManager").textContent = employeeData.manager || 'N/A';
-                document.getElementById("employeeStartDate").textContent = formatDate(employeeData.startDate);
-            }
-        }
-
-        function loadOnboardingProgress() {
+            // Restaurar estado do checklist
             if (employeeData && employeeData.onboardingData && employeeData.onboardingData.completedTasks) {
                 employeeData.onboardingData.completedTasks.forEach(taskId => {
                     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
@@ -656,50 +587,78 @@
                 });
             }
             updateProgressBar();
+        });
+
+        async function loadEmployeeData(id) {
+            try {
+                const response = await fetch(`${BASE_API_URL}?path=employees/${id}&method=GET`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    employeeData = result.data;
+                    document.getElementById("employeeName").textContent = employeeData.name;
+                    document.getElementById("employeePosition").textContent = employeeData.position;
+                    document.getElementById("employeeManager").textContent = employeeData.manager;
+                    document.getElementById("employeeStartDate").textContent = formatDate(employeeData.startDate);
+                } else {
+                    alert(`Erro ao carregar dados do funcionário: ${result.error || 'Funcionário não encontrado.'}`);
+                    window.location.href = "./funcionarios.html";
+                }
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+                alert("Erro de conexão ao carregar dados do funcionário. Verifique sua internet e tente novamente.");
+                window.location.href = "./funcionarios.html";
+            }
         }
 
-        async function toggleTask(element) {
-            if (!employeeData) return;
-
-            const taskId = element.dataset.taskId;
-            const isCompleted = element.classList.toggle("completed");
-
-            if (isCompleted) {
-                if (!employeeData.onboardingData.completedTasks.includes(taskId)) {
-                    employeeData.onboardingData.completedTasks.push(taskId);
-                }
+        function toggleStep(stepId) {
+            const stepContent = document.getElementById(stepId);
+            const toggleIcon = document.getElementById(`toggle${stepId.replace('step','')}`);
+            if (stepContent.classList.contains("expanded")) {
+                stepContent.classList.remove("expanded");
+                toggleIcon.style.transform = "rotate(0deg)";
             } else {
-                employeeData.onboardingData.completedTasks = employeeData.onboardingData.completedTasks.filter(id => id !== taskId);
+                stepContent.classList.add("expanded");
+                toggleIcon.style.transform = "rotate(180deg)";
             }
-            employeeData.onboardingData.lastUpdate = new Date().toISOString();
+        }
 
+        function toggleTask(taskElement) {
+            taskElement.classList.toggle("completed");
             updateProgressBar();
-            await saveOnboardingProgress();
+            saveProgress(); // Salva o progresso automaticamente ao marcar/desmarcar
         }
 
         function updateProgressBar() {
-            if (!employeeData) return;
-
-            const completedCount = employeeData.onboardingData.completedTasks.length;
-            const progress = (completedCount / totalTasks) * 100;
-            employeeData.progress = parseFloat(progress.toFixed(2)); // Atualiza o progresso no objeto do funcionário
-
+            const completedTasks = document.querySelectorAll(".checklist-item.completed").length;
+            const progress = (completedTasks / totalTasks) * 100;
             const progressBar = document.getElementById("progressBar");
             progressBar.style.width = `${progress}%`;
-            progressBar.textContent = `${progress.toFixed(0)}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
 
-            // Atualiza o status do funcionário
-            if (progress === 100) {
-                employeeData.status = "completed";
-            } else if (progress > 0) {
-                employeeData.status = "in-progress";
-            } else {
-                employeeData.status = "pending";
+            if (employeeData) {
+                employeeData.progress = Math.round(progress);
+                // Atualiza o status do funcionário baseado no progresso
+                if (progress === 100) {
+                    employeeData.status = "completed";
+                } else if (progress > 0) {
+                    employeeData.status = "in-progress";
+                } else {
+                    employeeData.status = "pending";
+                }
             }
         }
 
-        async function saveOnboardingProgress() {
+        async function saveProgress() {
             if (!employeeData) return;
+
+            const completedTasksIds = Array.from(document.querySelectorAll(".checklist-item.completed"))
+                                        .map(task => task.dataset.taskId);
+            
+            employeeData.onboardingData = {
+                completedTasks: completedTasksIds,
+                lastUpdate: new Date().toISOString()
+            };
 
             try {
                 const response = await fetch(`${BASE_API_URL}?path=employees/${employeeData.id}&method=PUT`, {
@@ -709,18 +668,12 @@
                 });
                 const result = await response.json();
                 if (!result.success) {
-                    console.error("Erro ao salvar progresso do onboarding:", result.error);
-                    alert("Erro ao salvar progresso. Tente novamente.");
+                    alert(`Erro ao salvar progresso: ${result.error}`);
                 }
             } catch (error) {
-                console.error("Erro na requisição ao salvar progresso:", error);
-                alert("Erro de conexão. Verifique sua internet e tente novamente.");
+                console.error("Erro na requisição:", error);
+                alert("Erro de conexão ao salvar progresso. Verifique sua internet e tente novamente.");
             }
-        }
-
-        function toggleStep(stepId) {
-            const stepSection = document.getElementById(`stepSection${stepId.replace('step', '')}`);
-            stepSection.classList.toggle("open");
         }
 
         function generateReport() {
@@ -730,10 +683,10 @@
             }
 
             let report = `Relatório de Onboarding - ${employeeData.name}\n\n`;
-            report += `Cargo: ${employeeData.position || 'N/A'}\n`;
-            report += `Gerente: ${employeeData.manager || 'N/A'}\n`;
+            report += `Cargo: ${employeeData.position}\n`;
+            report += `Gerente: ${employeeData.manager}\n`;
             report += `Data de Início: ${formatDate(employeeData.startDate)}\n`;
-            report += `Progresso: ${employeeData.progress}% (${employeeData.onboardingData.completedTasks.length}/${totalTasks} tarefas concluídas)\n\n`;
+            report += `Progresso Total: ${employeeData.progress || 0}%\n\n`;
 
             report += `TAREFAS CONCLUÍDAS:\n`;
             const allTasks = document.querySelectorAll(".checklist-item");
