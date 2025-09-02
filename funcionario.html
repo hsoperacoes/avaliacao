@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -30,7 +31,7 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100% );
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: #fff;
             padding: 40px 30px;
             text-align: center;
@@ -47,339 +48,281 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: rgba(255,255,255,.05);
-            transform: rotate(45deg);
-            animation: header-anim 10s linear infinite;
+            background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
         }
 
-        @keyframes header-anim {
-            0% { transform: rotate(45deg) translate(-50%, -50%); }
-            100% { transform: rotate(405deg) translate(-50%, -50%); }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #FF9800;
         }
 
         .header h1 {
-            font-size: 2.5em;
+            font-size: 2.2em;
+            font-weight: 700;
             margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
+        }
+
+        .header h2 {
+            font-size: 1.4em;
+            font-weight: 400;
+            margin-bottom: 15px;
+            color: #ecf0f1;
         }
 
         .header p {
             font-size: 1.1em;
-            opacity: .8;
-            position: relative;
-            z-index: 1;
+            opacity: .9;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Navegação */
-        .navbar {
-            background-color: #222;
-            padding: 10px 0;
-            text-align: center;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,.2);
-            margin-bottom: 20px;
-        }
-
-        .navbar a {
-            color: #fff;
-            text-decoration: none;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 5px;
-            transition: background-color .3s ease;
-        }
-
-        .navbar a:hover {
-            background-color: #444;
-        }
-
-        /* Controles de Filtro e Busca */
-        .controls {
+        /* Container principal */
+        .main-container {
             background: #2a2a2a;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.2);
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.3);
+            padding: 30px;
+        }
+
+        /* Barra de ações */
+        .action-bar {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
             flex-wrap: wrap;
             gap: 15px;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 5px solid #FF9800;
         }
 
-        .controls .search-bar {
-            flex-grow: 1;
+        .search-container {
             display: flex;
+            gap: 15px;
+            align-items: center;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: #3a3a3a;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #FF9800;
+            box-shadow: 0 0 0 3px rgba(255,152,0,.2);
+        }
+
+        .filter-select {
+            background: #3a3a3a;
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: #e0e0e0;
+            font-size: 1em;
+            min-width: 150px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
             gap: 10px;
-        }
-
-        .controls .search-bar input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 8px;
-            background-color: #444;
-            color: #e0e0e0;
-            font-size: 1em;
-        }
-
-        .controls .filter-select select {
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 8px;
-            background-color: #444;
-            color: #e0e0e0;
-            font-size: 1em;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20512%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M192%20256L64%20128l-32%2032L128%20256l-96%2096%2032%2032z%22%2F%3E%3C%2Fsvg%3E' );
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 12px;
-            cursor: pointer;
-        }
-
-        .controls .btn {
-            padding: 10px 20px;
-            background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%);
-            color: #fff;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
-            transition: all .3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
-        .controls .btn:hover {
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(76,175,80,.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(255,152,0,.3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(33,150,243,.3);
+        }
+
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,.4);
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
         }
 
-        /* Grid de Funcionários */
+        /* Lista de funcionários */
         .employees-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 25px;
-            margin-top: 30px;
+            margin-bottom: 30px;
         }
 
         .employee-card {
-            background: #2a2a2a;
+            background: #3a3a3a;
+            border-radius: 12px;
             padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.2);
-            border-left: 5px solid;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fade-in-up .5s forwards;
-        }
-
-        @keyframes fade-in-up {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .employee-card.pending {
-            border-color: #FF9800;
-        }
-
-        .employee-card.in-progress {
-            border-color: #2196F3;
-        }
-
-        .employee-card.completed {
-            border-color: #4CAF50;
-        }
-
-        .employee-card h3 {
-            color: #e0e0e0;
-            font-size: 1.8em;
-            margin-bottom: 10px;
-        }
-
-        .employee-card p {
-            color: #bbb;
-            font-size: 0.95em;
-            margin-bottom: 5px;
-        }
-
-        .employee-card .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .employee-card .status-badge.pending {
-            background-color: #FF9800;
-            color: #fff;
-        }
-
-        .employee-card .status-badge.in-progress {
-            background-color: #2196F3;
-            color: #fff;
-        }
-
-        .employee-card .status-badge.completed {
-            background-color: #4CAF50;
-            color: #fff;
-        }
-
-        .employee-card .progress-bar-container {
-            width: 100%;
-            background-color: #444;
-            border-radius: 10px;
-            height: 15px;
-            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.2);
+            transition: all 0.3s ease;
+            border-left: 4px solid #FF9800;
+            position: relative;
             overflow: hidden;
         }
 
-        .employee-card .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
-            border-radius: 10px;
-            transition: width 0.5s ease-in-out;
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
         }
 
-        .employee-card .card-actions {
-            margin-top: 20px;
+        .employee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .employee-info h3 {
+            color: #fff;
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .employee-info .position {
+            color: #FF9800;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .employee-info .start-date {
+            color: #bbb;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .status-badge.in-progress {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+
+        .status-badge.completed {
+            background: #E8F5E8;
+            color: #388E3C;
+        }
+
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            color: #ddd;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-container {
+            background: #4a4a4a;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar.pending {
+            background: linear-gradient(90deg, #FF9800, #F57C00);
+        }
+
+        .progress-bar.in-progress {
+            background: linear-gradient(90deg, #2196F3, #1976D2);
+        }
+
+        .progress-bar.completed {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+        }
+
+        .employee-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            justify-content: flex-end;
         }
 
-        .employee-card .card-actions .btn {
+        .btn-small {
             padding: 8px 15px;
             font-size: 0.9em;
-            border-radius: 5px;
+            border-radius: 6px;
         }
 
-        .employee-card .card-actions .btn.onboarding {
-            background: linear-gradient(90deg, #2196F3 0%, #1976D2 100%);
-        }
-
-        .employee-card .card-actions .btn.onboarding:hover {
-            background: linear-gradient(90deg, #1976D2 0%, #2196F3 100%);
-        }
-
-        .employee-card .card-actions .btn.edit {
-            background-color: #FFC107;
-            color: #333;
-        }
-
-        .employee-card .card-actions .btn.edit:hover {
-            background-color: #e0b000;
-        }
-
-        .employee-card .card-actions .btn.delete {
-            background-color: #F44336;
-        }
-
-        .employee-card .card-actions .btn.delete:hover {
-            background-color: #d32f2f;
-        }
-
-        /* Estado vazio */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            background: #2a2a2a;
-            border-radius: 15px;
-            color: #bbb;
-            margin-top: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.2);
-        }
-
-        .empty-state i {
-            font-size: 4em;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            color: #e0e0e0;
-        }
-
-        .empty-state p {
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .empty-state .btn {
-            background: linear-gradient(90deg, #4CAF50 0%, #388E3C 100%);
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all .3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .empty-state .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,.4);
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #bbb;
-            font-size: .9em;
-            margin-top: 30px;
-        }
-
-        /* Modal */
+        /* Modal para adicionar funcionário */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
+            display: none;
+            position: fixed;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
-            display: flex;
-            align-items: center;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.8);
+            z-index: 1000;
             justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
         }
 
         .modal-content {
-            background-color: #2a2a2a;
-            margin: auto;
-            padding: 30px;
+            background: #2a2a2a;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            padding: 30px;
+            max-width: 500px;
             width: 90%;
-            max-width: 600px;
-            position: relative;
-            animation: modal-open .3s ease-out forwards;
-        }
-
-        @keyframes modal-open {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -388,143 +331,169 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #444;
+            border-bottom: 2px solid #555;
         }
 
         .modal-header h3 {
-            color: #e0e0e0;
-            font-size: 1.8em;
-            margin: 0;
+            color: #fff;
+            font-size: 1.5em;
         }
 
         .close-modal {
-            color: #bbb;
-            font-size: 2em;
-            font-weight: bold;
-            cursor: pointer;
             background: none;
             border: none;
-            transition: color .3s ease;
-        }
-
-        .close-modal:hover,
-        .close-modal:focus {
             color: #fff;
-            text-decoration: none;
+            font-size: 1.5em;
             cursor: pointer;
+            padding: 5px;
         }
 
-        .modal .form-group {
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .modal .form-group label {
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
             color: #e0e0e0;
-            font-weight: bold;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
-        .modal .form-group input[type="text"],
-        .modal .form-group input[type="email"],
-        .modal .form-group input[type="date"],
-        .modal .form-group select {
-            width: calc(100% - 20px);
-            padding: 12px;
-            border: 1px solid #555;
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            background: #3a3a3a;
+            border: 2px solid #555;
             border-radius: 8px;
-            background-color: #444;
+            padding: 12px 15px;
             color: #e0e0e0;
             font-size: 1em;
-            transition: border-color .3s ease;
         }
 
-        .modal .form-group input[type="text"]:focus,
-        .modal .form-group input[type="email"]:focus,
-        .modal .form-group input[type="date"]:focus,
-        .modal .form-group select:focus {
-            border-color: #2196F3;
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
+            border-color: #FF9800;
+            box-shadow: 0 0 0 3px rgba(255,152,0,.2);
         }
 
-        .modal .form-group select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20512%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M192%20256L64%20128l-32%2032L128%20256l-96%2096%2032%2032z%22%2F%3E%3C%2Fsvg%3E' );
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 12px;
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
         }
 
-        /* Responsividade do Modal */
-        @media (max-width: 600px) {
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-            }
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #555;
+        }
 
-            .modal-header h3 {
-                font-size: 1.5em;
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .employees-grid {
+                grid-template-columns: 1fr;
             }
+            
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                max-width: none;
+            }
+            
+            .employee-actions {
+                justify-content: center;
+            }
+        }
+
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>Lista de Funcionários</h1>
-            <p>Gerencie e acompanhe o progresso de onboarding dos seus colaboradores.</p>
+            <div class="header-content">
+                <i class="fas fa-users header-icon"></i>
+                <h1>LISTA DE FUNCIONÁRIOS</h1>
+                <h2>Gestão de Onboarding</h2>
+                <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
+            </div>
         </header>
 
-        <nav class="navbar">
-            <a href="./home.html"><i class="fas fa-home"></i> Home</a>
-            <a href="./avaliacao.html"><i class="fas fa-user-plus"></i> Avaliação de Candidatos</a>
-        </nav>
-
-        <div class="controls">
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Buscar por nome ou cargo..." onkeyup="filterEmployees()">
-                <select id="statusFilter" onchange="filterEmployees()">
-                    <option value="all">Todos os Status</option>
-                    <option value="pending">Pendente</option>
-                    <option value="in-progress">Em Andamento</option>
-                    <option value="completed">Concluído</option>
-                </select>
+        <div class="main-container">
+            <!-- Barra de ações -->
+            <div class="action-bar">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Todos os status</option>
+                        <option value="pending">Pendente</option>
+                        <option value="in-progress">Em andamento</option>
+                        <option value="completed">Concluído</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="openAddEmployeeModal()">
+                        <i class="fas fa-user-plus"></i>
+                        Adicionar Funcionário
+                    </button>
+                    <a href="home.html" class="btn btn-info">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </a>
+                </div>
             </div>
-            <button class="btn" onclick="openAddEmployeeModal()">
-                <i class="fas fa-user-plus"></i>
-                Adicionar Funcionário
-            </button>
-        </div>
 
-        <div class="employees-grid" id="employeesGrid">
-            <!-- Funcionários serão carregados aqui via JavaScript -->
-        </div>
+            <!-- Lista de funcionários -->
+            <div class="employees-grid" id="employeesGrid">
+                <!-- Funcionários serão carregados aqui via JavaScript -->
+            </div>
 
-        <!-- Estado vazio -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <i class="fas fa-users-slash"></i>
-            <h3>Nenhum funcionário encontrado</h3>
-            <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
-            <button class="btn" onclick="openAddEmployeeModal()">
-                <i class="fas fa-user-plus"></i>
-                Adicionar Primeiro Funcionário
-            </button>
+            <!-- Estado vazio -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-users-slash"></i>
+                <h3>Nenhum funcionário encontrado</h3>
+                <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
+                <button class="btn btn-secondary" onclick="openAddEmployeeModal()">
+                    <i class="fas fa-user-plus"></i>
+                    Adicionar Primeiro Funcionário
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal para adicionar/editar funcionário -->
-    <div class="modal" id="employeeModal">
+    <!-- Modal para adicionar funcionário -->
+    <div class="modal" id="addEmployeeModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle"><i class="fas fa-user-plus"></i> Adicionar Funcionário</h3>
-                <button class="close-modal" onclick="closeEmployeeModal()">
+                <h3><i class="fas fa-user-plus"></i> Adicionar Funcionário</h3>
+                <button class="close-modal" onclick="closeAddEmployeeModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form id="employeeForm">
-                <input type="hidden" id="employeeId">
+            <form id="addEmployeeForm">
                 <div class="form-group">
                     <label for="employeeName">Nome Completo *</label>
                     <input type="text" id="employeeName" required>
@@ -545,20 +514,8 @@
                     <label for="employeeEmail">E-mail</label>
                     <input type="email" id="employeeEmail">
                 </div>
-                <div class="form-group">
-                    <label for="employeeStatus">Status</label>
-                    <select id="employeeStatus">
-                        <option value="pending">Pendente</option>
-                        <option value="in-progress">Em Andamento</option>
-                        <option value="completed">Concluído</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="employeeProgress">Progresso (%)</label>
-                    <input type="number" id="employeeProgress" min="0" max="100" value="0">
-                </div>
                 <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 25px;">
-                    <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">
+                    <button type="button" class="btn" style="background: #666;" onclick="closeAddEmployeeModal()">
                         Cancelar
                     </button>
                     <button type="submit" class="btn btn-primary">
@@ -570,251 +527,219 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Sistema de Gestão de RH. Todos os direitos reservados.</p>
-    </footer>
-
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec"; // SEU URL DO APPS SCRIPT AQUI
+        // Dados dos funcionários
         let employees = [];
 
-        document.addEventListener("DOMContentLoaded", loadEmployees );
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEmployees();
+            setupEventListeners();
+            
+            // Definir data atual como padrão
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('employeeStartDate').value = today;
+        });
 
-        async function loadEmployees() {
-            showLoading(true);
-            try {
-                const response = await fetch(`${BASE_API_URL}?path=employees&method=GET`);
-                const result = await response.json();
-
-                if (result.success && result.data) {
-                    employees = result.data;
-                    renderEmployees();
-                } else {
-                    console.error("Erro ao carregar funcionários:", result.error);
-                    showEmptyState(true);
-                }
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-                showEmptyState(true);
-            } finally {
-                showLoading(false);
+        // Carregar funcionários do localStorage
+        function loadEmployees() {
+            const savedEmployees = localStorage.getItem('employees');
+            if (savedEmployees) {
+                employees = JSON.parse(savedEmployees);
             }
-        }
-
-        function renderEmployees() {
-            const employeesGrid = document.getElementById("employeesGrid");
-            employeesGrid.innerHTML = "";
-
-            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-            const statusFilter = document.getElementById("statusFilter").value;
-
-            const filteredEmployees = employees.filter(employee => {
-                const matchesSearch = employee.name.toLowerCase().includes(searchTerm) ||
-                                      employee.position.toLowerCase().includes(searchTerm);
-                const matchesStatus = statusFilter === "all" || employee.status === statusFilter;
-                return matchesSearch && matchesStatus;
-            });
-
-            if (filteredEmployees.length === 0) {
-                showEmptyState(true);
-                return;
-            }
-
-            showEmptyState(false);
-            filteredEmployees.forEach(employee => {
-                const card = document.createElement("div");
-                card.className = `employee-card ${employee.status}`;
-                card.innerHTML = `
-                    <h3>${employee.name}</h3>
-                    <p><strong>Cargo:</strong> ${employee.position || 'N/A'}</p>
-                    <p><strong>Gerente:</strong> ${employee.manager || 'N/A'}</p>
-                    <p><strong>Início:</strong> ${formatDate(employee.startDate)}</p>
-                    <p><strong>E-mail:</strong> ${employee.email || 'N/A'}</p>
-                    <span class="status-badge ${employee.status}">${getStatusText(employee.status)}</span>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: ${employee.progress || 0}%;"></div>
-                    </div>
-                    <p style="margin-top: 5px;">Progresso: ${employee.progress || 0}%</p>
-                    <div class="card-actions">
-                        <a href="./onboarding.html?id=${employee.id}" class="btn onboarding"><i class="fas fa-clipboard-list"></i> Onboarding</a>
-                        <button class="btn edit" onclick="openEditEmployeeModal('${employee.id}')"><i class="fas fa-edit"></i> Editar</button>
-                        <button class="btn delete" onclick="removeEmployee('${employee.id}')"><i class="fas fa-trash-alt"></i> Excluir</button>
-                    </div>
-                `;
-                employeesGrid.appendChild(card);
-            });
-        }
-
-        function filterEmployees() {
             renderEmployees();
         }
 
-        // Modal Functions
-        const employeeModal = document.getElementById("employeeModal");
-        const employeeForm = document.getElementById("employeeForm");
-        const modalTitle = document.getElementById("modalTitle");
-        let isEditMode = false;
+        // Salvar funcionários no localStorage
+        function saveEmployees() {
+            localStorage.setItem('employees', JSON.stringify(employees));
+        }
 
+        // Renderizar lista de funcionários
+        function renderEmployees(filteredEmployees = null) {
+            const grid = document.getElementById('employeesGrid');
+            const emptyState = document.getElementById('emptyState');
+            const employeesToRender = filteredEmployees || employees;
+
+            if (employeesToRender.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = employeesToRender.map(employee => `
+                <div class="employee-card fade-in">
+                    <div class="employee-header">
+                        <div class="employee-info">
+                            <h3>${employee.name}</h3>
+                            <div class="position">${employee.position}</div>
+                            <div class="start-date">Início: ${formatDate(employee.startDate)}</div>
+                        </div>
+                        <div class="status-badge ${employee.status}">
+                            ${getStatusText(employee.status)}
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-label">
+                            <span>Progresso do Onboarding</span>
+                            <span>${employee.progress}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${employee.status}" style="width: ${employee.progress}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="employee-actions">
+                        <button class="btn btn-info btn-small" onclick="startOnboarding('${employee.id}')">
+                            <i class="fas fa-play"></i>
+                            Onboarding
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="viewDetails('${employee.id}')">
+                            <i class="fas fa-eye"></i>
+                            Detalhes
+                        </button>
+                        <button class="btn btn-small" style="background: #f44336;" onclick="removeEmployee('${employee.id}')">
+                            <i class="fas fa-trash"></i>
+                            Remover
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Busca
+            document.getElementById('searchInput').addEventListener('input', filterEmployees);
+            
+            // Filtro de status
+            document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+            
+            // Formulário de adicionar funcionário
+            document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
+        }
+
+        // Filtrar funcionários
+        function filterEmployees() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = employees.filter(employee => {
+                const matchesSearch = employee.name.toLowerCase().includes(searchTerm) ||
+                                    employee.position.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || employee.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderEmployees(filtered);
+        }
+
+        // Abrir modal de adicionar funcionário
         function openAddEmployeeModal() {
-            isEditMode = false;
-            modalTitle.innerHTML = `<i class="fas fa-user-plus"></i> Adicionar Funcionário`;
-            employeeForm.reset();
-            document.getElementById("employeeId").value = '';
-            document.getElementById("employeeStatus").value = "pending";
-            document.getElementById("employeeProgress").value = 0;
-            employeeModal.style.display = "flex";
+            document.getElementById('addEmployeeModal').classList.add('active');
         }
 
-        async function openEditEmployeeModal(id) {
-            isEditMode = true;
-            modalTitle.innerHTML = `<i class="fas fa-edit"></i> Editar Funcionário`;
-            const employee = employees.find(emp => emp.id === id);
-            if (employee) {
-                document.getElementById("employeeId").value = employee.id;
-                document.getElementById("employeeName").value = employee.name;
-                document.getElementById("employeePosition").value = employee.position;
-                document.getElementById("employeeStartDate").value = employee.startDate;
-                document.getElementById("employeeManager").value = employee.manager;
-                document.getElementById("employeeEmail").value = employee.email;
-                document.getElementById("employeeStatus").value = employee.status;
-                document.getElementById("employeeProgress").value = employee.progress;
-                employeeModal.style.display = "flex";
-            } else {
-                alert("Funcionário não encontrado.");
-            }
+        // Fechar modal de adicionar funcionário
+        function closeAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.remove('active');
+            document.getElementById('addEmployeeForm').reset();
+            
+            // Redefinir data atual
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('employeeStartDate').value = today;
         }
 
-        function closeEmployeeModal() {
-            employeeModal.style.display = "none";
-        }
-
-        employeeForm.addEventListener("submit", async function(event) {
-            event.preventDefault();
-
-            const id = document.getElementById("employeeId").value;
-            const name = document.getElementById("employeeName").value;
-            const position = document.getElementById("employeePosition").value;
-            const startDate = document.getElementById("employeeStartDate").value;
-            const manager = document.getElementById("employeeManager").value;
-            const email = document.getElementById("employeeEmail").value;
-            const status = document.getElementById("employeeStatus").value;
-            const progress = parseFloat(document.getElementById("employeeProgress").value);
-
-            const employeeData = {
-                id: id || Date.now().toString(), // Gera novo ID se for adição
-                name, position, startDate, manager, email, status, progress,
-                onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() }, // Inicializa se novo
-                evaluationData: {} // Inicializa se novo
+        // Adicionar funcionário
+        function handleAddEmployee(e) {
+            e.preventDefault();
+            
+            const newEmployee = {
+                id: Date.now().toString(),
+                name: document.getElementById('employeeName').value,
+                position: document.getElementById('employeePosition').value,
+                startDate: document.getElementById('employeeStartDate').value,
+                manager: document.getElementById('employeeManager').value,
+                email: document.getElementById('employeeEmail').value,
+                status: 'pending',
+                progress: 0,
+                onboardingData: {
+                    completedTasks: [],
+                    lastUpdate: new Date().toISOString()
+                }
             };
+            
+            employees.push(newEmployee);
+            saveEmployees();
+            renderEmployees();
+            closeAddEmployeeModal();
+            
+            // Feedback visual
+            alert('Funcionário adicionado com sucesso!');
+        }
 
-            if (isEditMode) {
-                // Manter onboardingData e evaluationData existentes ao editar
-                const existingEmployee = employees.find(emp => emp.id === id);
-                if (existingEmployee) {
-                    employeeData.onboardingData = existingEmployee.onboardingData;
-                    employeeData.evaluationData = existingEmployee.evaluationData;
-                }
-                await updateEmployee(employeeData);
-            } else {
-                await addEmployee(employeeData);
-            }
-            closeEmployeeModal();
-            loadEmployees(); // Recarrega a lista para refletir as mudanças
-        });
-
-        async function addEmployee(employee) {
-            try {
-                const response = await fetch(`${BASE_API_URL}?path=employees&method=POST`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(employee)
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    alert(`Erro ao adicionar funcionário: ${result.error}`);
-                }
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-                alert("Erro de conexão. Verifique sua internet e tente novamente.");
+        // Iniciar onboarding
+        function startOnboarding(employeeId) {
+            const employee = employees.find(e => e.id === employeeId);
+            if (employee) {
+                // Salvar dados do funcionário atual para o onboarding
+                localStorage.setItem('currentEmployee', JSON.stringify(employee));
+                
+                // Redirecionar para página de onboarding
+                window.location.href = 'onboarding.html';
             }
         }
 
-        async function updateEmployee(employee) {
-            try {
-                const response = await fetch(`${BASE_API_URL}?path=employees/${employee.id}&method=PUT`, {
-                    method: 'POST', // Apps Script usa POST para simular PUT
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(employee)
-                });
-                const result = await response.json();
-                if (!result.success) {
-                    alert(`Erro ao atualizar funcionário: ${result.error}`);
-                }
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-                alert("Erro de conexão. Verifique sua internet e tente novamente.");
+        // Ver detalhes do funcionário
+        function viewDetails(employeeId) {
+            const employee = employees.find(e => e.id === employeeId);
+            if (employee) {
+                alert(`Detalhes do Funcionário:
+                
+Nome: ${employee.name}
+Cargo: ${employee.position}
+Data de Início: ${formatDate(employee.startDate)}
+Gerente: ${employee.manager}
+E-mail: ${employee.email || 'Não informado'}
+Status: ${getStatusText(employee.status)}
+Progresso: ${employee.progress}%`);
             }
         }
 
-        async function removeEmployee(employeeId) {
-            if (confirm("Tem certeza que deseja remover este funcionário?")) {
-                try {
-                    const response = await fetch(`${BASE_API_URL}?path=employees/${employeeId}&method=DELETE`, {
-                        method: 'POST', // Apps Script usa POST para simular DELETE
-                        headers: { 'Content-Type': 'text/plain' },
-                        body: JSON.stringify({ id: employeeId })
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        loadEmployees(); // Recarrega a lista
-                    } else {
-                        alert(`Erro ao remover funcionário: ${result.error}`);
-                    }
-                } catch (error) {
-                    console.error("Erro na requisição:", error);
-                    alert("Erro de conexão. Verifique sua internet e tente novamente.");
-                }
+        // Remover funcionário
+        function removeEmployee(employeeId) {
+            if (confirm('Tem certeza que deseja remover este funcionário?')) {
+                employees = employees.filter(e => e.id !== employeeId);
+                saveEmployees();
+                renderEmployees();
             }
-        }
-
-        function showLoading(isLoading) {
-            // Implementar um spinner ou mensagem de carregamento se desejar
-            // document.getElementById("loadingSpinner").style.display = isLoading ? "block" : "none";
-            document.getElementById("employeesGrid").style.opacity = isLoading ? "0.5" : "1";
-        }
-
-        function showEmptyState(isEmpty) {
-            document.getElementById("emptyState").style.display = isEmpty ? "block" : "none";
-            document.getElementById("employeesGrid").style.display = isEmpty ? "none" : "grid";
         }
 
         // Funções auxiliares
         function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            const date = new Date(dateString);
-            // Adiciona um dia para corrigir problemas de fuso horário na exibição
-            // Isso é um workaround comum para input[type="date"] que pode retornar a data no dia anterior em alguns fusos
-            date.setDate(date.getDate() + 1);
-            return date.toLocaleDateString("pt-BR");
+            return new Date(dateString).toLocaleDateString('pt-BR');
         }
 
         function getStatusText(status) {
             const statusMap = {
-                "pending": "Pendente",
-                "in-progress": "Em Andamento",
-                "completed": "Concluído"
+                'pending': 'Pendente',
+                'in-progress': 'Em Andamento',
+                'completed': 'Concluído'
             };
-            return statusMap[status] || "Pendente";
+            return statusMap[status] || status;
         }
 
         // Fechar modal ao clicar fora
-        document.getElementById("employeeModal").addEventListener("click", function(e) {
+        document.getElementById('addEmployeeModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                closeEmployeeModal();
+                closeAddEmployeeModal();
             }
         });
     </script>
 </body>
 </html>
+
