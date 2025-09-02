@@ -43,7 +43,254 @@
             max-width: 1200px;
             margin: auto;
             padding: 20px;
-     ...(content truncated)...</i> Checklist por etapas</li>
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #3a3a4a 0%, #4a4a5a 100%);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px var(--shadow-dark);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-bottom: 5px solid var(--accent-blue);
+        }
+
+        .stat-card:nth-child(1) { border-bottom-color: var(--accent-green); }
+        .stat-card:nth-child(2) { border-bottom-color: var(--accent-orange); }
+        .stat-card:nth-child(3) { border-bottom-color: var(--accent-blue); }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 25px var(--shadow-dark);
+        }
+
+        .stat-card i {
+            font-size: 3em;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+        }
+
+        .stat-card:nth-child(1) i { color: var(--accent-green); }
+        .stat-card:nth-child(2) i { color: var(--accent-orange); }
+
+        .stat-card h2 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .nav-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow-light);
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 350px; /* Altura mínima para uniformidade */
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 12px 25px var(--shadow-dark);
+        }
+
+        .nav-card i {
+            font-size: 4em;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+        }
+
+        .nav-card:nth-child(1) i { color: var(--accent-green); }
+        .nav-card:nth-child(2) i { color: var(--accent-orange); }
+
+        .nav-card h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .nav-card ul {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .nav-card ul li {
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-card ul li i {
+            font-size: 0.8em;
+            margin-right: 8px;
+            color: var(--accent-green); /* Checkmark color */
+        }
+
+        .nav-card .btn {
+            background: linear-gradient(90deg, var(--accent-blue) 0%, #1976D2 100%);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-card:nth-child(1) .btn { background: linear-gradient(90deg, var(--accent-green) 0%, #388E3C 100%); }
+        .nav-card:nth-child(2) .btn { background: linear-gradient(90deg, var(--accent-orange) 0%, #E65100 100%); }
+
+        .nav-card .btn:hover {
+            opacity: 0.9;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #bbb;
+            font-size: 0.9em;
+            margin-top: auto; /* Empurra o footer para o final da página */
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+
+            .stat-card, .nav-card {
+                padding: 25px;
+            }
+
+            .stat-card h2 {
+                font-size: 2em;
+            }
+
+            .nav-card h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .stat-card h2 {
+                font-size: 1.8em;
+            }
+
+            .nav-card {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bem-vindo ao Sistema de Gestão de RH</h1>
+            <p>Sua plataforma completa para avaliação e onboarding de talentos.</p>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h2 id="total-employees">0</h2>
+                <p>Total de Funcionários</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-hourglass-half"></i>
+                <h2 id="onboarding-in-progress">0</h2>
+                <p>Onboarding em Andamento</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h2 id="onboarding-completed">0</h2>
+                <p>Onboarding Concluído</p>
+            </div>
+        </section>
+
+        <main>
+            <a href="avaliacao.html" class="nav-card">
+                <i class="fas fa-clipboard-check"></i>
+                <h2>Avaliação de Candidatos</h2>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Formulário completo</li>
+                    <li><i class="fas fa-check-circle"></i> Análise de competências</li>
+                    <li><i class="fas fa-check-circle"></i> Envio de dados por e-mail</li>
+                    <li><i class="fas fa-check-circle"></i> Integração com lista de funcionários</li>
+                </ul>
+                <span class="btn">Iniciar Avaliação</span>
+            </a>
+
+            <a href="funcionarios.html" class="nav-card">
+                <i class="fas fa-users"></i>
+                <h2>Lista de Funcionários</h2>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Gestão de múltiplos funcionários</li>
+                    <li><i class="fas fa-check-circle"></i> Busca e filtros</li>
+                    <li><i class="fas fa-check-circle"></i> Status e progresso visual</li>
+                    <li><i class="fas fa-check-circle"></i> Acesso rápido ao onboarding</li>
+                </ul>
+                <span class="btn">Gerenciar Funcionários</span>
+            </a>
+
+            <a href="#" class="nav-card" onclick="alert(\'Para iniciar o onboarding, selecione um funcionário na \'Lista de Funcionários\'.\'); return false;">
+                <i class="fas fa-user-plus"></i>
+                <h2>Sistema de Onboarding</h2>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Checklist por etapas</li>
                     <li><i class="fas fa-check-circle"></i> Progresso visual</li>
                     <li><i class="fas fa-check-circle"></i> 6 passos estruturados</li>
                     <li><i class="fas fa-check-circle"></i> Salvamento automático</li>
@@ -59,10 +306,12 @@
     </div>
 
     <script>
+        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec"; // SEU URL DO APPS SCRIPT AQUI
+
         // Carregar estatísticas da API
-        async function loadStatistics() {
+        async function loadStatistics( ) {
             try {
-                const response = await fetch("/api/employees");
+                const response = await fetch(`${BASE_API_URL}?path=employees&method=GET`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -105,7 +354,7 @@
                 });
                 
                 card.addEventListener("mouseleave", function() {
-                    this.style.transform = "translateY(-10px) scale(1)";
+                    this.style.transform = "translateY(0px) scale(1)"; // Corrigido para voltar à posição original
                 });
             });
         });
