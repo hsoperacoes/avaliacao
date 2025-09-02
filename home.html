@@ -43,344 +43,7 @@
             max-width: 1200px;
             margin: auto;
             padding: 20px;
-        }
-
-        header {
-            background: var(--header-bg);
-            padding: 40px 20px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-            text-align: center;
-            box-shadow: 0 10px 30px var(--shadow-dark);
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        header::before {
-            content: ";
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(74, 74, 94, 0.5) 0%, rgba(58, 58, 74, 0) 70%);
-            transform: rotate(30deg);
-            opacity: 0.3;
-        }
-
-        header h1 {
-            font-size: 2.8em;
-            margin-bottom: 10px;
-            color: #fff;
-            text-shadow: 2px 2px 5px var(--shadow-dark);
-            position: relative;
-            z-index: 1;
-        }
-
-        header h1 i {
-            color: var(--accent-green);
-            margin-right: 15px;
-            font-size: 1.2em;
-            animation: pulse 2s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
-        }
-
-        header p {
-            font-size: 1.1em;
-            color: #bbb;
-            max-width: 700px;
-            margin: 0 auto 20px auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px var(--shadow-dark);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px var(--shadow-dark);
-        }
-
-        .stat-card h3 {
-            color: var(--accent-blue);
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            color: #aaa;
-            font-size: 0.9em;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            width: 100%;
-        }
-
-        .feature-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px var(--shadow-dark);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #3a3a3a;
-        }
-
-        .feature-card::before {
-            content: ";
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            font-size: 8em;
-            color: rgba(255, 255, 255, 0.05);
-            z-index: 0;
-            font-family: "Font Awesome 5 Free";
-            font-weight: 900;
-        }
-
-        .feature-card.green::before { content: "\f00c"; }
-        .feature-card.blue::before { content: "\f0c0"; }
-        .feature-card.orange::before { content: "\f501"; }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 35px var(--shadow-dark);
-        }
-
-        .feature-card h2 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-card .icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-card.green .icon, .feature-card.green h2 {
-            color: var(--accent-green);
-        }
-
-        .feature-card.blue .icon, .feature-card.blue h2 {
-            color: var(--accent-blue);
-        }
-
-        .feature-card.orange .icon, .feature-card.orange h2 {
-            color: var(--accent-orange);
-        }
-
-        .feature-card p {
-            color: #bbb;
-            margin-bottom: 15px;
-            flex-grow: 1;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-card ul {
-            list-style: none;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-        }
-
-        .feature-card ul li {
-            background: #3a3a3a;
-            padding: 8px 15px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            font-size: 0.9em;
-            color: #ccc;
-        }
-
-        .feature-card ul li i {
-            color: var(--accent-green);
-            margin-right: 10px;
-        }
-
-        .feature-card .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--accent-blue), #1a7bb9);
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            align-self: flex-end;
-        }
-
-        .feature-card .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-            opacity: 0.9;
-        }
-
-        .feature-card.green .btn {
-            background: linear-gradient(135deg, var(--accent-green), #388e3c);
-        }
-
-        .feature-card.blue .btn {
-            background: linear-gradient(135deg, var(--accent-blue), #1a7bb9);
-        }
-
-        .feature-card.orange .btn {
-            background: linear-gradient(135deg, var(--accent-orange), #e68a00);
-        }
-
-        footer {
-            margin-top: 40px;
-            padding: 20px;
-            text-align: center;
-            color: #888;
-            font-size: 0.9em;
-            width: 100%;
-        }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .feature-card {
-                padding: 25px;
-            }
-
-            .feature-card h2 {
-                font-size: 1.5em;
-            }
-
-            .feature-card .icon {
-                font-size: 2.5em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-
-            header {
-                padding: 30px 15px;
-            }
-
-            header h1 {
-                font-size: 1.8em;
-            }
-
-            .stat-card {
-                padding: 15px;
-            }
-
-            .stat-card h3 {
-                font-size: 1.5em;
-            }
-
-            .feature-card .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-users-cog"></i> Sistema de Gestão de RH</h1>
-            <p>Plataforma Integrada de Recursos Humanos</p>
-            <p>Gerencie todo o processo desde a avaliação de candidatos até o onboarding completo dos novos funcionários</p>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3 id="total-employees">0</h3>
-                    <p>Funcionários Ativos</p>
-                </div>
-                <div class="stat-card">
-                    <h3 id="onboarding-in-progress">0</h3>
-                    <p>Onboarding em Andamento</p>
-                </div>
-                <div class="stat-card">
-                    <h3 id="onboarding-completed">0</h3>
-                    <p>Onboarding Concluídos</p>
-                </div>
-            </div>
-        </header>
-
-        <main class="main-content">
-            <a href="avaliacao.html" class="feature-card green">
-                <div class="icon"><i class="fas fa-user-check"></i></div>
-                <h2>Avaliação de Candidatos</h2>
-                <p>Realize avaliações completas de candidatos durante o processo seletivo</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Coleta de dados pessoais</li>
-                    <li><i class="fas fa-check-circle"></i> Análise de competências</li>
-                    <li><i class="fas fa-check-circle"></i> Perguntas personalizadas</li>
-                    <li><i class="fas fa-check-circle"></i> Situações práticas</li>
-                    <li><i class="fas fa-check-circle"></i> Envio automático por email</li>
-                </ul>
-                <span class="btn">Iniciar Avaliação</span>
-            </a>
-
-            <a href="funcionarios.html" class="feature-card blue">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <h2>Lista de Funcionários</h2>
-                <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Candidatos aprovados</li>
-                    <li><i class="fas fa-check-circle"></i> Status de onboarding</li>
-                    <li><i class="fas fa-check-circle"></i> Progresso individual</li>
-                    <li><i class="fas fa-check-circle"></i> Relatórios detalhados</li>
-                    <li><i class="fas fa-check-circle"></i> Gestão centralizada</li>
-                </ul>
-                <span class="btn">Ver Lista</span>
-            </a>
-
-            <a href="funcionarios.html" class="feature-card orange">
-                <div class="icon"><i class="fas fa-route"></i></div>
-                <h2>Sistema de Onboarding</h2>
-                <p>Acompanhe a jornada completa de integração dos novos funcionários</p>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Checklist por etapas</li>
+     ...(content truncated)...</i> Checklist por etapas</li>
                     <li><i class="fas fa-check-circle"></i> Progresso visual</li>
                     <li><i class="fas fa-check-circle"></i> 6 passos estruturados</li>
                     <li><i class="fas fa-check-circle"></i> Salvamento automático</li>
@@ -396,20 +59,56 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            loadStats();
-        });
-
-        function loadStats() {
-            const employees = JSON.parse(localStorage.getItem("employees") || "[]");
-            document.getElementById("total-employees").textContent = employees.length;
-
-            const onboardingInProgress = employees.filter(emp => emp.status === "in-progress").length;
-            document.getElementById("onboarding-in-progress").textContent = onboardingInProgress;
-
-            const onboardingCompleted = employees.filter(emp => emp.status === "completed").length;
-            document.getElementById("onboarding-completed").textContent = onboardingCompleted;
+        // Carregar estatísticas da API
+        async function loadStatistics() {
+            try {
+                const response = await fetch("/api/employees");
+                const result = await response.json();
+                
+                if (result.success) {
+                    const employees = result.data;
+                    
+                    // Calcular estatísticas
+                    const totalEmployees = employees.length;
+                    const onboardingInProgress = employees.filter(emp => emp.status === "in-progress").length;
+                    const onboardingCompleted = employees.filter(emp => emp.status === "completed").length;
+                    
+                    // Atualizar elementos na página
+                    document.getElementById("total-employees").textContent = totalEmployees;
+                    document.getElementById("onboarding-in-progress").textContent = onboardingInProgress;
+                    document.getElementById("onboarding-completed").textContent = onboardingCompleted;
+                } else {
+                    console.error("Erro ao carregar estatísticas:", result.error);
+                    // Valores padrão em caso de erro
+                    document.getElementById("total-employees").textContent = "0";
+                    document.getElementById("onboarding-in-progress").textContent = "0";
+                    document.getElementById("onboarding-completed").textContent = "0";
+                }
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+                // Valores padrão em caso de erro
+                document.getElementById("total-employees").textContent = "0";
+                document.getElementById("onboarding-in-progress").textContent = "0";
+                document.getElementById("onboarding-completed").textContent = "0";
+            }
         }
+
+        // Inicializar página
+        document.addEventListener("DOMContentLoaded", function() {
+            loadStatistics();
+            
+            // Adicionar efeito de hover nos cards
+            const cards = document.querySelectorAll(".nav-card");
+            cards.forEach(card => {
+                card.addEventListener("mouseenter", function() {
+                    this.style.transform = "translateY(-10px) scale(1.02)";
+                });
+                
+                card.addEventListener("mouseleave", function() {
+                    this.style.transform = "translateY(-10px) scale(1)";
+                });
+            });
+        });
     </script>
 </body>
 </html>
