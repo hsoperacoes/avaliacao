@@ -4,411 +4,514 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão de RH - Home</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" );
-
-        :root {
-            --bg-color: #1a1a1a;
-            --card-bg: #2a2a2a;
-            --header-bg: #3a3a4a;
-            --text-color: #e0e0e0;
-            --accent-green: #4CAF50;
-            --accent-blue: #2196F3;
-            --accent-orange: #FF9800;
-            --shadow-dark: rgba(0, 0, 0, 0.4);
-            --shadow-light: rgba(0, 0, 0, 0.1);
-        }
-
+        /* Reset e configurações básicas */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: "Poppins", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            display: flex;
-            flex-direction: column;
+            color: #333;
+            background: #1a1a1a;
             min-height: 100vh;
-            align-items: center;
-            padding: 20px;
+            padding: 20px 0;
         }
 
         .container {
-            width: 100%;
             max-width: 1200px;
-            margin: auto;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        header {
+        /* Header */
+        .header {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: #fff;
-            padding: 40px 30px;
+            padding: 60px 30px;
             text-align: center;
             border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px var(--shadow-dark);
+            box-shadow: 0 4px 20px rgba(0,0,0,.3);
             position: relative;
             overflow: hidden;
+            margin-bottom: 40px;
         }
 
-        header::before {
-            content: ";
+        .header::before {
+            content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: rgba(255,255,255,.05);
-            transform: rotate(45deg);
-            animation: header-anim 10s linear infinite;
+            background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
         }
 
-        @keyframes header-anim {
-            0% { transform: rotate(45deg) translate(-50%, -50%); }
-            100% { transform: rotate(405deg) translate(-50%, -50%); }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        header h1 {
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #4CAF50;
+        }
+
+        .header h1 {
             font-size: 2.8em;
-            margin-bottom: 10px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .header h2 {
+            font-size: 1.6em;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #ecf0f1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: .9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Cards de navegação */
+        .navigation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .nav-card {
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-card:hover::before {
+            left: 100%;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-10px);
+            border-color: #4CAF50;
+            box-shadow: 0 15px 35px rgba(0,0,0,.4);
+        }
+
+        .nav-card.evaluation {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .nav-card.onboarding {
+            border-left: 4px solid #2196F3;
+        }
+
+        .nav-card.employees {
+            border-left: 4px solid #FF9800;
+        }
+
+        .card-icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
             position: relative;
             z-index: 1;
         }
 
-        header p {
-            font-size: 1.2em;
-            opacity: .8;
+        .nav-card.evaluation .card-icon {
+            color: #4CAF50;
+        }
+
+        .nav-card.onboarding .card-icon {
+            color: #2196F3;
+        }
+
+        .nav-card.employees .card-icon {
+            color: #FF9800;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
             position: relative;
             z-index: 1;
+        }
+
+        .card-description {
+            font-size: 1.1em;
+            color: #bbb;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-top: 20px;
+            text-align: left;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-features li {
+            color: #ddd;
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        /* Estatísticas */
+        .stats-section {
+            background: #2a2a2a;
+            border-radius: 15px;
+            padding: 40px 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.3);
+        }
+
+        .stats-title {
+            text-align: center;
+            color: #fff;
+            font-size: 2em;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 25px;
-            margin-bottom: 40px;
         }
 
-        .stat-card {
-            background-color: var(--card-bg);
-            padding: 25px;
-            border-radius: 15px;
+        .stat-item {
+            background: #3a3a3a;
+            padding: 25px 20px;
+            border-radius: 10px;
             text-align: center;
-            box-shadow: 0 4px 15px var(--shadow-light);
-            transition: transform .3s ease, box-shadow .3s ease;
-            border-bottom: 5px solid;
+            border-left: 4px solid #4CAF50;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px var(--shadow-dark);
-        }
-
-        .stat-card.green {
-            border-color: var(--accent-green);
-        }
-
-        .stat-card.orange {
-            border-color: var(--accent-orange);
-        }
-
-        .stat-card.blue {
-            border-color: var(--accent-blue);
-        }
-
-        .stat-card i {
-            font-size: 3em;
-            margin-bottom: 15px;
-            color: var(--text-color);
-        }
-
-        .stat-card h3 {
+        .stat-number {
             font-size: 2.5em;
+            font-weight: 700;
+            color: #4CAF50;
             margin-bottom: 10px;
-            color: var(--text-color);
         }
 
-        .stat-card p {
+        .stat-label {
+            color: #ddd;
             font-size: 1.1em;
-            color: #bbb;
         }
 
-        main {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #888;
+            padding: 30px 0;
+            border-top: 2px solid #333;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
             gap: 30px;
+            margin-top: 20px;
         }
 
-        .nav-card {
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 4px 15px var(--shadow-light);
-            transition: transform .3s ease, box-shadow .3s ease;
+        .footer-links a {
+            color: #4CAF50;
             text-decoration: none;
-            color: var(--text-color);
-            border-bottom: 5px solid;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            transition: color 0.3s ease;
         }
 
-        .nav-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 8px 25px var(--shadow-dark);
-        }
-
-        .nav-card.green {
-            border-color: var(--accent-green);
-        }
-
-        .nav-card.orange {
-            border-color: var(--accent-orange);
-        }
-
-        .nav-card.blue {
-            border-color: var(--accent-blue);
-        }
-
-        .nav-card i {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            color: var(--text-color);
-        }
-
-        .nav-card h2 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            color: var(--text-color);
-        }
-
-        .nav-card ul {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .nav-card ul li {
-            margin-bottom: 8px;
-            color: #bbb;
-            font-size: 0.95em;
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-card ul li i {
-            font-size: 1em;
-            margin-right: 10px;
-            color: var(--accent-green);
-        }
-
-        .nav-card .btn {
-            display: inline-block;
-            background-color: #555;
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color .3s ease;
-            margin-top: auto; /* Empurra o botão para baixo */
-        }
-
-        .nav-card.green .btn {
-            background-color: var(--accent-green);
-        }
-
-        .nav-card.orange .btn {
-            background-color: var(--accent-orange);
-        }
-
-        .nav-card.blue .btn {
-            background-color: var(--accent-blue);
-        }
-
-        .nav-card .btn:hover {
-            background-color: #777;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #bbb;
-            font-size: .9em;
-            margin-top: 40px;
+        .footer-links a:hover {
+            color: #45a049;
         }
 
         /* Responsividade */
         @media (max-width: 768px) {
-            header h1 {
+            .navigation-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .nav-card {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
                 font-size: 2.2em;
             }
-
-            .stats-grid,
-            main {
-                grid-template-columns: 1fr;
+            
+            .header h2 {
+                font-size: 1.3em;
             }
-
-            .stat-card,
-            .nav-card {
-                padding: 20px;
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-
-            .stat-card h3 {
-                font-size: 2em;
-            }
-
-            .nav-card h2 {
-                font-size: 1.5em;
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
             }
         }
 
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 1.8em;
-            }
+        /* Animações */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
 
-            .stat-card i,
-            .nav-card i {
-                font-size: 2.5em;
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
             }
-
-            .stat-card h3 {
-                font-size: 1.8em;
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
             }
+        }
 
-            .nav-card h2 {
-                font-size: 1.3em;
+        .nav-card {
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .nav-card:nth-child(1) { animation-delay: 0.1s; }
+        .nav-card:nth-child(2) { animation-delay: 0.2s; }
+        .nav-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Bem-vindo ao Sistema de Gestão de RH</h1>
-            <p>Sua plataforma completa para avaliação e onboarding de talentos.</p>
+        <!-- Header -->
+        <header class="header fade-in">
+            <div class="header-content">
+                <i class="fas fa-users-cog header-icon"></i>
+                <h1>SISTEMA DE GESTÃO DE RH</h1>
+                <h2>Plataforma Integrada de Recursos Humanos</h2>
+                <p>Gerencie todo o processo desde a avaliação de candidatos até o onboarding completo dos novos funcionários</p>
+            </div>
         </header>
 
-        <div class="stats-grid">
-            <div class="stat-card green">
-                <i class="fas fa-users"></i>
-                <h3 id="total-employees">0</h3>
-                <p>Total de Funcionários</p>
-            </div>
-            <div class="stat-card orange">
-                <i class="fas fa-hourglass-half"></i>
-                <h3 id="onboarding-in-progress">0</h3>
-                <p>Onboarding em Andamento</p>
-            </div>
-            <div class="stat-card blue">
-                <i class="fas fa-check-circle"></i>
-                <h3 id="onboarding-completed">0</h3>
-                <p>Onboarding Concluído</p>
+        <!-- Navegação Principal -->
+        <div class="navigation-grid">
+            <!-- Card Avaliação de Candidatos -->
+            <a href="avaliacao.html" class="nav-card evaluation">
+                <i class="fas fa-user-check card-icon"></i>
+                <h3 class="card-title">Avaliação de Candidatos</h3>
+                <p class="card-description">
+                    Realize avaliações completas de candidatos durante o processo seletivo
+                </p>
+                <ul class="card-features">
+                    <li>Coleta de dados pessoais</li>
+                    <li>Análise de competências</li>
+                    <li>Perguntas personalizadas</li>
+                    <li>Situações práticas</li>
+                    <li>Envio automático por email</li>
+                </ul>
+            </a>
+
+            <!-- Card Lista de Funcionários -->
+            <a href="funcionarios.html" class="nav-card employees">
+                <i class="fas fa-users card-icon"></i>
+                <h3 class="card-title">Lista de Funcionários</h3>
+                <p class="card-description">
+                    Gerencie funcionários aprovados e seus processos de onboarding
+                </p>
+                <ul class="card-features">
+                    <li>Candidatos aprovados</li>
+                    <li>Status de onboarding</li>
+                    <li>Progresso individual</li>
+                    <li>Relatórios detalhados</li>
+                    <li>Gestão centralizada</li>
+                </ul>
+            </a>
+
+            <!-- Card Sistema de Onboarding -->
+            <a href="onboarding.html" class="nav-card onboarding">
+                <i class="fas fa-route card-icon"></i>
+                <h3 class="card-title">Sistema de Onboarding</h3>
+                <p class="card-description">
+                    Acompanhe a jornada completa de integração dos novos funcionários
+                </p>
+                <ul class="card-features">
+                    <li>Checklist por etapas</li>
+                    <li>Progresso visual</li>
+                    <li>6 passos estruturados</li>
+                    <li>Salvamento automático</li>
+                    <li>Relatórios de progresso</li>
+                </ul>
+            </a>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-section fade-in">
+            <h3 class="stats-title">
+                <i class="fas fa-chart-bar"></i>
+                Estatísticas do Sistema
+            </h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCandidates">0</div>
+                    <div class="stat-label">Candidatos Avaliados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="approvedCandidates">0</div>
+                    <div class="stat-label">Candidatos Aprovados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeEmployees">0</div>
+                    <div class="stat-label">Funcionários Ativos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedOnboarding">0</div>
+                    <div class="stat-label">Onboarding Concluído</div>
+                </div>
             </div>
         </div>
 
-        <main>
-            <a href="./avaliacao.html" class="nav-card green">
-                <i class="fas fa-user-plus"></i>
-                <h2>Avaliação de Candidatos</h2>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Formulário completo</li>
-                    <li><i class="fas fa-check-circle"></i> Análise de competências</li>
-                    <li><i class="fas fa-check-circle"></i> Envio de dados por e-mail</li>
-                    <li><i class="fas fa-check-circle"></i> Integração com lista de funcionários</li>
-                </ul>
-                <span class="btn">Iniciar Avaliação</span>
-            </a>
-
-            <a href="./funcionarios.html" class="nav-card orange">
-                <i class="fas fa-users"></i>
-                <h2>Lista de Funcionários</h2>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Gestão de múltiplos funcionários</li>
-                    <li><i class="fas fa-check-circle"></i> Busca e filtros</li>
-                    <li><i class="fas fa-check-circle"></i> Status e progresso visual</li>
-                    <li><i class="fas fa-check-circle"></i> Acesso rápido ao onboarding</li>
-                </ul>
-                <span class="btn">Ver Funcionários</span>
-            </a>
-
-            <a href="#" class="nav-card blue" onclick="alert(\'Para iniciar o onboarding, vá em \'Lista de Funcionários\' e clique no botão \'Onboarding\' ao lado do nome do funcionário.\'); return false;">
-                <i class="fas fa-clipboard-list"></i>
-                <h2>Sistema de Onboarding</h2>
-                <ul>
-                    <li><i class="fas fa-check-circle"></i> Checklist por etapas</li>
-                    <li><i class="fas fa-check-circle"></i> Progresso visual</li>
-                    <li><i class="fas fa-check-circle"></i> 6 passos estruturados</li>
-                    <li><i class="fas fa-check-circle"></i> Salvamento automático</li>
-                    <li><i class="fas fa-check-circle"></i> Relatórios de progresso</li>
-                </ul>
-                <span class="btn">Iniciar Onboarding</span>
-            </a>
-        </main>
-
-        <footer>
-            <p>&copy; 2025 Sistema de Gestão de RH. Todos os direitos reservados.</p>
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Sistema de Gestão de RH. Desenvolvido para otimizar processos de recursos humanos.</p>
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-question-circle"></i> Ajuda</a>
+                <a href="#"><i class="fas fa-cog"></i> Configurações</a>
+                <a href="#"><i class="fas fa-file-alt"></i> Documentação</a>
+            </div>
         </footer>
     </div>
 
     <script>
-        const BASE_API_URL = "https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec"; // SEU URL DO APPS SCRIPT AQUI
+        // Simular estatísticas (em produção, viriam de um banco de dados)
+        function loadStatistics() {
+            // Buscar dados do localStorage
+            const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
+            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+            
+            // Calcular estatísticas
+            const totalCandidates = evaluations.length;
+            const approvedCandidates = evaluations.filter(e => e.apto_vaga === 'sim').length;
+            const activeEmployees = employees.length;
+            const completedOnboarding = employees.filter(e => e.onboardingComplete).length;
+            
+            // Animar números
+            animateNumber('totalCandidates', totalCandidates);
+            animateNumber('approvedCandidates', approvedCandidates);
+            animateNumber('activeEmployees', activeEmployees);
+            animateNumber('completedOnboarding', completedOnboarding);
+        }
 
-        async function loadStatistics( ) {
-            try {
-                const response = await fetch(`${BASE_API_URL}?path=employees&method=GET`);
-                const result = await response.json();
-
-                if (result.success && result.data) {
-                    const employees = result.data;
-                    document.getElementById("total-employees").textContent = employees.length;
-
-                    const onboardingInProgress = employees.filter(emp => emp.status === "in-progress").length;
-                    document.getElementById("onboarding-in-progress").textContent = onboardingInProgress;
-
-                    const onboardingCompleted = employees.filter(emp => emp.status === "completed").length;
-                    document.getElementById("onboarding-completed").textContent = onboardingCompleted;
-                } else {
-                    console.error("Erro ao carregar estatísticas:", result.error);
-                    // Valores padrão em caso de erro
-                    document.getElementById("total-employees").textContent = "0";
-                    document.getElementById("onboarding-in-progress").textContent = "0";
-                    document.getElementById("onboarding-completed").textContent = "0";
+        function animateNumber(elementId, targetNumber) {
+            const element = document.getElementById(elementId);
+            const duration = 2000; // 2 segundos
+            const steps = 60;
+            const increment = targetNumber / steps;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetNumber) {
+                    current = targetNumber;
+                    clearInterval(timer);
                 }
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-                // Valores padrão em caso de erro
-                document.getElementById("total-employees").textContent = "0";
-                document.getElementById("onboarding-in-progress").textContent = "0";
-                document.getElementById("onboarding-completed").textContent = "0";
-            }
+                element.textContent = Math.floor(current);
+            }, duration / steps);
         }
 
         // Inicializar página
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener('DOMContentLoaded', function() {
             loadStatistics();
             
             // Adicionar efeito de hover nos cards
-            const cards = document.querySelectorAll(".nav-card");
+            const cards = document.querySelectorAll('.nav-card');
             cards.forEach(card => {
-                card.addEventListener("mouseenter", function() {
-                    this.style.transform = "translateY(-10px) scale(1.02)";
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
                 });
                 
-                card.addEventListener("mouseleave", function() {
-                    this.style.transform = "translateY(0px) scale(1)"; // Corrigido para voltar à posição original
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-10px) scale(1)';
                 });
             });
         });
+
+        // Função para verificar se há dados salvos
+        function checkSavedData() {
+            const evaluations = localStorage.getItem('evaluations');
+            const employees = localStorage.getItem('employees');
+            
+            if (!evaluations) {
+                localStorage.setItem('evaluations', JSON.stringify([]));
+            }
+            
+            if (!employees) {
+                localStorage.setItem('employees', JSON.stringify([]));
+            }
+        }
+
+        // Inicializar dados se necessário
+        checkSavedData();
     </script>
 </body>
 </html>
+
