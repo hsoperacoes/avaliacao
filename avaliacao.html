@@ -465,16 +465,16 @@
         <div class="actions">
           <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
           <button type="reset" class="btn btn-danger"><i class="fas fa-eraser"></i> Limpar</button>
-          <a class="btn btn-link" href="/home.html"><i class="fas fa-home"></i> Home</a>
-          <a class="btn btn-link" href="/funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
+          <a class="btn btn-link" href="/avaliacao/home.html"><i class="fas fa-home"></i> Home</a>
+          <a class="btn btn-link" href="/avaliacao/funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    /* === CONFIG: cole aqui a URL do seu GAS publicado como Web App === */
-    const EVAL_GAS_WEB_APP_URL = 'COLE_AQUI_O_URL_DO_SEU_GAS_WEB_APP';
+    /* === CONFIG: URL do seu GAS publicado como Web App === */
+    const EVAL_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
     // Data padrão
     document.addEventListener('DOMContentLoaded', () => {
@@ -491,7 +491,7 @@
     }
 
     async function sendToGAS(payload){
-      if (!EVAL_GAS_WEB_APP_URL || EVAL_GAS_WEB_APP_URL.startsWith('COLE_AQUI')){
+      if (!EVAL_GAS_WEB_APP_URL){
         throw new Error('URL do GAS não configurada no HTML (EVAL_GAS_WEB_APP_URL).');
       }
       const res = await fetch(EVAL_GAS_WEB_APP_URL, {
@@ -510,7 +510,7 @@
         employees.push({
           id: Date.now().toString(),
           name: d.nome,
-          position: 'A definir',
+          position: 'A definir',              // se quiser, podemos capturar uma "função" do formulário
           startDate: new Date().toISOString().slice(0,10),
           manager: d.nome_avaliador || d.nome_gerente || '',
           email: d.email || '',
@@ -538,11 +538,9 @@
         if (data.apto_vaga === 'Sim'){
           saveApprovedToEmployees(data);
           loading.style.display = 'none'; ok.style.display = 'block';
-          // pequeno delay para feedback visual
-          setTimeout(() => { window.location.href = '/funcionarios.html'; }, 800);
+          setTimeout(() => { window.location.href = '/avaliacao/funcionarios.html'; }, 800);
         } else {
           loading.style.display = 'none'; ok.style.display = 'block';
-          // limpa depois de 2s
           setTimeout(() => { e.target.reset(); ok.style.display = 'none'; }, 2000);
         }
       }catch(err){
