@@ -232,9 +232,9 @@
 
       <!-- Ações -->
       <div class="action-buttons">
-        <button id="saveBtn" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
-        <button class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
-        <a href="funcionarios.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i>Voltar à Lista</a>
+        <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
+        <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
+        <a href="/avaliacao/funcionarios.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i>Voltar à Lista</a>
       </div>
     </div>
   </div>
@@ -256,13 +256,29 @@
     const ORDERED_TASK_IDS = STEPS.flatMap(s=>s.tasks);
     let lockedIndex = -1;
 
+    function ratingsKey(){ return 'ratings:' + (employeeData.id || 'sem_id'); }
+    function getRatings(){ try{ return JSON.parse(localStorage.getItem(ratingsKey())||'{}'); }catch{ return {}; } }
+    function setRatings(obj){ localStorage.setItem(ratingsKey(), JSON.stringify(obj||{})); }
+    function hasRating(stepId){ const r=getRatings(); return !!r[String(stepId)]; }
+
     function computeContiguousCompletedIndex(){ let idx=-1; for (let i=0;i<ORDERED_TASK_IDS.length;i++){ if(isTaskCompleted(ORDERED_TASK_IDS[i])) idx=i; else break; } return idx; }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCurrentEmployee(); renderEmployeeInfo();
       const hasSaved = !!getSavedEmployeeRecord();
-      if (!hasSaved){ markTaskUI('1.1', true); markTaskUI('1.2', true); } else { restoreProgressFromStorage(); }
-      applySequentialLocking(); updateProgressBar(); updateStepStatuses(); updateEvaluations(); restoreRatings(); toggleStep('step1');
+      if (!hasSaved){
+        // NOVO: para candidato novo, 1.1 e 1.2 vêm concluídas
+        markTaskUI('1.1', true);
+        markTaskUI('1.2', true);
+      } else {
+        restoreProgressFromStorage();
+      }
+      applySequentialLocking();
+      updateProgressBar();
+      updateStepStatuses();
+      updateEvaluations();
+      restoreRatings();
+      toggleStep('step1');
       document.querySelectorAll('.step-section').forEach((s,i)=>{ s.style.animationDelay=(i*0.1)+'s'; s.classList.add('fade-in'); });
     });
 
@@ -275,79 +291,173 @@
 
     function onTaskClick(ev, el){
       if (el.classList.contains('disabled')){ showToast('Conclua as etapas anteriores primeiro.'); return; }
-      const id=el.dataset.taskId; const idx=ORDERED_TASK_IDS.indexOf(id); const next=nextAvailableTaskId();
+      const id=el.dataset.taskId;
+      const idx=ORDERED_TASK_IDS.indexOf(id);
+      const next=nextAvailableTaskId();
       const isCompleted=el.classList.contains('completed');
+
       if (isCompleted && idx<=lockedIndex){ showToast('Essa etapa já foi confirmada em um salvamento anterior.'); return; }
       if (!isCompleted && id!==next){ showToast('Você só pode concluir a próxima tarefa disponível.'); return; }
+
       el.classList.toggle('completed');
-      applySequentialLocking(); updateProgressBar(); maybeOpenNextStep(id); updateStepStatuses(); updateEvaluations();
+
+      applySequentialLocking();
+      updateProgressBar();
+      maybeOpenNextStep(id);
+      updateStepStatuses();
+      updateEvaluations();
     }
 
     function maybeOpenNextStep(taskId){
-      const { stepIndex }=getTaskPosition(taskId); const step=STEPS[stepIndex]; const done=step.tasks.every(t=>isTaskCompleted(t));
-      if (done && stepIndex<STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
+      const { stepIndex }=getTaskPosition(taskId);
+      const step=STEPS[stepIndex];
+
+      const allTasksDone = step.tasks.every(t=>isTaskCompleted(t));
+      if (!allTasksDone) return;
+
+      // Tarefas concluídas, agora exige avaliação antes de seguir
+      if (!hasRating(step.id)){
+        const c=document.getElementById('eval-step'+step.id);
+        if (c){ c.style.display='block'; }
+        showToast('Avalie esta etapa para liberar a próxima.');
+        return;
+      }
+      // Já tem avaliação: pode abrir a próxima
+      if (stepIndex<STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
     }
 
     function markTaskUI(taskId,completed){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); if(el) el.classList.toggle('completed',!!completed); }
     function isTaskCompleted(taskId){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); return !!el && el.classList.contains('completed'); }
     function getTaskPosition(taskId){ const idx=ORDERED_TASK_IDS.indexOf(taskId); let acc=0, stepIndex=0, localIndex=idx; for(let i=0;i<STEPS.length;i++){ if(idx<acc+STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; } acc+=STEPS[i].tasks.length; } return {stepIndex,localIndex}; }
-    function nextAvailableTaskId(){ for(const id of ORDERED_TASK_IDS){ if(!isTaskCompleted(id)) return id; } return null; }
+
+    // BLOQUEIA avanço para próxima etapa até avaliar a atual
+    function nextAvailableTaskId(){
+      for (const step of STEPS){
+        // se houver alguma tarefa desta etapa ainda não concluída, ela é a próxima
+        for (const id of step.tasks){ if (!isTaskCompleted(id)) return id; }
+        // se todas concluídas, mas SEM avaliação: trava aqui
+        if (!hasRating(step.id)) return null;
+      }
+      return null;
+    }
 
     function applySequentialLocking(){
       const next=nextAvailableTaskId();
       document.querySelectorAll('.checklist-item').forEach(el=>{
-        const id=el.dataset.taskId; if(!id) return; const idx=ORDERED_TASK_IDS.indexOf(id);
+        const id=el.dataset.taskId; if(!id) return;
+        const idx=ORDERED_TASK_IDS.indexOf(id);
         if (idx<=lockedIndex){ el.classList.add('disabled'); return; }
-        if (isTaskCompleted(id) || id===next){ el.classList.remove('disabled'); } else { el.classList.add('disabled'); }
+        if (isTaskCompleted(id) || (next && id===next)){ el.classList.remove('disabled'); }
+        else { el.classList.add('disabled'); }
       });
     }
 
     function updateProgressBar(){
-      const all=ORDERED_TASK_IDS.length; const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length; const pct=all?Math.round((done/all)*100):0;
-      document.getElementById('progressBar').style.width=pct+'%'; document.getElementById('progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
+      const all=ORDERED_TASK_IDS.length;
+      const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;
+      const pct=all?Math.round((done/all)*100):0;
+      document.getElementById('progressBar').style.width=pct+'%';
+      document.getElementById('progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
     }
-    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
-    function isStepDone(stepObj){ return stepObj.tasks.every(t=>isTaskCompleted(t)); }
+    function isStepDone(stepObj){
+      const tasksOk = stepObj.tasks.every(t=>isTaskCompleted(t));
+      const rated   = hasRating(stepObj.id);
+      return tasksOk && rated; // AGORA: etapa só “Concluída” se também tiver avaliação
+    }
+
     function updateStepStatuses(){
       STEPS.forEach((step)=>{
         const header=document.querySelector(`#step${step.id}`).previousElementSibling; if(!header) return;
         let badge=header.querySelector('.step-badge'); if(!badge){ badge=document.createElement('span'); badge.className='step-badge'; const chev=header.querySelector('.step-toggle'); header.insertBefore(badge,chev); }
-        const done=isStepDone(step); header.classList.toggle('done',done); badge.textContent=done?'Concluído':'Em andamento';
+        const done=isStepDone(step);
+        header.classList.toggle('done',done);
+        badge.textContent=done?'Concluído':'Em andamento';
       });
     }
 
     /* ===== Avaliação por etapa ===== */
     function updateEvaluations(){
-      STEPS.forEach((s)=>{ const done=s.tasks.every(t=>isTaskCompleted(t)); const c=document.getElementById('eval-step'+s.id); if(c) c.style.display=done?'block':'none'; });
+      // mostra o bloco de avaliação quando todas as tarefas da etapa estiverem concluídas
+      STEPS.forEach((s)=>{ 
+        const tasksOk = s.tasks.every(t=>isTaskCompleted(t));
+        const c=document.getElementById('eval-step'+s.id);
+        if(c) c.style.display = tasksOk ? 'block' : 'none';
+      });
     }
 
     document.addEventListener('click',(e)=>{
       if(!e.target.classList.contains('star')) return;
-      const val=parseInt(e.target.dataset.value,10); const parent=e.target.closest('.stars');
+      const val=parseInt(e.target.dataset.value,10);
+      const container=e.target.closest('.evaluation-container');
+      const stepId=parseInt(container.id.replace('eval-step',''),10);
+
+      // marca visualmente
+      const parent=container.querySelector('.stars');
       parent.querySelectorAll('.star').forEach(st=>{ st.classList.toggle('selected', parseInt(st.dataset.value,10)<=val); });
-      const stepId=parent.closest('.evaluation-container').id.replace('eval-step',''); saveRating(stepId,val);
+
+      // salva nota POR FUNCIONÁRIO
+      const r=getRatings(); r[String(stepId)] = val; setRatings(r);
+
+      // após avaliar, libera próxima etapa (se todas tarefas desta etapa estiverem concluídas)
+      const step = STEPS.find(s=>s.id===stepId);
+      if (step && step.tasks.every(t=>isTaskCompleted(t))){
+        applySequentialLocking();
+        updateStepStatuses();
+        // abre a próxima etapa automaticamente
+        const idx = STEPS.findIndex(s=>s.id===stepId);
+        if (idx>-1 && idx<STEPS.length-1) toggleStep('step'+STEPS[idx+1].id);
+      }
     });
 
-    function saveRating(stepId,val){ const ratings=JSON.parse(localStorage.getItem('ratings')||'{}'); ratings[stepId]=val; localStorage.setItem('ratings',JSON.stringify(ratings)); }
-    function restoreRatings(){ const ratings=JSON.parse(localStorage.getItem('ratings')||'{}'); Object.keys(ratings).forEach(stepId=>{ const val=ratings[stepId]; const stars=document.querySelectorAll('#eval-step'+stepId+' .star'); stars.forEach(st=>st.classList.toggle('selected', parseInt(st.dataset.value,10)<=val)); }); }
+    function restoreRatings(){
+      const ratings=getRatings();
+      Object.keys(ratings).forEach(stepId=>{
+        const val=ratings[stepId];
+        const stars=document.querySelectorAll('#eval-step'+stepId+' .star');
+        stars.forEach(st=>st.classList.toggle('selected', parseInt(st.dataset.value,10)<=val));
+      });
+    }
 
     /* ======= SALVAR / RELATÓRIO / ENVIO ======= */
-    function onSaveClick(){ saveProgressToStorage(); const stepInfo=lastCompletedStep(); const reportText=buildTxtReport(); sendEmail(stepInfo, reportText); }
+    function onSaveClick(){
+      saveProgressToStorage();
+      const stepInfo=lastCompletedStep();
+      const reportText=buildTxtReport();
+      sendEmail(stepInfo, reportText);
+    }
 
     function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
-    function lastCompletedStep(){ let last={stepNumber:null, stepTitle:null}; for (const s of STEPS){ if (s.tasks.every(id=>isTaskCompleted(id))) last={stepNumber:s.id, stepTitle:s.title}; else break; } return last; }
+    function lastCompletedStep(){
+      let last={stepNumber:null, stepTitle:null};
+      for (const s of STEPS){
+        if (isStepDone(s)) last={stepNumber:s.id, stepTitle:s.title};
+        else break;
+      }
+      return last;
+    }
 
     function saveProgressToStorage(){
-      const employees=JSON.parse(localStorage.getItem('employees')||'[]'); const idxEmp=employees.findIndex(e=>e.id===employeeData.id);
-      const completed=getCompletedTaskIds(); const pct=Math.round((completed.length/ORDERED_TASK_IDS.length)*100);
-      const newLockedIndex=computeContiguousCompletedIndex(); lockedIndex=newLockedIndex;
-      const record={ id:employeeData.id, name:employeeData.name, position:employeeData.position, startDate:employeeData.startDate, manager:employeeData.manager,
+      const employees=JSON.parse(localStorage.getItem('employees')||'[]');
+      const idxEmp=employees.findIndex(e=>e.id===employeeData.id);
+      const completed=getCompletedTaskIds();
+      const pct=Math.round((completed.length/ORDERED_TASK_IDS.length)*100);
+      const newLockedIndex=computeContiguousCompletedIndex();
+      lockedIndex=newLockedIndex;
+
+      const record={
+        id:employeeData.id, name:employeeData.name, position:employeeData.position,
+        startDate:employeeData.startDate, manager:employeeData.manager,
         onboardingData:{ completedTasks:completed, lastUpdate:new Date().toISOString(), lockedIndex:newLockedIndex },
-        progress:pct, status:pct===0?'pending':(pct===100?'completed':'in-progress') };
+        progress:pct, status:pct===0?'pending':(pct===100?'completed':'in-progress')
+      };
       if (idxEmp>-1) employees[idxEmp]=record; else employees.push(record);
       localStorage.setItem('employees', JSON.stringify(employees));
-      const btn=document.getElementById('saveBtn'); const txt=btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Salvo!'; setTimeout(()=>btn.innerHTML=txt,1500);
+
+      const btn=document.getElementById('saveBtn'); const txt=btn.innerHTML;
+      btn.innerHTML='<i class="fas fa-check"></i> Salvo!'; setTimeout(()=>btn.innerHTML=txt,1500);
+
       updateStepStatuses(); updateEvaluations();
     }
 
@@ -359,18 +469,27 @@
     }
 
     function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
-    function loadCurrentEmployee(){ const stored=localStorage.getItem('currentEmployee'); if(stored){ const emp=JSON.parse(stored); employeeData={ id:emp.id, name:emp.name, position:emp.position, startDate:formatDate(emp.startDate), manager:emp.manager }; } renderEmployeeInfo(); }
+    function loadCurrentEmployee(){
+      const stored=localStorage.getItem('currentEmployee');
+      if(stored){
+        const emp=JSON.parse(stored);
+        employeeData={ id:emp.id, name:emp.name, position:emp.position, startDate:formatDate(emp.startDate), manager:emp.manager };
+      }
+      renderEmployeeInfo();
+    }
     function renderEmployeeInfo(){ document.getElementById('employeeName').textContent=employeeData.name; document.getElementById('employeePosition').textContent=employeeData.position; document.getElementById('startDate').textContent=employeeData.startDate; document.getElementById('managerName').textContent=employeeData.manager; }
     function formatDate(s){ return new Date(s).toLocaleDateString('pt-BR'); }
 
     function getTaskTextById(id){ const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`); return el?el.textContent.trim():id; }
 
-    /* ===== TXT agora inclui as AVALIAÇÕES ===== */
+    /* ===== TXT inclui AVALIAÇÕES ===== */
     function buildTxtReport(){
-      const completed=getCompletedTaskIds(); const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
-      const all=ORDERED_TASK_IDS.length; const done=completed.length; const pct=all?Math.round((done/all)*100):0;
+      const completed=getCompletedTaskIds();
+      const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
+      const all=ORDERED_TASK_IDS.length; const done=completed.length;
+      const pct=all?Math.round((done/all)*100):0;
       const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
-      const ratings=JSON.parse(localStorage.getItem('ratings')||'{}');
+      const ratings=getRatings();
 
       const lines=[];
       lines.push('RELATÓRIO DE ONBOARDING','');
@@ -386,25 +505,43 @@
       lines.push('TAREFAS CONCLUÍDAS:'); for (const id of completed){ lines.push(`✓ ${getTaskTextById(id)}`); }
       lines.push('', 'TAREFAS PENDENTES:'); for (const id of pending){ lines.push(`○ ${getTaskTextById(id)}`); }
       lines.push('', 'AVALIAÇÕES POR ETAPA (1–5):');
-      for (const s of STEPS){
-        const r = ratings[String(s.id)] || ratings[s.id] || null;
-        const title = s.title.replace(/\s+/g,' ').trim();
-        lines.push(`- ${title}: ${r ? r + '/5' : 'sem avaliação'}`);
-      }
+      for (const s of STEPS){ const r = ratings[String(s.id)]; lines.push(`- ${s.title}: ${r ? r + '/5' : 'sem avaliação'}`); }
       return lines.join('\n');
     }
 
     function generateReportTXT(){
-      const content=buildTxtReport(); const blob=new Blob([content],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); const safe=(employeeData.name||'Funcionario').replace(/\s+/g,'_'); const iso=new Date().toISOString().slice(0,10);
-      a.href=url; a.download=`relatorio_onboarding_${safe}_${iso}.txt`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      const content=buildTxtReport();
+      const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      const safe=(employeeData.name||'Funcionario').replace(/\s+/g,'_');
+      const iso=new Date().toISOString().slice(0,10);
+      a.href=url; a.download=`relatorio_onboarding_${safe}_${iso}.txt`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
     async function sendEmail(stepInfo, reportText){
-      if (!GAS_WEB_APP_URL || /COLE_AQUI/i.test(GAS_WEB_APP_URL)){ showToast('URL do Web App (GAS) não configurada.'); return; }
-      const payload={ employeeName:employeeData.name, position:employeeData.position, manager:employeeData.manager, stepNumber:stepInfo.stepNumber, stepTitle:stepInfo.stepTitle, completedTasks:getCompletedTaskIds(), progressPct:parseInt(document.getElementById('progressBar').style.width)||0, savedAt:new Date().toISOString(), reportText };
-      try{ await fetch(GAS_WEB_APP_URL,{ method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload)}); showToast('Progresso salvo e e-mail enviado com TXT em anexo.'); }
-      catch(err){ console.error(err); showToast('Falha ao contatar o Web App.'); }
+      if (!GAS_WEB_APP_URL){ showToast('URL do Web App (GAS) não configurada.'); return; }
+      const completed = getCompletedTaskIds();
+      const pct = ORDERED_TASK_IDS.length ? Math.round((completed.length / ORDERED_TASK_IDS.length) * 100) : 0;
+      const payload={
+        employeeName:employeeData.name,
+        position:employeeData.position,
+        manager:employeeData.manager,
+        stepNumber:stepInfo.stepNumber,
+        stepTitle:stepInfo.stepTitle,
+        completedTasks:completed,
+        progressPct:pct,
+        savedAt:new Date().toISOString(),
+        reportText
+      };
+      try{
+        await fetch(GAS_WEB_APP_URL,{ method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload)});
+        showToast('Progresso salvo e e-mail enviado com TXT em anexo.');
+      }catch(err){
+        console.error(err);
+        showToast('Falha ao contatar o Web App.');
+      }
     }
   </script>
 </body>
