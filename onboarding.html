@@ -45,7 +45,7 @@
     .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff}
     .btn-secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff}
-    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease}
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
     @media(max-width:768px){.employee-details{grid-template-columns:1fr}.action-buttons{flex-direction:column}}
   </style>
@@ -166,7 +166,7 @@
 
 <script>
   /* ===================== CONFIG ===================== */
-  const GAS_WEB_APP_URL = 'COLE_AQUI_O_URL_DA_IMPLANTACAO_DO_WEB_APP';
+  const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
   /* ============== DADOS DO FUNCIONÁRIO ============== */
   let employeeData = { id:null, name:'Funcionário Exemplo', position:'Cargo', startDate:'2025-09-03', manager:'Gerente' };
@@ -301,10 +301,12 @@
     lines.push(`Data de Início: ${employeeData.startDate}`);
     lines.push(`Gerente: ${employeeData.manager}`);
     lines.push(`Data do Relatório: ${today}`,'');
+
     lines.push('PROGRESSO GERAL');
     lines.push(`Total de tarefas: ${all}`);
     lines.push(`Tarefas concluídas: ${done}`);
     lines.push(`Percentual: ${pct}%`,'');
+
     lines.push('TAREFAS CONCLUÍDAS:');
     for (const id of completed){ lines.push(`✓ ${getTaskTextById(id)}`); }
     lines.push('', 'TAREFAS PENDENTES:');
@@ -324,7 +326,11 @@
 
   /* ======= ENVIO AO APPS SCRIPT (com TXT em anexo) ======= */
   async function sendEmail(stepInfo, reportText){
-    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.startsWith('https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec')){ showToast('URL do Web App (GAS) não configurada.'); return; }
+    // Só bloqueia se estiver vazio/placeholder
+    if (!GAS_WEB_APP_URL || /COLE_AQUI/i.test(GAS_WEB_APP_URL)){
+      showToast('URL do Web App (GAS) não configurada.');
+      return;
+    }
     const payload = {
       employeeName: employeeData.name,
       position: employeeData.position,
@@ -342,6 +348,5 @@
     }catch(err){ console.error(err); showToast('Falha ao contatar o Web App.'); }
   }
 </script>
-<div id="toast" class="toast">Mensagem</div>
 </body>
 </html>
