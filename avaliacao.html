@@ -148,10 +148,10 @@
                 <label for="email">E-mail</label>
                 <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
               </div>
-              <!-- NOVO: Função/cargo pretendido -->
+              <!-- NOVO: Função/cargo pretendido (OBRIGATÓRIO) -->
               <div class="col-3">
-                <label for="funcao_prevista">Função pretendida</label>
-                <input id="funcao_prevista" name="funcao_prevista" type="text" placeholder="ex.: Vendedor, Caixa, Estoquista"/>
+                <label for="funcao_prevista">Função pretendida *</label>
+                <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
               </div>
             </div>
           </div>
@@ -515,7 +515,7 @@
         employees.push({
           id: Date.now().toString(),
           name: d.nome,
-          position: d.funcao_prevista || 'A definir',   // <-- usa a Função pretendida aqui
+          position: d.funcao_prevista || 'A definir',   // usa a Função pretendida
           startDate: new Date().toISOString().slice(0,10),
           manager: d.nome_avaliador || d.nome_gerente || '',
           email: d.email || '',
