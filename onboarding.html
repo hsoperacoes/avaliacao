@@ -11,7 +11,7 @@
     body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#eaeaea;background:#1a1a1a;min-height:100vh;padding:20px 0}
     .container{max-width:1200px;margin:0 auto;padding:0 20px}
 
-    /* Header com efeito do layout antigo */
+    /* Header com efeito */
     .header{
       background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);
       color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;
@@ -56,6 +56,17 @@
     .step-toggle{font-size:1.2em;transition:transform .3s ease}
     .step-content{padding:22px;display:none}
     .step-content.active{display:block}
+
+    /* Badge do status do passo */
+    .step-badge{
+      font-size:.85rem;font-weight:700;
+      padding:4px 10px;border-radius:999px;line-height:1;
+      background:#666;color:#fff;opacity:.9
+    }
+    .step-header.done .step-badge{background:#2e7d32} /* verde quando concluído */
+    .step-header.done{
+      background:linear-gradient(135deg,#2e7d32 0%,#1b5e20 100%) !important;
+    }
 
     /* Checklist */
     .checklist-item{background:#4a4a4a;border:2px solid #555;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;transition:all .25s ease}
@@ -121,7 +132,9 @@
       <!-- 1º Passo - Gerente. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
-          <i class="fas fa-user-tie"></i><h3>1º Passo - Gerente.</h3><i id="toggle1" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-user-tie"></i><h3>1º Passo - Gerente.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle1" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step1" class="step-content">
           <div class="checklist-item" data-task-id="1.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.1 - Anúncio de vaga</div></div></div>
@@ -137,7 +150,9 @@
       <!-- 2º Passo - Primeiro dia de Trabalho. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step2')">
-          <i class="fas fa-calendar-day"></i><h3>2º Passo - Primeiro dia de Trabalho.</h3><i id="toggle2" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-calendar-day"></i><h3>2º Passo - Primeiro dia de Trabalho.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle2" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step2" class="step-content">
           <div class="checklist-item" data-task-id="2.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.1 - Fazer integração na empresa</div></div></div>
@@ -150,7 +165,9 @@
       <!-- 3º Passo - Segundo Dia. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step3')">
-          <i class="fas fa-graduation-cap"></i><h3>3º Passo - Segundo Dia.</h3><i id="toggle3" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-graduation-cap"></i><h3>3º Passo - Segundo Dia.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle3" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step3" class="step-content">
           <div class="checklist-item" data-task-id="3.1" onclick="onTaskClick(event,this)">
@@ -166,7 +183,9 @@
       <!-- 4º Passo - Terceiro dia. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step4')">
-          <i class="fas fa-layer-group"></i><h3>4º Passo - Terceiro dia.</h3><i id="toggle4" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-layer-group"></i><h3>4º Passo - Terceiro dia.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle4" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step4" class="step-content">
           <div class="checklist-item" data-task-id="4.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">4.1 - Conhecer Estoque, conhecer ranking de produtos e sua importância no portifólio das vendas</div></div></div>
@@ -176,7 +195,9 @@
       <!-- 5º Passo - Quarto, Quinto e Sexto dia. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step5')">
-          <i class="fas fa-calendar-week"></i><h3>5º Passo - Quarto, Quinto e Sexto dia.</h3><i id="toggle5" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-calendar-week"></i><h3>5º Passo - Quarto, Quinto e Sexto dia.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle5" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step5" class="step-content">
           <div class="checklist-item" data-task-id="5.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">5.1 - Iniciar atendimento com acompanhamento 100% da gerente.</div></div></div>
@@ -186,7 +207,9 @@
       <!-- 6º Passo - Sétimo dia. -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step6')">
-          <i class="fas fa-check-circle"></i><h3>6º Passo - Sétimo dia.</h3><i id="toggle6" class="fas fa-chevron-down step-toggle"></i>
+          <i class="fas fa-check-circle"></i><h3>6º Passo - Sétimo dia.</h3>
+          <span class="step-badge">Em andamento</span>
+          <i id="toggle6" class="fas fa-chevron-down step-toggle"></i>
         </div>
         <div id="step6" class="step-content">
           <div class="checklist-item" data-task-id="6.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">6.1 - Validação da semana pelo gerente e repassada</div></div></div>
@@ -222,22 +245,33 @@
     ];
     const ORDERED_TASK_IDS = STEPS.flatMap(s=>s.tasks);
 
+    /* ====== LOCK de desmarcação após salvamento ====== */
+    let lockedIndex = -1; // até onde está “congelado” por salvamento
+
+    function computeContiguousCompletedIndex() {
+      // percorre em ordem e pega o último índice contíguo concluído
+      let idx = -1;
+      for (let i = 0; i < ORDERED_TASK_IDS.length; i++) {
+        if (isTaskCompleted(ORDERED_TASK_IDS[i])) idx = i;
+        else break;
+      }
+      return idx; // -1 = nada congelado
+    }
+
     /* =================== INICIALIZAÇÃO =================== */
     document.addEventListener('DOMContentLoaded', () => {
-      // carrega funcionário atual da lista
       loadCurrentEmployee();
       renderEmployeeInfo();
 
-      // se nunca salvou, marca 1.1 e 1.2 como concluídas (como estava no seu código)
       const hasSaved = !!getSavedEmployeeRecord();
       if (!hasSaved){ markTaskUI('1.1', true); markTaskUI('1.2', true); }
       else { restoreProgressFromStorage(); }
 
       applySequentialLocking();
       updateProgressBar();
+      updateStepStatuses();   // badge + cor
       toggleStep('step1');
 
-      // efeito fade-in nas seções (do layout antigo)
       document.querySelectorAll('.step-section').forEach((section, i)=>{
         section.style.animationDelay = (i*0.1)+'s';
         section.classList.add('fade-in');
@@ -255,14 +289,33 @@
     }
 
     function onTaskClick(ev, el){
-      if (el.classList.contains('disabled')) { showToast('Conclua as etapas anteriores primeiro.'); return; }
+      if (el.classList.contains('disabled')) {
+        showToast('Conclua as etapas anteriores primeiro.');
+        return;
+      }
       const id = el.dataset.taskId;
+      const idx = ORDERED_TASK_IDS.indexOf(id);
       const next = nextAvailableTaskId();
-      if (id !== next && !el.classList.contains('completed')) { showToast('Você só pode concluir a próxima tarefa disponível.'); return; }
+
+      const isCompleted = el.classList.contains('completed');
+      // tentar DESMARCAR algo já congelado?
+      if (isCompleted && idx <= lockedIndex) {
+        showToast('Essa etapa já foi confirmada em um salvamento anterior.');
+        return;
+      }
+
+      // marcar novo só se for a próxima disponível
+      if (!isCompleted && id !== next) {
+        showToast('Você só pode concluir a próxima tarefa disponível.');
+        return;
+      }
+
       el.classList.toggle('completed');
+
       applySequentialLocking();
       updateProgressBar();
       maybeOpenNextStep(id);
+      updateStepStatuses(); // atualiza badge/cor do passo
     }
 
     function maybeOpenNextStep(taskId){
@@ -272,23 +325,46 @@
       if (done && stepIndex < STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
     }
 
-    function markTaskUI(taskId, completed){ const el = document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); if(el) el.classList.toggle('completed', !!completed); }
-    function isTaskCompleted(taskId){ const el = document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); return !!el && el.classList.contains('completed'); }
+    function markTaskUI(taskId, completed){
+      const el = document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);
+      if(el) el.classList.toggle('completed', !!completed);
+    }
+    function isTaskCompleted(taskId){
+      const el = document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);
+      return !!el && el.classList.contains('completed');
+    }
     function getTaskPosition(taskId){
       const idx = ORDERED_TASK_IDS.indexOf(taskId);
       let acc=0, stepIndex=0, localIndex=idx;
-      for(let i=0;i<STEPS.length;i++){ if(idx < acc + STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; } acc+=STEPS[i].tasks.length; }
+      for(let i=0;i<STEPS.length;i++){
+        if(idx < acc + STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; }
+        acc+=STEPS[i].tasks.length;
+      }
       return { stepIndex, localIndex };
     }
-    function nextAvailableTaskId(){ for(const id of ORDERED_TASK_IDS){ if(!isTaskCompleted(id)) return id; } return null; }
+    function nextAvailableTaskId(){
+      for(const id of ORDERED_TASK_IDS){ if(!isTaskCompleted(id)) return id; }
+      return null;
+    }
 
     function applySequentialLocking(){
       const next = nextAvailableTaskId();
       document.querySelectorAll('.checklist-item').forEach(el=>{
         const id = el.dataset.taskId;
         if (!id) return;
-        if (isTaskCompleted(id) || id === next){ el.classList.remove('disabled'); }
-        else { el.classList.add('disabled'); }
+        const idx = ORDERED_TASK_IDS.indexOf(id);
+
+        // 1) itens congelados: sempre travados
+        if (idx <= lockedIndex) {
+          el.classList.add('disabled');
+          return;
+        }
+        // 2) regra sequencial normal
+        if (isTaskCompleted(id) || id === next){
+          el.classList.remove('disabled');
+        } else {
+          el.classList.add('disabled');
+        }
       });
     }
 
@@ -301,6 +377,28 @@
     }
     function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
+    /* ======= Status visual dos passos (badge + cor) ======= */
+    function isStepDone(stepObj){
+      return stepObj.tasks.every(t => isTaskCompleted(t));
+    }
+    function updateStepStatuses(){
+      STEPS.forEach((step) => {
+        const header = document.querySelector(`#step${step.id}`).previousElementSibling;
+        if (!header) return;
+
+        let badge = header.querySelector('.step-badge');
+        if (!badge){
+          badge = document.createElement('span');
+          badge.className = 'step-badge';
+          const chevron = header.querySelector('.step-toggle');
+          header.insertBefore(badge, chevron);
+        }
+        const done = isStepDone(step);
+        header.classList.toggle('done', done);
+        badge.textContent = done ? 'Concluído' : 'Em andamento';
+      });
+    }
+
     /* =================== SALVAR MANUAL =================== */
     function onSaveClick(){
       saveProgressToStorage();
@@ -312,38 +410,79 @@
     function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
     function lastCompletedStep(){
       let last = { stepNumber:null, stepTitle:null };
-      for (const s of STEPS){ if (s.tasks.every(id=>isTaskCompleted(id))) last = { stepNumber:s.id, stepTitle:s.title }; else break; }
+      for (const s of STEPS){
+        if (s.tasks.every(id=>isTaskCompleted(id))) last = { stepNumber:s.id, stepTitle:s.title };
+        else break;
+      }
       return last;
     }
 
     function saveProgressToStorage(){
       const employees = JSON.parse(localStorage.getItem('employees')||'[]');
-      const idx = employees.findIndex(e=>e.id===employeeData.id);
+      const idxEmp = employees.findIndex(e=>e.id===employeeData.id);
       const completed = getCompletedTaskIds();
       const pct = Math.round((completed.length/ORDERED_TASK_IDS.length)*100);
+
+      // atualiza lock até onde está contíguo concluído
+      const newLockedIndex = computeContiguousCompletedIndex();
+      lockedIndex = newLockedIndex;
+
       const record = {
-        id: employeeData.id, name: employeeData.name, position: employeeData.position,
-        startDate: employeeData.startDate, manager: employeeData.manager,
-        onboardingData: { completedTasks: completed, lastUpdate: new Date().toISOString() },
-        progress: pct, status: pct===0?'pending':(pct===100?'completed':'in-progress')
+        id: employeeData.id,
+        name: employeeData.name,
+        position: employeeData.position,
+        startDate: employeeData.startDate,
+        manager: employeeData.manager,
+        onboardingData: {
+          completedTasks: completed,
+          lastUpdate: new Date().toISOString(),
+          lockedIndex: newLockedIndex
+        },
+        progress: pct,
+        status: pct===0?'pending':(pct===100?'completed':'in-progress')
       };
-      if (idx>-1) employees[idx]=record; else employees.push(record);
+
+      if (idxEmp>-1) employees[idxEmp]=record; else employees.push(record);
       localStorage.setItem('employees', JSON.stringify(employees));
-      const btn=document.getElementById('saveBtn'); const txt=btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Salvo!'; setTimeout(()=>btn.innerHTML=txt,1500);
+
+      const btn=document.getElementById('saveBtn'); const txt=btn.innerHTML;
+      btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
+      setTimeout(()=>btn.innerHTML=txt,1500);
+
+      updateStepStatuses();
     }
-    function restoreProgressFromStorage(){ const rec=getSavedEmployeeRecord(); if(!rec||!rec.onboardingData) return; for (const id of rec.onboardingData.completedTasks){ markTaskUI(id,true);} }
+
+    function restoreProgressFromStorage(){
+      const rec=getSavedEmployeeRecord();
+      if(!rec||!rec.onboardingData) return;
+      for (const id of rec.onboardingData.completedTasks){ markTaskUI(id,true); }
+      lockedIndex = (typeof rec.onboardingData.lockedIndex === 'number') ? rec.onboardingData.lockedIndex : -1;
+      updateStepStatuses();
+    }
+
     function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
 
     function loadCurrentEmployee(){
       const stored = localStorage.getItem('currentEmployee');
-      if (stored){ const emp=JSON.parse(stored); employeeData={ id:emp.id, name:emp.name, position:emp.position, startDate:formatDate(emp.startDate), manager:emp.manager }; }
+      if (stored){
+        const emp=JSON.parse(stored);
+        employeeData={ id:emp.id, name:emp.name, position:emp.position, startDate:formatDate(emp.startDate), manager:emp.manager };
+      }
       renderEmployeeInfo();
     }
-    function renderEmployeeInfo(){ document.getElementById('employeeName').textContent=employeeData.name; document.getElementById('employeePosition').textContent=employeeData.position; document.getElementById('startDate').textContent=employeeData.startDate; document.getElementById('managerName').textContent=employeeData.manager; }
+    function renderEmployeeInfo(){
+      document.getElementById('employeeName').textContent=employeeData.name;
+      document.getElementById('employeePosition').textContent=employeeData.position;
+      document.getElementById('startDate').textContent=employeeData.startDate;
+      document.getElementById('managerName').textContent=employeeData.manager;
+    }
     function formatDate(s){ return new Date(s).toLocaleDateString('pt-BR'); }
 
     /* ======= RELATÓRIO TXT (BLOCO DE NOTAS) ======= */
-    function getTaskTextById(id){ const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`); return el? el.textContent.trim() : id; }
+    function getTaskTextById(id){
+      const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`);
+      return el? el.textContent.trim() : id;
+    }
     function buildTxtReport(){
       const completed = getCompletedTaskIds();
       const pending   = ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
@@ -359,12 +498,10 @@
       lines.push(`Data de Início: ${employeeData.startDate}`);
       lines.push(`Gerente: ${employeeData.manager}`);
       lines.push(`Data do Relatório: ${today}`,'');
-
       lines.push('PROGRESSO GERAL');
       lines.push(`Total de tarefas: ${all}`);
       lines.push(`Tarefas concluídas: ${done}`);
       lines.push(`Percentual: ${pct}%`,'');
-
       lines.push('TAREFAS CONCLUÍDAS:');
       for (const id of completed){ lines.push(`✓ ${getTaskTextById(id)}`); }
       lines.push('', 'TAREFAS PENDENTES:');
@@ -384,7 +521,6 @@
 
     /* ======= ENVIO AO APPS SCRIPT (com TXT em anexo) ======= */
     async function sendEmail(stepInfo, reportText){
-      // Só bloqueia se estiver vazio/placeholder
       if (!GAS_WEB_APP_URL || /COLE_AQUI/i.test(GAS_WEB_APP_URL)){
         showToast('URL do Web App (GAS) não configurada.');
         return;
@@ -398,7 +534,7 @@
         completedTasks: getCompletedTaskIds(),
         progressPct: parseInt(document.getElementById('progressBar').style.width) || 0,
         savedAt: new Date().toISOString(),
-        reportText // envia o texto do relatório para anexar no e-mail
+        reportText
       };
       try{
         await fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) });
