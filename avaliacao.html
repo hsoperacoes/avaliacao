@@ -136,17 +136,22 @@
                 <label for="nome">Nome Completo *</label>
                 <input id="nome" name="nome" type="text" required/>
               </div>
-              <div class="col-4">
+              <div class="col-3">
                 <label for="idade">Idade</label>
                 <input id="idade" name="idade" type="number" min="14" max="90" placeholder="ex.: 28"/>
               </div>
-              <div class="col-4">
+              <div class="col-3">
                 <label for="telefone">Telefone</label>
                 <input id="telefone" name="telefone" type="tel" placeholder="(xx) xxxxx-xxxx"/>
               </div>
-              <div class="col-4">
+              <div class="col-3">
                 <label for="email">E-mail</label>
                 <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
+              </div>
+              <!-- NOVO: Função/cargo pretendido -->
+              <div class="col-3">
+                <label for="funcao_prevista">Função pretendida</label>
+                <input id="funcao_prevista" name="funcao_prevista" type="text" placeholder="ex.: Vendedor, Caixa, Estoquista"/>
               </div>
             </div>
           </div>
@@ -283,7 +288,7 @@
           </div>
         </section>
 
-        <!-- 4. Pontos fortes / desenvolver / considerações -->
+        <!-- 4. Pontos & considerações -->
         <section class="form-block">
           <div class="block-header"><i class="fas fa-comment-dots"></i><h3>Pontos & Considerações</h3></div>
           <div class="block-content">
@@ -510,7 +515,7 @@
         employees.push({
           id: Date.now().toString(),
           name: d.nome,
-          position: 'A definir',              // se quiser, podemos capturar uma "função" do formulário
+          position: d.funcao_prevista || 'A definir',   // <-- usa a Função pretendida aqui
           startDate: new Date().toISOString().slice(0,10),
           manager: d.nome_avaliador || d.nome_gerente || '',
           email: d.email || '',
@@ -534,7 +539,6 @@
       try{
         await sendToGAS({ type:'candidate-eval', data });
 
-        // Se apto, cadastra e redireciona
         if (data.apto_vaga === 'Sim'){
           saveApprovedToEmployees(data);
           loading.style.display = 'none'; ok.style.display = 'block';
