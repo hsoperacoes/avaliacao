@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
@@ -53,13 +53,21 @@
     .qs-title{color:#b7ffbf;font-weight:700;margin-bottom:8px}
     .qs-sub{color:#d9d9d9;margin:8px 0 4px;font-size:.95em}
 
-    /* Linha com "Situação" alinhada à esquerda + textarea larga */
-    .textarea-row{display:flex;align-items:flex-start;gap:12px;margin-top:8px}
-    .textarea-row .field-label{width:110px;min-width:110px;color:#e0e0e0;font-weight:700;margin-top:6px}
-    .textarea-row textarea{flex:1;min-height:120px;width:100%}
+    /* Situação alinhada: coluna fixa para o rótulo + textarea ocupando o restante */
+    .textarea-grid{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:flex-start;margin-top:8px}
+    .textarea-grid .field-label{color:#e0e0e0;font-weight:700;margin-top:6px}
+    .textarea-grid textarea{width:100%;min-height:120px}
     .options-indent{margin-left:110px}
 
-    .success-message{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;padding:18px;border-radius:8px;text-align:center;margin:12px 0;display:none}
+    /* Botões */
+    .form-actions{display:flex;gap:18px;justify-content:center;margin-top:28px;padding-top:18px;border-top:2px solid #555}
+    .btn{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:10px;font-weight:700;letter-spacing:.3px;text-decoration:none;font-size:1rem;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:.2s}
+    .btn i{font-size:.95rem}
+    .btn--primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff}
+    .btn--secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+
+    .success-message{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;padding:16px;border-radius:8px;text-align:center;margin:10px 0;display:none}
     .loading{display:none;text-align:center;padding:16px;color:#4CAF50}
     .loading i{animation:spin 1s linear infinite}
     @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
@@ -67,7 +75,7 @@
 
     @media (max-width:768px){
       .form-grid{grid-template-columns:1fr}
-      .textarea-row{flex-direction:column}
+      .textarea-grid{grid-template-columns:1fr;gap:6px}
       .options-indent{margin-left:0}
     }
   </style>
@@ -120,57 +128,57 @@
 
             <div class="question-section">
               <div class="qs-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="foco_resultado_text" name="foco_resultado_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">A situação apresentada evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
             <div class="question-section">
               <div class="qs-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="relacionamento_text" name="relacionamento_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
             <div class="question-section">
               <div class="qs-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="atitude_text" name="atitude_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
             <div class="question-section">
               <div class="qs-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="comunicacao_text" name="comunicacao_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
@@ -184,43 +192,43 @@
 
             <div class="question-section">
               <div class="qs-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="dominio_tecnico_text" name="dominio_tecnico_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
             <div class="question-section">
               <div class="qs-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="trabalho_equipe_text" name="trabalho_equipe_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
             <div class="question-section">
               <div class="qs-title">SOLUÇÃO DE PROBLEMAS — Situação em que encontrou um espaço desorganizado e como fez para organizar.</div>
-              <div class="textarea-row">
+              <div class="textarea-grid">
                 <div class="field-label">Situação</div>
                 <textarea id="solucao_problemas_text" name="solucao_problemas_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
               <div class="qs-sub">Evidenciou a competência?</div>
               <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="nao" required><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="sim"><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="nao"><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
               </div>
             </div>
 
@@ -248,7 +256,7 @@
           <div class="block-content">
             <div class="form-grid">
               <div class="form-group full-width">
-                <label>O candidato está apto para a vaga?</label>
+                <label>O candidato está apto para a vaga? *</label>
                 <div class="radio-group">
                   <label class="radio-option"><input type="radio" name="apto_vaga" value="sim" required><span class="radio-custom"></span>Sim</label>
                   <label class="radio-option"><input type="radio" name="apto_vaga" value="nao" required><span class="radio-custom"></span>Não</label>
@@ -285,26 +293,22 @@
         </div>
 
         <!-- Ações -->
-        <div class="form-actions" style="display:flex;gap:18px;justify-content:center;margin-top:10px;padding-top:18px;border-top:2px solid #555">
-          <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
-          <button type="reset" class="btn-reset"><i class="fas fa-eraser"></i> Limpar Formulário</button>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
+          <button type="reset" class="btn btn--secondary" style="background:linear-gradient(135deg,#f44336 0%,#d32f2f 100%)"><i class="fas fa-eraser"></i> Limpar Formulário</button>
         </div>
 
         <!-- Navegação -->
-        <div class="form-actions" style="margin-top: 20px; border-top: 2px solid #555; padding-top: 20px;">
-          <a href="../home.html" class="btn-submit" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px">
-            <i class="fas fa-home"></i> Voltar ao Home
-          </a>
-          <a href="../funcionarios.html" class="btn-reset" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%)">
-            <i class="fas fa-users"></i> Lista de Funcionários
-          </a>
+        <div class="form-actions" style="margin-top: 18px;">
+          <a href="../home.html" class="btn btn--primary"><i class="fas fa-home"></i> Voltar ao Home</a>
+          <a href="../funcionarios.html" class="btn btn--secondary"><i class="fas fa-users"></i> Lista de Funcionários</a>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    /* URL do Web App (GAS) */
+    /* URL do seu Web App (GAS) */
     const GAS_EVAL_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -313,12 +317,20 @@
       if (el) el.value = today;
     });
 
+    function scrollToFirstInvalid(form){
+      const firstInvalid = form.querySelector('input:invalid, select:invalid, textarea:invalid');
+      if (firstInvalid){
+        firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        firstInvalid.reportValidity();
+      }
+    }
+
     async function sendViaGAS(formObj){
       try{
         await fetch(GAS_EVAL_URL,{
           method:'POST',
-          mode:'no-cors',                 // evita bloqueio CORS
-          headers:{'Content-Type':'text/plain'}, // simple request (sem preflight)
+          mode:'no-cors',
+          headers:{'Content-Type':'text/plain'},
           body:JSON.stringify({ type:'candidate_evaluation', ...formObj })
         });
         return true;
@@ -358,12 +370,11 @@
 
     document.getElementById('candidateForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
+      const form = e.target;
+      if (!form.checkValidity()){ scrollToFirstInvalid(form); return; }
 
       const loading = document.getElementById('loadingMessage');
       const success = document.getElementById('successMessage');
-      const form = e.target;
-
-      if(!form.checkValidity()){ form.reportValidity(); return; }
 
       loading.style.display='block';
 
@@ -372,20 +383,18 @@
       for (const [k,v] of fd.entries()) data[k]=v;
 
       try{
-        await sendViaGAS(data);       // 1) envia por GAS (sempre)
-        saveEvaluation(data);         // 2) guarda local
-        if (data.apto_vaga==='sim') { // 3) se apto, vira funcionário
-          addApprovedCandidateToEmployees(data);
-        }
+        await sendViaGAS(data);   // sempre envia para o GAS
+        saveEvaluation(data);     // guarda local
+        if (data.apto_vaga==='sim') addApprovedCandidateToEmployees(data); // apto => vira funcionário
+
         loading.style.display='none';
         success.style.display='block';
         setTimeout(()=>{
           form.reset();
           success.style.display='none';
           const today = new Date().toISOString().split('T')[0];
-          const el = document.getElementById('data_avaliacao');
-          if (el) el.value = today;
-        },2500);
+          const el = document.getElementById('data_avaliacao'); if (el) el.value = today;
+        },2200);
       }catch(err){
         loading.style.display='none';
         console.error(err);
