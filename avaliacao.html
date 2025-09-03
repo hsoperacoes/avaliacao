@@ -1,826 +1,816 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Avaliação de Candidatos</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Reset e configurações básicas */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Avaliação de Candidatos</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #1a1a1a;
-            min-height: 100vh;
-            padding: 20px 0;
-        }
+  <!-- Ícones -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+  <style>
+    /* =======================================================================
+       RESET / BASE
+    ======================================================================= */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Header do formulário */
-        .form-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: #fff;
-            padding: 40px 30px;
-            text-align: center;
-            border-radius: 15px 15px 0 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,.3);
-            position: relative;
-            overflow: hidden;
-        }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #1a1a1a;
+      min-height: 100vh;
+      padding: 20px 0;
+    }
 
-        .form-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
-            animation: rotate 30s linear infinite;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+    /* =======================================================================
+       HEADER (MANTIDO)
+    ======================================================================= */
+    .form-header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: #fff;
+      padding: 40px 30px;
+      text-align: center;
+      border-radius: 15px 15px 0 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      position: relative;
+      overflow: hidden;
+    }
 
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
+    .form-header::before{
+      content:'';
+      position:absolute;
+      top:-50%; left:-50%;
+      width:200%; height:200%;
+      background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
+      animation: rotate 30s linear infinite;
+    }
 
-        .header-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-            color: #4CAF50;
-        }
+    @keyframes rotate { from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
-        .form-header h1 {
-            font-size: 2.2em;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
+    .header-content{ position: relative; z-index: 1; }
+    .header-icon{ font-size:3em; margin-bottom:20px; color:#4CAF50; }
+    .form-header h1{ font-size:2.2em; font-weight:700; margin-bottom:10px; }
+    .form-header h2{ font-size:1.4em; font-weight:400; margin-bottom:15px; color:#ecf0f1; }
+    .form-header p{ font-size:1.1em; opacity:.9; max-width:600px; margin:0 auto; }
 
-        .form-header h2 {
-            font-size: 1.4em;
-            font-weight: 400;
-            margin-bottom: 15px;
-            color: #ecf0f1;
-        }
+    /* =======================================================================
+       CONTAINER DOS CARDS (MANTIDO)
+    ======================================================================= */
+    .form-container{
+      background:#2a2a2a;
+      border-radius:0 0 15px 15px;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+      padding:30px;
+    }
 
-        .form-header p {
-            font-size: 1.1em;
-            opacity: .9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    /* =======================================================================
+       BLOCO (CARD) (MANTIDO)
+    ======================================================================= */
+    .form-block{
+      background:#3a3a3a;
+      border-radius:12px;
+      margin-bottom:25px;
+      box-shadow:0 4px 15px rgba(0,0,0,.2);
+      transition:all .3s ease;
+      border-left:4px solid #4CAF50;
+      animation:slideInUp .6s ease-out forwards;
+      opacity:0;
+      transform:translateY(30px);
+    }
 
-        /* Container do formulário */
-        .form-container {
-            background: #2a2a2a;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,.3);
-            padding: 30px;
-        }
+    .form-block:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,.3);
+    }
 
-        /* Blocos do formulário */
-        .form-block {
-            background: #3a3a3a;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,.2);
-            transition: all 0.3s ease;
-            border-left: 4px solid #4CAF50;
-            animation: slideInUp 0.6s ease-out forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
+    .block-header{
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color:#fff;
+      padding:20px 25px;
+      border-radius:8px 8px 0 0;
+      display:flex;
+      align-items:center;
+      gap:15px;
+    }
 
-        .form-block:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,.3);
-        }
+    .block-header i{ font-size:1.5em; }
+    .block-header h3{ font-size:1.3em; font-weight:600; margin:0; }
 
-        .block-header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: #fff;
-            padding: 20px 25px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .block-content{ padding:25px; }
 
-        .block-header i {
-            font-size: 1.5em;
-        }
+    /* =======================================================================
+       GRID (MANTIDO)
+    ======================================================================= */
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap:20px;
+      align-items:start;
+    }
 
-        .block-header h3 {
-            font-size: 1.3em;
-            font-weight: 600;
-            margin: 0;
-        }
+    .form-group{ display:flex; flex-direction:column; }
+    .form-group.full-width{ grid-column:1 / -1; }
+    .form-group.large{ grid-column:span 2; }
+    .form-group.small{ grid-column:span 1; min-width:120px; }
 
-        .block-content {
-            padding: 25px;
-        }
+    /* =======================================================================
+       INPUTS (MANTIDOS)
+    ======================================================================= */
+    label{
+      color:#e0e0e0;
+      font-weight:600;
+      margin-bottom:8px;
+      font-size:.95em;
+    }
 
-        /* Grid */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            align-items: start;
-        }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="number"],
+    textarea,
+    select{
+      background:#4a4a4a;
+      border:2px solid #555;
+      border-radius:8px;
+      padding:12px 15px;
+      color:#e0e0e0;
+      font-size:1em;
+      transition:all .3s ease;
+    }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+    textarea{ min-height:90px; resize:vertical; }
 
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
+    input:focus, textarea:focus, select:focus{
+      outline:none;
+      border-color:#4CAF50;
+      box-shadow:0 0 0 3px rgba(76,175,80,.2);
+      background:#5a5a5a;
+    }
 
-        .form-group.large {
-            grid-column: span 2;
-        }
+    input::placeholder, textarea::placeholder{ color:#999; }
 
-        .form-group.small {
-            grid-column: span 1;
-            min-width: 120px;
-        }
+    /* =======================================================================
+       RADIO / CHECK (MANTIDOS)
+    ======================================================================= */
+    .radio-group, .checkbox-group{
+      display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;
+    }
 
-        /* Labels e Inputs */
-        label {
-            color: #e0e0e0;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
+    .radio-option, .checkbox-option{
+      display:flex; align-items:center; gap:10px; cursor:pointer;
+      padding:10px 15px; border-radius:8px; transition:all .3s ease;
+      background:#4a4a4a; border:2px solid #555; color:#e0e0e0; font-weight:500;
+    }
 
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        input[type="date"],
-        input[type="number"],
-        textarea,
-        select {
-            background: #4a4a4a;
-            border: 2px solid #555;
-            border-radius: 8px;
-            padding: 12px 15px;
-            color: #e0e0e0;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
+    .radio-option:hover, .checkbox-option:hover{ background:#5a5a5a; border-color:#4CAF50; }
+    .radio-option input[type="radio"], .checkbox-option input[type="checkbox"]{ display:none; }
 
-        textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
+    .radio-custom{
+      width:20px; height:20px; border:2px solid #777; border-radius:50%;
+      position:relative; transition:all .3s ease;
+    }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76,175,80,.2);
-            background: #5a5a5a;
-        }
+    .radio-option input[type="radio"]:checked + .radio-custom{ border-color:#4CAF50; background:#4CAF50; }
+    .radio-option input[type="radio"]:checked + .radio-custom::after{
+      content:''; position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%); width:8px; height:8px; background:#fff; border-radius:50%;
+    }
+    .radio-option input[type="radio"]:checked ~ span:not(.radio-custom){ color:#4CAF50; }
 
-        input::placeholder,
-        textarea::placeholder {
-            color: #999;
-        }
+    /* =======================================================================
+       AÇÕES (MANTIDAS)
+    ======================================================================= */
+    .form-actions{
+      display:flex; gap:20px; justify-content:center;
+      margin-top:40px; padding-top:30px; border-top:2px solid #555;
+    }
 
-        /* Radios & Checkboxes customizados */
-        .radio-group,
-        .checkbox-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
+    .btn-submit, .btn-reset{
+      display:flex; align-items:center; gap:10px;
+      padding:15px 30px; border:none; border-radius:8px; font-size:1em;
+      font-weight:600; cursor:pointer; transition:all .3s ease;
+      text-transform:uppercase; letter-spacing:1px; position:relative; overflow:hidden;
+    }
 
-        .radio-option,
-        .checkbox-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            background: #4a4a4a;
-            border: 2px solid #555;
-            color: #e0e0e0;
-            font-weight: 500;
-        }
+    .btn-submit{ background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%); color:#fff; box-shadow:0 4px 15px rgba(76,175,80,.3); }
+    .btn-reset{   background:linear-gradient(135deg,#f44336 0%,#d32f2f 100%); color:#fff; box-shadow:0 4px 15px rgba(244,67,54,.3); }
 
-        .radio-option:hover,
-        .checkbox-option:hover {
-            background: #5a5a5a;
-            border-color: #4CAF50;
-        }
+    .btn-submit:hover, .btn-reset:hover{ transform: translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,.3); }
 
-        .radio-option input[type="radio"],
-        .checkbox-option input[type="checkbox"] {
-            display: none;
-        }
+    @keyframes slideInUp{ to{ opacity:1; transform:translateY(0); } }
 
-        .radio-custom {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #777;
-            border-radius: 50%;
-            position: relative;
-            transition: all 0.3s ease;
-        }
+    /* =======================================================================
+       RESPONSIVO (MANTIDO)
+    ======================================================================= */
+    @media (max-width: 768px){
+      .form-grid{ grid-template-columns:1fr; }
+      .form-group.large, .form-group.small{ grid-column:1; }
+      .radio-group, .checkbox-group{ flex-direction:column; gap:10px; }
+    }
 
-        .radio-option input[type="radio"]:checked + .radio-custom {
-            border-color: #4CAF50;
-            background: #4CAF50;
-        }
+    /* =======================================================================
+       SEÇÕES INTERNAS (MANTIDO)
+    ======================================================================= */
+    .question-section{ background:#444; border-radius:8px; padding:20px; margin-bottom:15px; }
+    .question-title{ color:#4CAF50; font-weight:600; margin-bottom:10px; font-size:1.1em; }
 
-        .radio-option input[type="radio"]:checked + .radio-custom::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-        }
+    .success-message{
+      background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);
+      color:#fff; padding:20px; border-radius:8px; text-align:center;
+      margin:20px 0; display:none;
+    }
 
-        .radio-option input[type="radio"]:checked ~ span:not(.radio-custom) {
-            color: #4CAF50;
-        }
-
-        /* Botões */
-        .form-actions {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #555;
-        }
-
-        .btn-submit,
-        .btn-reset {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-submit {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(76,175,80,.3);
-        }
-
-        .btn-reset {
-            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(244,67,54,.3);
-        }
-
-        .btn-submit:hover,
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,.3);
-        }
-
-        /* Animações */
-        @keyframes slideInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-group.large,
-            .form-group.small {
-                grid-column: 1;
-            }
-            
-            .radio-group,
-            .checkbox-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        /* Estilos específicos para seções */
-        .question-section {
-            background: #444;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .question-title {
-            color: #4CAF50;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-            display: none;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            color: #4CAF50;
-        }
-
-        .loading i {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    .loading{ display:none; text-align:center; padding:20px; color:#4CAF50; }
+    .loading i{ animation:spin 1s linear infinite; }
+    @keyframes spin{ 0%{ transform:rotate(0) } 100%{ transform:rotate(360deg) } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header class="form-header">
-            <div class="header-content">
-                <i class="fas fa-user-tie header-icon"></i>
-                <h1>AVALIAÇÃO DE CANDIDATO</h1>
-                <h2>Sistema de Gestão de Recursos Humanos</h2>
-                <p>Preencha as informações do candidato para análise e processo seletivo</p>
+
+  <div class="container">
+    <!-- ============================================================= -->
+    <!-- HEADER -->
+    <!-- ============================================================= -->
+    <header class="form-header">
+      <div class="header-content">
+        <i class="fas fa-user-tie header-icon"></i>
+        <h1>AVALIAÇÃO DE CANDIDATO</h1>
+        <h2>Sistema de Gestão de Recursos Humanos</h2>
+        <p>Preencha as informações do candidato para análise e processo seletivo</p>
+      </div>
+    </header>
+
+    <div class="form-container">
+
+      <!-- Feedback visual -->
+      <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <h3>Avaliação enviada com sucesso!</h3>
+        <p>Os dados do candidato foram enviados para análise.</p>
+      </div>
+
+      <div class="loading" id="loadingMessage">
+        <i class="fas fa-spinner"></i>
+        <p>Enviando dados...</p>
+      </div>
+
+      <!-- ============================================================= -->
+      <!-- FORMULÁRIO -->
+      <!-- ============================================================= -->
+      <form id="candidateForm">
+
+        <!-- ========================================================= -->
+        <!-- 1. DADOS PESSOAIS (MANTIDO) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-user"></i>
+            <h3>Dados Pessoais do Candidato</h3>
+          </div>
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="nome">Nome Completo *</label>
+                <input type="text" id="nome" name="nome" required>
+              </div>
+
+              <div class="form-group">
+                <label for="idade">Idade *</label>
+                <input type="number" id="idade" name="idade" min="16" max="80" required>
+              </div>
+
+              <div class="form-group">
+                <label for="telefone">Telefone *</label>
+                <input type="tel" id="telefone" name="telefone" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="email">E-mail *</label>
+                <input type="email" id="email" name="email" required>
+              </div>
             </div>
-        </header>
-
-        <div class="form-container">
-            <div class="success-message" id="successMessage">
-                <i class="fas fa-check-circle"></i>
-                <h3>Avaliação enviada com sucesso!</h3>
-                <p>Os dados do candidato foram enviados para análise.</p>
-            </div>
-
-            <div class="loading" id="loadingMessage">
-                <i class="fas fa-spinner"></i>
-                <p>Enviando dados...</p>
-            </div>
-
-            <form id="candidateForm">
-                <!-- 1. Dados Pessoais -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-user"></i>
-                        <h3>Dados Pessoais do Candidato</h3>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label for="nome">Nome Completo *</label>
-                                <input type="text" id="nome" name="nome" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="idade">Idade *</label>
-                                <input type="number" id="idade" name="idade" min="16" max="80" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="telefone">Telefone *</label>
-                                <input type="tel" id="telefone" name="telefone" required>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="email">E-mail *</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. Análise de Competências -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-clipboard-check"></i>
-                        <h3>Análise de Competências</h3>
-                    </div>
-                    <div class="block-content">
-                        <!-- Comunicação -->
-                        <div class="question-section">
-                            <div class="question-title">Como você avalia a comunicação do candidato?</div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="comunicacao" value="excelente" required>
-                                    <span class="radio-custom"></span>
-                                    Excelente
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="comunicacao" value="boa" required>
-                                    <span class="radio-custom"></span>
-                                    Boa
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="comunicacao" value="regular" required>
-                                    <span class="radio-custom"></span>
-                                    Regular
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="comunicacao" value="ruim" required>
-                                    <span class="radio-custom"></span>
-                                    Ruim
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Atitude -->
-                        <div class="question-section">
-                            <div class="question-title">Como você avalia a atitude do candidato?</div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="atitude" value="proativa" required>
-                                    <span class="radio-custom"></span>
-                                    Proativa
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="atitude" value="colaborativa" required>
-                                    <span class="radio-custom"></span>
-                                    Colaborativa
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="atitude" value="passiva" required>
-                                    <span class="radio-custom"></span>
-                                    Passiva
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="atitude" value="resistente" required>
-                                    <span class="radio-custom"></span>
-                                    Resistente
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Relacionamento -->
-                        <div class="question-section">
-                            <div class="question-title">Como o candidato se relaciona com a equipe?</div>
-                            <div class="radio-group">
-                                <label class="radio-option">
-                                    <input type="radio" name="relacionamento" value="muito_bem" required>
-                                    <span class="radio-custom"></span>
-                                    Muito bem
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="relacionamento" value="bem" required>
-                                    <span class="radio-custom"></span>
-                                    Bem
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="relacionamento" value="regular" required>
-                                    <span class="radio-custom"></span>
-                                    Regular
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="relacionamento" value="mal" required>
-                                    <span class="radio-custom"></span>
-                                    Mal
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Perguntas Específicas -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-question-circle"></i>
-                        <h3>Perguntas ao Candidato</h3>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label for="pergunta_candidato">Pergunte ao candidato:</label>
-                                <textarea id="pergunta_candidato" name="pergunta_candidato" 
-                                    placeholder="Exemplo: Você se considera uma pessoa organizada? Como você se organiza no trabalho?"></textarea>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="resposta_candidato">Resposta do candidato:</label>
-                                <textarea id="resposta_candidato" name="resposta_candidato" 
-                                    placeholder="Registre aqui a resposta do candidato..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. Situações Práticas -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-lightbulb"></i>
-                        <h3>Situações Práticas</h3>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label for="situacao_apresentada">Situação apresentada pelo candidato:</label>
-                                <textarea id="situacao_apresentada" name="situacao_apresentada" 
-                                    placeholder="Descreva uma situação onde você teve que resolver um problema no trabalho..."></textarea>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="como_resolveu">Como o candidato resolveu:</label>
-                                <textarea id="como_resolveu" name="como_resolveu" 
-                                    placeholder="Registre como o candidato lidou com a situação..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 5. Avaliação Geral -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-star"></i>
-                        <h3>Avaliação Geral</h3>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label>O candidato está apto para a vaga?</label>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="apto_vaga" value="sim" required>
-                                        <span class="radio-custom"></span>
-                                        Sim
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="apto_vaga" value="nao" required>
-                                        <span class="radio-custom"></span>
-                                        Não
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="apto_vaga" value="em_parte" required>
-                                        <span class="radio-custom"></span>
-                                        Em parte
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="observacoes_gerais">Observações gerais:</label>
-                                <textarea id="observacoes_gerais" name="observacoes_gerais" 
-                                    placeholder="Adicione observações importantes sobre o candidato..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 6. Dados do Avaliador -->
-                <div class="form-block">
-                    <div class="block-header">
-                        <i class="fas fa-user-check"></i>
-                        <h3>Dados do Avaliador</h3>
-                    </div>
-                    <div class="block-content">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="nome_avaliador">Nome do Avaliador *</label>
-                                <input type="text" id="nome_avaliador" name="nome_avaliador" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="cargo_avaliador">Cargo *</label>
-                                <input type="text" id="cargo_avaliador" name="cargo_avaliador" required>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="data_avaliacao">Data da Avaliação *</label>
-                                <input type="date" id="data_avaliacao" name="data_avaliacao" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ações -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-paper-plane"></i>
-                        Enviar Avaliação
-                    </button>
-                    <button type="reset" class="btn-reset">
-                        <i class="fas fa-eraser"></i>
-                        Limpar Formulário
-                    </button>
-                </div>
-                
-                <!-- Navegação -->
-                <div class="form-actions" style="margin-top: 20px; border-top: 2px solid #555; padding-top: 20px;">
-                    <a href="home.html" class="btn-submit" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-home"></i>
-                        Voltar ao Home
-                    </a>
-                    <a href="funcionarios.html" class="btn-reset" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
-                        <i class="fas fa-users"></i>
-                        Lista de Funcionários
-                    </a>
-                </div>
-            </form>
+          </div>
         </div>
+
+        <!-- ========================================================= -->
+        <!-- 2. AVALIANDO AS COMPETÊNCIAS  (folha 2) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-clipboard-check"></i>
+            <h3>2º Passo – Avaliando as Competências</h3>
+          </div>
+
+          <div class="block-content">
+            <!-- FOCO EM RESULTADO -->
+            <div class="question-section">
+              <div class="question-title">
+                FOCO EM RESULTADO – Conte-me sobre algum resultado inesperado onde você tenha ultrapassado as expectativas ou metas.
+              </div>
+              <label for="foco_resultado_text">Situação:</label>
+              <textarea id="foco_resultado_text" name="foco_resultado_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- RELACIONAMENTO -->
+            <div class="question-section">
+              <div class="question-title">
+                RELACIONAMENTO – Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.
+              </div>
+              <label for="relacionamento_text">Situação:</label>
+              <textarea id="relacionamento_text" name="relacionamento_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- ATITUDE -->
+            <div class="question-section">
+              <div class="question-title">
+                ATITUDE – Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do seu setor.
+              </div>
+              <label for="atitude_text">Situação:</label>
+              <textarea id="atitude_text" name="atitude_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="atitude_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- COMUNICAÇÃO -->
+            <div class="question-section">
+              <div class="question-title">
+                COMUNICAÇÃO – Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.
+              </div>
+              <label for="comunicacao_text">Situação:</label>
+              <textarea id="comunicacao_text" name="comunicacao_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 2.a COMPETÊNCIAS ESPECÍFICAS (folha 1 topo) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-list-check"></i>
+            <h3>Competências Específicas</h3>
+          </div>
+
+          <div class="block-content">
+            <!-- DOMÍNIO TÉCNICO -->
+            <div class="question-section">
+              <div class="question-title">DOMÍNIO TÉCNICO – Situação em que o conhecimento técnico fez a diferença.</div>
+              <label for="dominio_tecnico_text">Situação:</label>
+              <textarea id="dominio_tecnico_text" name="dominio_tecnico_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- TRABALHO EM EQUIPE -->
+            <div class="question-section">
+              <div class="question-title">TRABALHO EM EQUIPE – Situação em que não gostava de um colega e trabalhou com ele.</div>
+              <label for="trabalho_equipe_text">Situação:</label>
+              <textarea id="trabalho_equipe_text" name="trabalho_equipe_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- SOLUÇÃO DE PROBLEMAS -->
+            <div class="question-section">
+              <div class="question-title">SOLUÇÃO DE PROBLEMAS – Situação em que encontrou um espaço desorganizado e organizou.</div>
+              <label for="solucao_problemas_text">Situação:</label>
+              <textarea id="solucao_problemas_text" name="solucao_problemas_text"></textarea>
+
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="sim" required><span class="radio-custom"></span>Sim</label>
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="nao" required><span class="radio-custom"></span>Não</label>
+                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              </div>
+            </div>
+
+            <!-- Pontos / Considerações -->
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="pontos_fortes">Pontos Fortes</label>
+                <textarea id="pontos_fortes" name="pontos_fortes"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="pontos_desenvolver">Pontos a Desenvolver</label>
+                <textarea id="pontos_desenvolver" name="pontos_desenvolver"></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="consideracoes">Considerações</label>
+                <textarea id="consideracoes" name="consideracoes"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 3. ESCOLARIDADE -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-graduation-cap"></i>
+            <h3>3º Passo – Escolaridade</h3>
+          </div>
+
+          <div class="block-content">
+            <div class="form-group full-width">
+              <label>Grau de Instrução</label>
+              <div class="radio-group">
+                <label class="radio-option"><input type="radio" name="grau_instrucao" value="fundamental" required><span class="radio-custom"></span>Ensino Fundamental</label>
+                <label class="radio-option"><input type="radio" name="grau_instrucao" value="medio" required><span class="radio-custom"></span>Ensino Médio</label>
+                <label class="radio-option"><input type="radio" name="grau_instrucao" value="medio_cursando_ou_incompleto" required><span class="radio-custom"></span>Ensino Médio Cursando/Incompleto</label>
+                <label class="radio-option"><input type="radio" name="grau_instrucao" value="superior" required><span class="radio-custom"></span>Ensino Superior</label>
+                <label class="radio-option"><input type="radio" name="grau_instrucao" value="superior_cursando_ou_incompleto" required><span class="radio-custom"></span>Ensino Superior Cursando/ Incompleto</label>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Status de Estágio</label>
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="estagio_status" value="esta_realizando"><span class="radio-custom"></span>Está realizando</label>
+                  <label class="radio-option"><input type="radio" name="estagio_status" value="ainda_ira_realizar"><span class="radio-custom"></span>Ainda irá realizar</label>
+                  <label class="radio-option"><input type="radio" name="estagio_status" value="nao_e_obrigatorio"><span class="radio-custom"></span>Não é obrigatório</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="curso_superior">Curso superior (se houver)</label>
+                <input type="text" id="curso_superior" name="curso_superior" placeholder="Curso">
+              </div>
+
+              <div class="form-group large">
+                <label for="motivo_curso">Por que escolheu o curso?</label>
+                <textarea id="motivo_curso" name="motivo_curso"></textarea>
+              </div>
+
+              <div class="form-group small">
+                <label>Pretende seguir carreira na área?</label>
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="pretende_carreira" value="sim"><span class="radio-custom"></span>Sim</label>
+                  <label class="radio-option"><input type="radio" name="pretende_carreira" value="nao"><span class="radio-custom"></span>Não</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 4. ASPECTOS PESSOAIS E FAMILIARES -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-people-roof"></i>
+            <h3>4º Passo – Aspectos Pessoais e Familiares</h3>
+          </div>
+
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Mora com:</label>
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="mora_com" value="pais"><span class="radio-custom"></span>Pais</label>
+                  <label class="radio-option"><input type="radio" name="mora_com" value="marido_esposa"><span class="radio-custom"></span>Marido/Esposa</label>
+                  <label class="radio-option"><input type="radio" name="mora_com" value="sozinho"><span class="radio-custom"></span>Sozinho</label>
+                  <label class="radio-option"><input type="radio" name="mora_com" value="outros"><span class="radio-custom"></span>Outros</label>
+                </div>
+                <input type="text" name="mora_outros" placeholder="Se outros, qual?">
+              </div>
+
+              <div class="form-group">
+                <label for="profissao_pais">Profissão dos pais</label>
+                <input type="text" id="profissao_pais" name="profissao_pais">
+              </div>
+
+              <div class="form-group">
+                <label for="profissao_conjuge">Do marido/esposa (profissão)</label>
+                <input type="text" id="profissao_conjuge" name="profissao_conjuge">
+              </div>
+
+              <div class="form-group">
+                <label>O imóvel onde mora é:</label>
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="imovel_tipo" value="proprio"><span class="radio-custom"></span>Próprio</label>
+                  <label class="radio-option"><input type="radio" name="imovel_tipo" value="alugado"><span class="radio-custom"></span>Alugado</label>
+                </div>
+                <input type="number" step="0.01" name="valor_aluguel" placeholder="Se alugado: valor (R$)">
+              </div>
+
+              <div class="form-group">
+                <label>Contribui financeiramente em casa?</label>
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="contribui_em_casa" value="nao"><span class="radio-custom"></span>Não</label>
+                  <label class="radio-option"><input type="radio" name="contribui_em_casa" value="sim"><span class="radio-custom"></span>Sim</label>
+                </div>
+                <input type="number" step="0.01" name="valor_contribuicao" placeholder="Se sim: quanto (R$)?">
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="maior_sonho">Qual seu maior sonho?</label>
+                <textarea id="maior_sonho" name="maior_sonho"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="como_se_define">Como você se define?</label>
+                <textarea id="como_se_define" name="como_se_define"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="espera_hering">O que espera com a Hering?</label>
+                <textarea id="espera_hering" name="espera_hering"></textarea>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label for="parecer_gerente">Parecer do Gerente</label>
+                <textarea id="parecer_gerente" name="parecer_gerente"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="nome_gerente">Nome do Gerente</label>
+                <input type="text" id="nome_gerente" name="nome_gerente">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 5. PERGUNTAS AO CANDIDATO (bolhas) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-question-circle"></i>
+            <h3>Perguntas ao Candidato</h3>
+          </div>
+
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="emprego_preferido">De qual emprego ele/ela mais gostou?</label>
+                <input type="text" id="emprego_preferido" name="emprego_preferido">
+              </div>
+
+              <div class="form-group large">
+                <label for="rotina_empregos_anteriores">Como era a rotina nos empregos anteriores?</label>
+                <textarea id="rotina_empregos_anteriores" name="rotina_empregos_anteriores"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="motivo_buscar_hering">O que motivou a buscar uma oportunidade na Hering?</label>
+                <textarea id="motivo_buscar_hering" name="motivo_buscar_hering"></textarea>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="percepcao_entrevista">O que você percebeu?</label>
+                <textarea id="percepcao_entrevista" name="percepcao_entrevista"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 6. AVALIAÇÃO GERAL (MANTIDO) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-star"></i>
+            <h3>Avaliação Geral</h3>
+          </div>
+
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>O candidato está apto para a vaga?</label>
+
+                <div class="radio-group">
+                  <label class="radio-option"><input type="radio" name="apto_vaga" value="sim" required><span class="radio-custom"></span>Sim</label>
+                  <label class="radio-option"><input type="radio" name="apto_vaga" value="nao" required><span class="radio-custom"></span>Não</label>
+                  <label class="radio-option"><input type="radio" name="apto_vaga" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+                </div>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="observacoes_gerais">Observações gerais</label>
+                <textarea id="observacoes_gerais" name="observacoes_gerais" placeholder="Adicione observações importantes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- 7. DADOS DO AVALIADOR (MANTIDO) -->
+        <!-- ========================================================= -->
+        <div class="form-block">
+          <div class="block-header">
+            <i class="fas fa-user-check"></i>
+            <h3>Dados do Avaliador</h3>
+          </div>
+
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="nome_avaliador">Nome do Avaliador *</label>
+                <input type="text" id="nome_avaliador" name="nome_avaliador" required>
+              </div>
+
+              <div class="form-group">
+                <label for="cargo_avaliador">Cargo *</label>
+                <input type="text" id="cargo_avaliador" name="cargo_avaliador" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label for="data_avaliacao">Data da Avaliação *</label>
+                <input type="date" id="data_avaliacao" name="data_avaliacao" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- AÇÕES / NAVEGAÇÃO (MANTIDAS) -->
+        <!-- ========================================================= -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-paper-plane"></i>
+            Enviar Avaliação
+          </button>
+
+          <button type="reset" class="btn-reset">
+            <i class="fas fa-eraser"></i>
+            Limpar Formulário
+          </button>
+        </div>
+
+        <div class="form-actions" style="margin-top: 20px; border-top: 2px solid #555; padding-top: 20px;">
+          <a href="home.html" class="btn-submit" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px;">
+            <i class="fas fa-home"></i>
+            Voltar ao Home
+          </a>
+          <a href="funcionarios.html" class="btn-reset" style="text-decoration:none; display:inline-flex; align-items:center; gap:10px; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">
+            <i class="fas fa-users"></i>
+            Lista de Funcionários
+          </a>
+        </div>
+
+      </form>
     </div>
+  </div>
 
-    <script>
-        // Definir data atual como padrão
-        document.addEventListener('DOMContentLoaded', function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('data_avaliacao').value = today;
-        });
+  <script>
+    /* =========================================================================
+       CONFIG: URL do Google Apps Script que recebe a avaliação
+       (use o mesmo deployment do onboarding se quiser)
+    ========================================================================= */
+    const GAS_EVAL_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
-        // Função para enviar email
-        function sendEmail(formData) {
-            const emailData = {
-                to: 'hs.operacoes.loja@gmail.com',
-                subject: `Avaliação de Candidato - ${formData.nome}`,
-                body: `
-                    <h2>AVALIAÇÃO DE CANDIDATO</h2>
-                    
-                    <h3>DADOS PESSOAIS</h3>
-                    <p><strong>Nome:</strong> ${formData.nome}</p>
-                    <p><strong>Idade:</strong> ${formData.idade}</p>
-                    <p><strong>Telefone:</strong> ${formData.telefone}</p>
-                    <p><strong>E-mail:</strong> ${formData.email}</p>
-                    
-                    <h3>ANÁLISE DE COMPETÊNCIAS</h3>
-                    <p><strong>Comunicação:</strong> ${formData.comunicacao}</p>
-                    <p><strong>Atitude:</strong> ${formData.atitude}</p>
-                    <p><strong>Relacionamento:</strong> ${formData.relacionamento}</p>
-                    
-                    <h3>PERGUNTAS E RESPOSTAS</h3>
-                    <p><strong>Pergunta:</strong> ${formData.pergunta_candidato || 'Não informado'}</p>
-                    <p><strong>Resposta:</strong> ${formData.resposta_candidato || 'Não informado'}</p>
-                    
-                    <h3>SITUAÇÕES PRÁTICAS</h3>
-                    <p><strong>Situação apresentada:</strong> ${formData.situacao_apresentada || 'Não informado'}</p>
-                    <p><strong>Como resolveu:</strong> ${formData.como_resolveu || 'Não informado'}</p>
-                    
-                    <h3>AVALIAÇÃO GERAL</h3>
-                    <p><strong>Apto para a vaga:</strong> ${formData.apto_vaga}</p>
-                    <p><strong>Observações:</strong> ${formData.observacoes_gerais || 'Nenhuma observação'}</p>
-                    
-                    <h3>DADOS DO AVALIADOR</h3>
-                    <p><strong>Avaliador:</strong> ${formData.nome_avaliador}</p>
-                    <p><strong>Cargo:</strong> ${formData.cargo_avaliador}</p>
-                    <p><strong>Data da Avaliação:</strong> ${formData.data_avaliacao}</p>
-                `
-            };
+    // Define a data de hoje no campo de data
+    document.addEventListener('DOMContentLoaded', function () {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('data_avaliacao').value = today;
+    });
 
-            // Simular envio de email (em produção, seria integrado com um serviço de email)
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    console.log('Email enviado:', emailData);
-                    resolve(true);
-                }, 2000);
-            });
+    // Envia SEMPRE via GAS (independente de apto ou não)
+    async function sendViaGAS(formObj){
+      const payload = { type: 'candidate_evaluation', ...formObj };
+
+      const res = await fetch(GAS_EVAL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type':'text/plain' },
+        body: JSON.stringify(payload)
+      });
+
+      try { await res.text(); } catch(e){}
+      return true;
+    }
+
+    // Cadastra na lista de Funcionários quando Apto = Sim
+    function addApprovedCandidateToEmployees(data){
+      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+
+      const exists = employees.some(emp => emp.name === data.nome && emp.email === data.email);
+      if (exists){
+        alert('Este candidato já está na lista de funcionários.');
+        return;
+      }
+
+      const newEmployee = {
+        id: Date.now().toString(),
+        name: data.nome,
+        position: 'A definir',
+        startDate: new Date().toISOString().split('T')[0],
+        manager: data.nome_avaliador,
+        email: data.email,
+        status: 'pending',
+        progress: 0,
+        onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() },
+        evaluationData: data
+      };
+
+      employees.push(newEmployee);
+      localStorage.setItem('employees', JSON.stringify(employees));
+
+      alert(`${data.nome} foi adicionado à lista de funcionários!`);
+    }
+
+    // Salva avaliação (histórico local, como você já fazia)
+    function saveEvaluation(data){
+      const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
+      const evaluation = { id: Date.now().toString(), ...data, timestamp: new Date().toISOString() };
+      evaluations.push(evaluation);
+      localStorage.setItem('evaluations', JSON.stringify(evaluations));
+    }
+
+    // Envio do formulário
+    document.getElementById('candidateForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+
+      const loading = document.getElementById('loadingMessage');
+      const success = document.getElementById('successMessage');
+      const form = e.target;
+
+      loading.style.display = 'block';
+
+      // Coleta todos os campos
+      const fd = new FormData(form);
+      const data = {};
+      for (const [k, v] of fd.entries()) data[k] = v;
+
+      try{
+        // 1) Envia SEMPRE para o GAS (e-mail com anexo TXT)
+        await sendViaGAS(data);
+
+        // 2) Salva a avaliação localmente (histórico)
+        saveEvaluation(data);
+
+        // 3) Se Apto = Sim, inclui na lista de funcionários
+        if (data.apto_vaga === 'sim'){
+          addApprovedCandidateToEmployees(data);
         }
 
-        // Manipular envio do formulário
-        document.getElementById('candidateForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const loadingMessage = document.getElementById('loadingMessage');
-            const successMessage = document.getElementById('successMessage');
-            const form = e.target;
-            
-            // Mostrar loading
-            loadingMessage.style.display = 'block';
-            
-            // Coletar dados do formulário
-            const formData = new FormData(form);
-            const data = {};
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-            
-            try {
-                // Enviar email
-                await sendEmail(data);
-                
-                // Salvar avaliação no localStorage
-                saveEvaluation(data);
-                
-                // Se candidato foi aprovado, perguntar se deseja adicionar à lista de funcionários
-                if (data.apto_vaga === 'sim') {
-                    const addToEmployees = confirm(
-                        `Candidato aprovado! Deseja adicionar ${data.nome} à lista de funcionários para iniciar o processo de onboarding?`
-                    );
-                    
-                    if (addToEmployees) {
-                        addApprovedCandidateToEmployees(data);
-                    }
-                }
-                
-                // Esconder loading e mostrar sucesso
-                loadingMessage.style.display = 'none';
-                successMessage.style.display = 'block';
-                
-                // Limpar formulário após 3 segundos
-                setTimeout(() => {
-                    form.reset();
-                    successMessage.style.display = 'none';
-                    // Redefinir data atual
-                    const today = new Date().toISOString().split('T')[0];
-                    document.getElementById('data_avaliacao').value = today;
-                }, 3000);
-                
-            } catch (error) {
-                loadingMessage.style.display = 'none';
-                alert('Erro ao enviar avaliação. Tente novamente.');
-                console.error('Erro:', error);
-            }
-        });
+        // Feedback
+        loading.style.display = 'none';
+        success.style.display = 'block';
 
-        // Salvar avaliação no localStorage
-        function saveEvaluation(data) {
-            const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
-            const evaluation = {
-                id: Date.now().toString(),
-                ...data,
-                timestamp: new Date().toISOString()
-            };
-            evaluations.push(evaluation);
-            localStorage.setItem('evaluations', JSON.stringify(evaluations));
-        }
+        // Reseta e repõe a data atual
+        setTimeout(()=>{
+          form.reset();
+          success.style.display = 'none';
+          const today = new Date().toISOString().split('T')[0];
+          document.getElementById('data_avaliacao').value = today;
+        }, 3000);
 
-        // Adicionar candidato aprovado à lista de funcionários
-        function addApprovedCandidateToEmployees(data) {
-            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-            
-            // Verificar se já existe
-            const exists = employees.some(emp => emp.name === data.nome && emp.email === data.email);
-            if (exists) {
-                alert('Este candidato já está na lista de funcionários.');
-                return;
-            }
-            
-            const newEmployee = {
-                id: Date.now().toString(),
-                name: data.nome,
-                position: 'A definir', // Pode ser editado depois na lista de funcionários
-                startDate: new Date().toISOString().split('T')[0], // Data atual como padrão
-                manager: data.nome_avaliador,
-                email: data.email,
-                status: 'pending',
-                progress: 0,
-                onboardingData: {
-                    completedTasks: [],
-                    lastUpdate: new Date().toISOString()
-                },
-                evaluationData: data // Manter dados da avaliação
-            };
-            
-            employees.push(newEmployee);
-            localStorage.setItem('employees', JSON.stringify(employees));
-            
-            alert(`${data.nome} foi adicionado à lista de funcionários! Você pode gerenciar o onboarding na seção "Lista de Funcionários".`);
-        }
+      } catch(err){
+        loading.style.display = 'none';
+        console.error(err);
+        alert('Erro ao enviar avaliação. Tente novamente.');
+      }
+    });
 
-        // Animação dos blocos
-        const blocks = document.querySelectorAll('.form-block');
-        blocks.forEach((block, index) => {
-            block.style.animationDelay = `${index * 0.1}s`;
-        });
-    </script>
+    // Animação dos cards (mantida)
+    document.querySelectorAll('.form-block').forEach((blk,idx)=>{
+      blk.style.animationDelay = `${idx * 0.1}s`;
+    });
+  </script>
 </body>
 </html>
-
