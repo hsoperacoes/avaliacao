@@ -7,76 +7,107 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#eaeaea;background:#1a1a1a;min-height:100vh;padding:20px 0}
-    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    /* ===== Reset & base ===== */
+    * { margin:0; padding:0; box-sizing:border-box }
+    body{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height:1.6; color:#eaeaea; background:#1a1a1a; min-height:100vh; padding:20px 0;
+    }
+    .container{ max-width:1200px; margin:0 auto; padding:0 20px }
 
-    .form-header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
-    .form-header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
-    @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    .header-content{position:relative;z-index:1}
-    .header-icon{font-size:3em;margin-bottom:20px;color:#4CAF50}
-    .form-header h1{font-size:2.2em;font-weight:700;margin-bottom:10px}
-    .form-header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
-    .form-header p{font-size:1.05em;opacity:.9;max-width:680px;margin:0 auto}
+    /* ===== Header ===== */
+    .form-header{
+      background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);
+      color:#fff; padding:40px 30px; text-align:center; border-radius:15px 15px 0 0;
+      box-shadow:0 4px 20px rgba(0,0,0,.3); position:relative; overflow:hidden
+    }
+    .form-header::before{
+      content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+      background:radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+      animation:rotate 30s linear infinite;
+    }
+    @keyframes rotate{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+    .header-content{ position:relative; z-index:1 }
+    .header-icon{ font-size:3em; margin-bottom:16px; color:#4CAF50 }
+    .form-header h1{ font-size:2.2em; font-weight:700; margin-bottom:6px }
+    .form-header h2{ font-size:1.2em; font-weight:500; opacity:.9 }
 
-    .form-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
+    /* ===== Card/blocks ===== */
+    .form-container{
+      background:#2a2a2a; border-radius:0 0 15px 15px; box-shadow:0 4px 20px rgba(0,0,0,.3); padding:28px
+    }
+    .form-block{
+      background:#3a3a3a; border-radius:12px; margin-bottom:22px; box-shadow:0 4px 15px rgba(0,0,0,.2);
+      border-left:4px solid #4CAF50;
+    }
+    .block-header{
+      background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);
+      color:#fff; padding:16px 22px; border-radius:8px 8px 0 0; display:flex; align-items:center; gap:12px
+    }
+    .block-header i{ font-size:1.2em }
+    .block-header h3{ font-size:1.12em; font-weight:700; margin:0 }
+    .block-content{ padding:22px }
 
-    .form-block{background:#3a3a3a;border-radius:12px;margin-bottom:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);border-left:4px solid #4CAF50;animation:slideInUp .6s ease-out forwards;opacity:0;transform:translateY(30px)}
-    .form-block:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-    .block-header{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;padding:18px 22px;border-radius:8px 8px 0 0;display:flex;gap:12px;align-items:center}
-    .block-header i{font-size:1.3em}
-    .block-header h3{font-size:1.15em;font-weight:700;margin:0}
-    .block-content{padding:22px}
+    /* ===== Grid ===== */
+    .form-grid{
+      display:grid; grid-template-columns:repeat(12,1fr); gap:16px; align-items:start
+    }
+    .col-12{ grid-column: span 12 }
+    .col-6{ grid-column: span 6 }
+    .col-4{ grid-column: span 4 }
+    .col-3{ grid-column: span 3 }
 
-    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
-    .form-group{display:flex;flex-direction:column}
-    .form-group.full-width{grid-column:1 / -1}
+    /* ===== Inputs ===== */
+    label{ color:#e6e6e6; font-weight:600; margin-bottom:6px; display:block }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], textarea, select{
+      width:100%; background:#4a4a4a; border:2px solid #555; border-radius:10px; padding:12px 14px; color:#eaeaea;
+      font-size:1rem; transition:.2s ease; display:block
+    }
+    textarea{ min-height:92px; resize:vertical }
+    input:focus, textarea:focus, select:focus{
+      outline:none; border-color:#4CAF50; box-shadow:0 0 0 3px rgba(76,175,80,.2); background:#565656
+    }
+    ::placeholder{ color:#bdbdbd }
 
-    label{color:#e0e0e0;font-weight:600;margin-bottom:8px;font-size:.95em}
-    input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="number"],textarea,select{
-      background:#4a4a4a;border:2px solid #555;border-radius:8px;padding:12px 14px;color:#e0e0e0;font-size:1em;transition:all .25s ease}
-    textarea{min-height:100px;resize:vertical}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:#4CAF50;box-shadow:0 0 0 3px rgba(76,175,80,.2);background:#5a5a5a}
-    input::placeholder,textarea::placeholder{color:#bdbdbd}
+    /* ===== Radios (pílulas) ===== */
+    .radio-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:10px }
+    .pill{
+      display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
+      padding:10px 14px; border-radius:10px; background:#4a4a4a; border:2px solid #555; color:#eaeaea; font-weight:600
+    }
+    .pill input{ display:none }
+    .dot{ width:18px; height:18px; border:2px solid #888; border-radius:50%; position:relative; flex-shrink:0 }
+    .pill input:checked + .dot{ border-color:#4CAF50; background:#4CAF50 }
+    .pill input:checked + .dot::after{
+      content:''; position:absolute; inset:4px; background:#fff; border-radius:50%
+    }
 
-    .radio-group{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
-    .radio-option{display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 14px;border-radius:8px;background:#4a4a4a;border:2px solid #555;color:#e0e0e0;font-weight:500}
-    .radio-option:hover{background:#5a5a5a;border-color:#4CAF50}
-    .radio-option input{display:none}
-    .radio-custom{width:20px;height:20px;border:2px solid #777;border-radius:50%;position:relative;transition:.25s}
-    .radio-option input:checked + .radio-custom{border-color:#4CAF50;background:#4CAF50}
-    .radio-option input:checked + .radio-custom::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:#fff;border-radius:50%}
-    .radio-option input:checked ~ span:not(.radio-custom){color:#4CAF50}
+    /* ===== Pergunta bloco ===== */
+    .q-block{ background:#444; border:2px solid #555; border-radius:12px; padding:16px; margin-bottom:14px }
+    .q-title{ font-weight:700; color:#a5e8b1; margin-bottom:10px }
+    .q-inline{ display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:start }
+    .help{ font-size:.92rem; opacity:.85; margin-top:8px; color:#d8d8d8 }
 
-    .question-section{background:#444;border-radius:10px;padding:16px 16px 18px;margin-bottom:14px;border:1px solid #555}
-    .qs-title{color:#b7ffbf;font-weight:700;margin-bottom:8px}
-    .qs-sub{color:#d9d9d9;margin:8px 0 4px;font-size:.95em}
+    /* ===== Actions ===== */
+    .actions{
+      display:flex; gap:14px; justify-content:center; margin-top:26px; padding-top:22px; border-top:2px solid #555
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-radius:10px; font-size:1rem;
+      font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:.5px
+    }
+    .btn-primary{ background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%); color:#fff }
+    .btn-danger{ background:linear-gradient(135deg,#f44336 0%,#d32f2f 100%); color:#fff }
+    .btn-link{
+      background:transparent; color:#90caf9; border:2px solid #90caf9;
+    }
 
-    /* Situação alinhada: coluna fixa para o rótulo + textarea ocupando o restante */
-    .textarea-grid{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:flex-start;margin-top:8px}
-    .textarea-grid .field-label{color:#e0e0e0;font-weight:700;margin-top:6px}
-    .textarea-grid textarea{width:100%;min-height:120px}
-    .options-indent{margin-left:110px}
+    .success{ display:none; background:#2e7d32; color:#fff; border-radius:10px; padding:16px; text-align:center; margin-bottom:18px }
+    .loading{ display:none; color:#4CAF50; text-align:center; margin-bottom:12px }
 
-    /* Botões */
-    .form-actions{display:flex;gap:18px;justify-content:center;margin-top:28px;padding-top:18px;border-top:2px solid #555}
-    .btn{appearance:none;-webkit-appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:10px;font-weight:700;letter-spacing:.3px;text-decoration:none;font-size:1rem;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:.2s}
-    .btn i{font-size:.95rem}
-    .btn--primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff}
-    .btn--secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
-
-    .success-message{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;padding:16px;border-radius:8px;text-align:center;margin:10px 0;display:none}
-    .loading{display:none;text-align:center;padding:16px;color:#4CAF50}
-    .loading i{animation:spin 1s linear infinite}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    @keyframes slideInUp{to{opacity:1;transform:translateY(0)}}
-
-    @media (max-width:768px){
-      .form-grid{grid-template-columns:1fr}
-      .textarea-grid{grid-template-columns:1fr;gap:6px}
-      .options-indent{margin-left:0}
+    @media(max-width:800px){
+      .q-inline{ grid-template-columns:1fr }
+      .col-6{ grid-column: span 12 } .col-4{ grid-column: span 12 } .col-3{ grid-column: span 6 }
     }
   </style>
 </head>
@@ -92,317 +123,434 @@
     </header>
 
     <div class="form-container">
-      <div class="success-message" id="successMessage"><i class="fas fa-check-circle"></i> Avaliação enviada!</div>
-      <div class="loading" id="loadingMessage"><i class="fas fa-spinner"></i> Enviando dados...</div>
+      <div id="okMsg" class="success"><i class="fas fa-check-circle"></i> Avaliação enviada!</div>
+      <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Enviando...</div>
 
       <form id="candidateForm">
-        <!-- 1. Dados Pessoais -->
-        <div class="form-block">
+        <!-- 1. Dados pessoais -->
+        <section class="form-block">
           <div class="block-header"><i class="fas fa-user"></i><h3>Dados Pessoais do Candidato</h3></div>
           <div class="block-content">
             <div class="form-grid">
-              <div class="form-group full-width">
+              <div class="col-12">
                 <label for="nome">Nome Completo *</label>
-                <input type="text" id="nome" name="nome" required>
+                <input id="nome" name="nome" type="text" required/>
               </div>
-              <div class="form-group">
-                <label for="idade">Idade *</label>
-                <input type="number" id="idade" name="idade" min="16" max="80" required>
+              <div class="col-4">
+                <label for="idade">Idade</label>
+                <input id="idade" name="idade" type="number" min="14" max="90" placeholder="ex.: 28"/>
               </div>
-              <div class="form-group">
-                <label for="telefone">Telefone *</label>
-                <input type="tel" id="telefone" name="telefone" required>
+              <div class="col-4">
+                <label for="telefone">Telefone</label>
+                <input id="telefone" name="telefone" type="tel" placeholder="(xx) xxxxx-xxxx"/>
               </div>
-              <div class="form-group full-width">
-                <label for="email">E-mail *</label>
-                <input type="email" id="email" name="email" required>
+              <div class="col-4">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- 2º Passo – Avaliando as Competências -->
-        <div class="form-block">
-          <div class="block-header"><i class="fas fa-clipboard-check"></i><h3>2º Passo – Avaliando as Competências</h3></div>
+        <!-- 2. Passo — Competências -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-clipboard-check"></i><h3>2º Passo — Avaliando as Competências</h3></div>
           <div class="block-content">
-
-            <div class="question-section">
-              <div class="qs-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="foco_resultado_text" name="foco_resultado_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+            <!-- Foco em Resultado -->
+            <div class="q-block">
+              <div class="q-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="foco_resultado_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
               </div>
-              <div class="qs-sub">A situação apresentada evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="foco_resultado_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="question-section">
-              <div class="qs-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="relacionamento_text" name="relacionamento_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="relacionamento_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="question-section">
-              <div class="qs-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="atitude_text" name="atitude_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="atitude_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="question-section">
-              <div class="qs-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="comunicacao_text" name="comunicacao_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="comunicacao_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Competências Específicas -->
-        <div class="form-block">
-          <div class="block-header"><i class="fas fa-layer-group"></i><h3>Competências Específicas</h3></div>
-          <div class="block-content">
-
-            <div class="question-section">
-              <div class="qs-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="dominio_tecnico_text" name="dominio_tecnico_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="dominio_tecnico_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="question-section">
-              <div class="qs-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="trabalho_equipe_text" name="trabalho_equipe_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="trabalho_equipe_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="question-section">
-              <div class="qs-title">SOLUÇÃO DE PROBLEMAS — Situação em que encontrou um espaço desorganizado e como fez para organizar.</div>
-              <div class="textarea-grid">
-                <div class="field-label">Situação</div>
-                <textarea id="solucao_problemas_text" name="solucao_problemas_text" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
-              </div>
-              <div class="qs-sub">Evidenciou a competência?</div>
-              <div class="radio-group options-indent">
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="sim"><span class="radio-custom"></span>Sim</label>
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="nao"><span class="radio-custom"></span>Não</label>
-                <label class="radio-option"><input type="radio" name="solucao_problemas_comp" value="em_parte"><span class="radio-custom"></span>Em parte</label>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label for="pontos_fortes">Pontos Fortes</label>
-                <textarea id="pontos_fortes" name="pontos_fortes" placeholder="Anote os pontos fortes do candidato..."></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="pontos_desenvolver">Pontos a Desenvolver</label>
-                <textarea id="pontos_desenvolver" name="pontos_desenvolver" placeholder="Anote os pontos a desenvolver..."></textarea>
-              </div>
-              <div class="form-group full-width">
-                <label for="consideracoes">Considerações</label>
-                <textarea id="consideracoes" name="consideracoes" placeholder="Observações do avaliador..."></textarea>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Avaliação Geral -->
-        <div class="form-block">
-          <div class="block-header"><i class="fas fa-star"></i><h3>Avaliação Geral</h3></div>
-          <div class="block-content">
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label>O candidato está apto para a vaga? *</label>
-                <div class="radio-group">
-                  <label class="radio-option"><input type="radio" name="apto_vaga" value="sim" required><span class="radio-custom"></span>Sim</label>
-                  <label class="radio-option"><input type="radio" name="apto_vaga" value="nao" required><span class="radio-custom"></span>Não</label>
-                  <label class="radio-option"><input type="radio" name="apto_vaga" value="em_parte" required><span class="radio-custom"></span>Em parte</label>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
-              <div class="form-group full-width">
-                <label for="observacoes_gerais">Observações gerais</label>
-                <textarea id="observacoes_gerais" name="observacoes_gerais" placeholder="Adicione observações importantes sobre o candidato..."></textarea>
+            </div>
+
+            <!-- Relacionamento -->
+            <div class="q-block">
+              <div class="q-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="relacionamento_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Atitude -->
+            <div class="q-block">
+              <div class="q-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="atitude_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="atitude_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="atitude_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="atitude_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Comunicação -->
+            <div class="q-block">
+              <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="comunicacao_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Avaliador -->
-        <div class="form-block">
+        <!-- 3. Competências Específicas -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-layer-group"></i><h3>Competências Específicas</h3></div>
+          <div class="block-content">
+            <!-- Domínio Técnico -->
+            <div class="q-block">
+              <div class="q-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="dominio_tecnico_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trabalho em Equipe -->
+            <div class="q-block">
+              <div class="q-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="trabalho_equipe_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Solução de Problemas -->
+            <div class="q-block">
+              <div class="q-title">SOLUÇÃO DE PROBLEMAS — Situação em que encontrou um espaço desorganizado e como fez para organizar.</div>
+              <div class="q-inline">
+                <label>Situação</label>
+                <textarea name="solucao_problemas_situacao" placeholder="Descreva a situação relatada pelo candidato..."></textarea>
+              </div>
+              <div class="q-inline" style="margin-top:10px">
+                <label>Evidenciou a competência?</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Pontos fortes / desenvolver / considerações -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-comment-dots"></i><h3>Pontos & Considerações</h3></div>
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="col-6">
+                <label for="pontos_fortes">Pontos Fortes</label>
+                <textarea id="pontos_fortes" name="pontos_fortes" placeholder="Destaques positivos do candidato..."></textarea>
+              </div>
+              <div class="col-6">
+                <label for="pontos_desenvolver">Pontos a Desenvolver</label>
+                <textarea id="pontos_desenvolver" name="pontos_desenvolver" placeholder="Aspectos que precisam evoluir..."></textarea>
+              </div>
+              <div class="col-12">
+                <label for="consideracoes">Considerações</label>
+                <textarea id="consideracoes" name="consideracoes" placeholder="Observações adicionais..."></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Escolaridade -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-user-graduate"></i><h3>3º Passo — Escolaridade</h3></div>
+          <div class="block-content">
+            <div class="q-block">
+              <div class="q-title">Grau de Instrução</div>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Fundamental"><span class="dot"></span>Ensino Fundamental</label>
+                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio"><span class="dot"></span>Ensino Médio</label>
+                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio Cursando ou Incompleto"><span class="dot"></span>Ensino Médio Cursando/Incompleto</label>
+                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior"><span class="dot"></span>Ensino Superior</label>
+                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior Cursando ou Incompleto"><span class="dot"></span>Superior Cursando/Incompleto</label>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="col-12">
+                <label>Em caso de cursos que está estudando, o candidato:</label>
+                <div class="radio-row" style="margin-top:8px">
+                  <label class="pill"><input type="radio" name="curso_estado" value="Já está realizando"><span class="dot"></span>Já está realizando</label>
+                  <label class="pill"><input type="radio" name="curso_estado" value="Ainda irá realizar"><span class="dot"></span>Ainda irá realizar</label>
+                  <label class="pill"><input type="radio" name="curso_estado" value="Não é obrigatório"><span class="dot"></span>Não é obrigatório</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <label for="curso_escolhido">Em caso de curso superior: Curso escolhido</label>
+                <input id="curso_escolhido" name="curso_escolhido" type="text" />
+              </div>
+              <div class="col-6">
+                <label for="curso_motivo">Por que escolheu o curso?</label>
+                <input id="curso_motivo" name="curso_motivo" type="text" />
+              </div>
+              <div class="col-12">
+                <label>Pretende seguir carreira na área?</label>
+                <div class="radio-row" style="margin-top:8px">
+                  <label class="pill"><input type="radio" name="carreira_area" value="Sim"><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="carreira_area" value="Não"><span class="dot"></span>Não</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Aspectos pessoais e familiares -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-people-roof"></i><h3>4º Passo — Aspectos Pessoais e Familiares</h3></div>
+          <div class="block-content">
+            <div class="form-grid">
+              <div class="col-12">
+                <label>Mora com:</label>
+                <div class="radio-row" style="margin-top:8px">
+                  <label class="pill"><input type="radio" name="mora_com" value="Pais"><span class="dot"></span>Pais</label>
+                  <label class="pill"><input type="radio" name="mora_com" value="Marido/Esposa"><span class="dot"></span>Marido/Esposa</label>
+                  <label class="pill"><input type="radio" name="mora_com" value="Sozinho"><span class="dot"></span>Sozinho</label>
+                  <label class="pill"><input type="radio" name="mora_com" value="Outros"><span class="dot"></span>Outros</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <label for="profissao_pais">Profissão dos pais</label>
+                <input id="profissao_pais" name="profissao_pais" type="text"/>
+              </div>
+              <div class="col-6">
+                <label for="profissao_conjuge">Do marido/esposa</label>
+                <input id="profissao_conjuge" name="profissao_conjuge" type="text"/>
+              </div>
+
+              <div class="col-12">
+                <label>O imóvel onde mora é:</label>
+                <div class="radio-row" style="margin-top:8px">
+                  <label class="pill"><input type="radio" name="imovel" value="Próprio"><span class="dot"></span>Próprio</label>
+                  <label class="pill"><input type="radio" name="imovel" value="Alugado"><span class="dot"></span>Alugado</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <label for="valor_aluguel">Se alugado, valor (R$)</label>
+                <input id="valor_aluguel" name="valor_aluguel" type="text" placeholder="ex.: 750,00"/>
+              </div>
+
+              <div class="col-12">
+                <label>Contribui financeiramente em casa?</label>
+                <div class="radio-row" style="margin-top:8px">
+                  <label class="pill"><input type="radio" name="contribui_casa" value="Não"><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="contribui_casa" value="Sim"><span class="dot"></span>Sim</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <label for="quanto_contribui">Se sim, em quanto?</label>
+                <input id="quanto_contribui" name="quanto_contribui" type="text" placeholder="ex.: 400,00"/>
+              </div>
+
+              <div class="col-4">
+                <label for="maior_sonho">Qual seu maior sonho?</label>
+                <input id="maior_sonho" name="maior_sonho" type="text"/>
+              </div>
+              <div class="col-4">
+                <label for="como_se_define">Como você se define?</label>
+                <input id="como_se_define" name="como_se_define" type="text"/>
+              </div>
+              <div class="col-4">
+                <label for="espera_hering">O que espera com a Hering?</label>
+                <input id="espera_hering" name="espera_hering" type="text"/>
+              </div>
+
+              <div class="col-12">
+                <label for="parecer_gerente">Parecer do Gerente</label>
+                <textarea id="parecer_gerente" name="parecer_gerente"></textarea>
+              </div>
+              <div class="col-6">
+                <label for="nome_gerente">Nome do Gerente</label>
+                <input id="nome_gerente" name="nome_gerente" type="text"/>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Avaliação Geral -->
+        <section class="form-block">
+          <div class="block-header"><i class="fas fa-star"></i><h3>Avaliação Geral</h3></div>
+          <div class="block-content">
+            <div class="q-block">
+              <div class="q-inline">
+                <label>O candidato está apto para a vaga? *</label>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="apto_vaga" value="Sim" required><span class="dot"></span>Sim</label>
+                  <label class="pill"><input type="radio" name="apto_vaga" value="Não" required><span class="dot"></span>Não</label>
+                  <label class="pill"><input type="radio" name="apto_vaga" value="Em parte" required><span class="dot"></span>Em parte</label>
+                </div>
+              </div>
+              <div class="q-inline" style="margin-top:12px">
+                <label>Observações gerais</label>
+                <textarea name="observacoes_gerais" placeholder="Anotações importantes sobre o candidato..."></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. Dados do Avaliador -->
+        <section class="form-block">
           <div class="block-header"><i class="fas fa-user-check"></i><h3>Dados do Avaliador</h3></div>
           <div class="block-content">
             <div class="form-grid">
-              <div class="form-group">
+              <div class="col-6">
                 <label for="nome_avaliador">Nome do Avaliador *</label>
-                <input type="text" id="nome_avaliador" name="nome_avaliador" required>
+                <input id="nome_avaliador" name="nome_avaliador" type="text" required/>
               </div>
-              <div class="form-group">
-                <label for="cargo_avaliador">Cargo *</label>
-                <input type="text" id="cargo_avaliador" name="cargo_avaliador" required>
+              <div class="col-6">
+                <label for="cargo_avaliador">Cargo</label>
+                <input id="cargo_avaliador" name="cargo_avaliador" type="text" placeholder="ex.: Gerente"/>
               </div>
-              <div class="form-group full-width">
+              <div class="col-6">
                 <label for="data_avaliacao">Data da Avaliação *</label>
-                <input type="date" id="data_avaliacao" name="data_avaliacao" required>
+                <input id="data_avaliacao" name="data_avaliacao" type="date" required/>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- Ações -->
-        <div class="form-actions">
-          <button type="submit" class="btn btn--primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
-          <button type="reset" class="btn btn--secondary" style="background:linear-gradient(135deg,#f44336 0%,#d32f2f 100%)"><i class="fas fa-eraser"></i> Limpar Formulário</button>
-        </div>
-
-        <!-- Navegação -->
-        <div class="form-actions" style="margin-top: 18px;">
-          <a href="../home.html" class="btn btn--primary"><i class="fas fa-home"></i> Voltar ao Home</a>
-          <a href="../funcionarios.html" class="btn btn--secondary"><i class="fas fa-users"></i> Lista de Funcionários</a>
+        <div class="actions">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
+          <button type="reset" class="btn btn-danger"><i class="fas fa-eraser"></i> Limpar</button>
+          <a class="btn btn-link" href="/home.html"><i class="fas fa-home"></i> Home</a>
+          <a class="btn btn-link" href="/funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    /* URL do seu Web App (GAS) */
-    const GAS_EVAL_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+    /* === CONFIG: cole aqui a URL do seu GAS publicado como Web App === */
+    const EVAL_GAS_WEB_APP_URL = 'COLE_AQUI_O_URL_DO_SEU_GAS_WEB_APP';
 
+    // Data padrão
     document.addEventListener('DOMContentLoaded', () => {
       const today = new Date().toISOString().split('T')[0];
-      const el = document.getElementById('data_avaliacao');
-      if (el) el.value = today;
+      const d = document.getElementById('data_avaliacao');
+      if (d && !d.value) d.value = today;
     });
 
-    function scrollToFirstInvalid(form){
-      const firstInvalid = form.querySelector('input:invalid, select:invalid, textarea:invalid');
-      if (firstInvalid){
-        firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
-        firstInvalid.reportValidity();
-      }
-    }
-
-    async function sendViaGAS(formObj){
-      try{
-        await fetch(GAS_EVAL_URL,{
-          method:'POST',
-          mode:'no-cors',
-          headers:{'Content-Type':'text/plain'},
-          body:JSON.stringify({ type:'candidate_evaluation', ...formObj })
-        });
-        return true;
-      }catch(err){
-        console.error('Falha ao enviar para GAS:',err);
-        return false;
-      }
-    }
-
-    function saveEvaluation(data){
-      const evaluations = JSON.parse(localStorage.getItem('evaluations')||'[]');
-      evaluations.push({ id:Date.now().toString(), ...data, timestamp:new Date().toISOString() });
-      localStorage.setItem('evaluations', JSON.stringify(evaluations));
-    }
-
-    function addApprovedCandidateToEmployees(data){
-      const employees = JSON.parse(localStorage.getItem('employees')||'[]');
-      const exists = employees.some(e => e.name===data.nome && e.email===data.email);
-      if (exists){ alert('Este candidato já está na lista de funcionários.'); return; }
-
-      const newEmployee = {
-        id: Date.now().toString(),
-        name: data.nome,
-        position: 'A definir',
-        startDate: new Date().toISOString().split('T')[0],
-        manager: data.nome_avaliador,
-        email: data.email,
-        status: 'pending',
-        progress: 0,
-        onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() },
-        evaluationData: data
-      };
-      employees.push(newEmployee);
-      localStorage.setItem('employees', JSON.stringify(employees));
-      alert(`${data.nome} foi adicionado à lista de funcionários!`);
-    }
-
-    document.getElementById('candidateForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const form = e.target;
-      if (!form.checkValidity()){ scrollToFirstInvalid(form); return; }
-
-      const loading = document.getElementById('loadingMessage');
-      const success = document.getElementById('successMessage');
-
-      loading.style.display='block';
-
+    function formToJSON(form){
       const fd = new FormData(form);
       const data = {};
-      for (const [k,v] of fd.entries()) data[k]=v;
+      for (const [k,v] of fd.entries()){ data[k] = v.trim ? v.trim() : v; }
+      return data;
+    }
+
+    async function sendToGAS(payload){
+      if (!EVAL_GAS_WEB_APP_URL || EVAL_GAS_WEB_APP_URL.startsWith('COLE_AQUI')){
+        throw new Error('URL do GAS não configurada no HTML (EVAL_GAS_WEB_APP_URL).');
+      }
+      const res = await fetch(EVAL_GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok){ throw new Error('Falha HTTP ao enviar para o GAS'); }
+      return res.json();
+    }
+
+    function saveApprovedToEmployees(d){
+      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+      const exists = employees.some(e => e.name === d.nome && e.email === d.email);
+      if (!exists){
+        employees.push({
+          id: Date.now().toString(),
+          name: d.nome,
+          position: 'A definir',
+          startDate: new Date().toISOString().slice(0,10),
+          manager: d.nome_avaliador || d.nome_gerente || '',
+          email: d.email || '',
+          status: 'pending',
+          progress: 0,
+          onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() },
+          evaluationData: d
+        });
+        localStorage.setItem('employees', JSON.stringify(employees));
+      }
+    }
+
+    document.getElementById('candidateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const loading = document.getElementById('loading');
+      const ok = document.getElementById('okMsg');
+      loading.style.display = 'block'; ok.style.display = 'none';
+
+      const data = formToJSON(e.target);
 
       try{
-        await sendViaGAS(data);   // sempre envia para o GAS
-        saveEvaluation(data);     // guarda local
-        if (data.apto_vaga==='sim') addApprovedCandidateToEmployees(data); // apto => vira funcionário
+        await sendToGAS({ type:'candidate-eval', data });
 
-        loading.style.display='none';
-        success.style.display='block';
-        setTimeout(()=>{
-          form.reset();
-          success.style.display='none';
-          const today = new Date().toISOString().split('T')[0];
-          const el = document.getElementById('data_avaliacao'); if (el) el.value = today;
-        },2200);
+        // Se apto, cadastra e redireciona
+        if (data.apto_vaga === 'Sim'){
+          saveApprovedToEmployees(data);
+          loading.style.display = 'none'; ok.style.display = 'block';
+          // pequeno delay para feedback visual
+          setTimeout(() => { window.location.href = '/funcionarios.html'; }, 800);
+        } else {
+          loading.style.display = 'none'; ok.style.display = 'block';
+          // limpa depois de 2s
+          setTimeout(() => { e.target.reset(); ok.style.display = 'none'; }, 2000);
+        }
       }catch(err){
-        loading.style.display='none';
+        loading.style.display = 'none';
+        alert('Não foi possível enviar a avaliação. Verifique a URL do GAS e tente novamente.\n\nDetalhes: ' + err.message);
         console.error(err);
-        alert('Erro ao enviar avaliação. Tente novamente.');
       }
     });
-
-    document.querySelectorAll('.form-block').forEach((b,i)=>b.style.animationDelay=`${i*0.1}s`);
   </script>
 </body>
 </html>
