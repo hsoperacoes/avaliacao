@@ -468,7 +468,7 @@
 
         <!-- Ações -->
         <div class="actions">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
+          <button id="submitBtn" type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Enviar Avaliação</button>
           <button type="reset" class="btn btn-danger"><i class="fas fa-eraser"></i> Limpar</button>
           <a class="btn btn-link" href="/avaliacao/home.html"><i class="fas fa-home"></i> Home</a>
           <a class="btn btn-link" href="/avaliacao/funcionarios.html"><i class="fas fa-users"></i> Lista de Funcionários</a>
@@ -491,7 +491,7 @@
     function formToJSON(form){
       const fd = new FormData(form);
       const data = {};
-      for (const [k,v] of fd.entries()){ data[k] = v.trim ? v.trim() : v; }
+      for (const [k,v] of fd.entries()){ data[k] = v && v.trim ? v.trim() : v; }
       return data;
     }
 
@@ -508,50 +508,93 @@
       return res.json();
     }
 
-    function saveApprovedToEmployees(d){
-      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-      const exists = employees.some(e => e.name === d.nome && e.email === d.email);
-      if (!exists){
-        employees.push({
-          id: Date.now().toString(),
-          name: d.nome,
-          position: d.funcao_prevista || 'A definir',   // usa a Função pretendida
-          startDate: new Date().toISOString().slice(0,10),
-          manager: d.nome_avaliador || d.nome_gerente || '',
-          email: d.email || '',
-          status: 'pending',
-          progress: 0,
-          onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() },
-          evaluationData: d
-        });
-        localStorage.setItem('employees', JSON.stringify(employees));
-      }
+    // Upsert do funcionário aprovado na planilha (aba Employees)
+    async function upsertEmployeeToSheet(data){
+      const employee = {
+        id: 'emp_' + Date.now(),                              // id simples e único
+        name: data.nome,
+        position: data.funcao_prevista || 'A definir',
+        startDate: new Date().toISOString().slice(0,10),
+        manager: data.nome_gerente || data.nome_avaliador || '',
+        email: data.email || '',
+        source: 'avaliacao.html'
+      };
+      await sendToGAS({ type:'employees-upsert', employee });
+      // também deixo "currentEmployee" para abrir o onboarding se quiser
+      localStorage.setItem('currentEmployee', JSON.stringify({
+        id: employee.id,
+        name: employee.name,
+        position: employee.position,
+        startDate: employee.startDate,
+        manager: employee.manager
+      }));
+      return employee;
     }
 
-    document.getElementById('candidateForm').addEventListener('submit', async (e) => {
+    // Fallback local caso o GAS falhe
+    function saveApprovedToLocal(data){
+      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+      const id = 'emp_' + Date.now();
+      const rec = {
+        id,
+        name: data.nome,
+        position: data.funcao_prevista || 'A definir',
+        startDate: new Date().toISOString().slice(0,10),
+        manager: data.nome_avaliador || data.nome_gerente || '',
+        email: data.email || '',
+        status: 'pending',
+        progress: 0,
+        onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() },
+        evaluationData: data
+      };
+      employees.push(rec);
+      localStorage.setItem('employees', JSON.stringify(employees));
+      localStorage.setItem('currentEmployee', JSON.stringify({
+        id: rec.id, name: rec.name, position: rec.position, startDate: rec.startDate, manager: rec.manager
+      }));
+      return rec;
+    }
+
+    const form = document.getElementById('candidateForm');
+    const loading = document.getElementById('loading');
+    const ok = document.getElementById('okMsg');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const loading = document.getElementById('loading');
-      const ok = document.getElementById('okMsg');
       loading.style.display = 'block'; ok.style.display = 'none';
+      submitBtn.disabled = true;
 
       const data = formToJSON(e.target);
 
       try{
+        // 1) Envia avaliação (e-mail) pelo GAS
         await sendToGAS({ type:'candidate-eval', data });
 
+        // 2) Se aprovado, cadastra em Employees (Sheets). Fallback: localStorage.
         if (data.apto_vaga === 'Sim'){
-          saveApprovedToEmployees(data);
+          try{
+            await upsertEmployeeToSheet(data);
+          }catch(upErr){
+            console.warn('Falha no upsert em Sheets, usando localStorage:', upErr);
+            saveApprovedToLocal(data);
+          }
           loading.style.display = 'none'; ok.style.display = 'block';
+          // redireciona para a lista
           setTimeout(() => { window.location.href = '/avaliacao/funcionarios.html'; }, 800);
         } else {
           loading.style.display = 'none'; ok.style.display = 'block';
-          setTimeout(() => { e.target.reset(); ok.style.display = 'none'; }, 2000);
+          setTimeout(() => { form.reset(); ok.style.display = 'none'; }, 1500);
         }
       }catch(err){
         loading.style.display = 'none';
+        submitBtn.disabled = false;
         alert('Não foi possível enviar a avaliação. Verifique a URL do GAS e tente novamente.\n\nDetalhes: ' + err.message);
         console.error(err);
+        return;
       }
+
+      submitBtn.disabled = false;
     });
   </script>
 </body>
