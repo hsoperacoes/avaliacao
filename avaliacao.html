@@ -69,7 +69,7 @@
     }
     ::placeholder{ color:#bdbdbd }
 
-    /* ===== Radios (pílulas) ===== */
+    /* ===== Radios/checkbox (pílulas) ===== */
     .radio-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:10px }
     .pill{
       display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
@@ -85,25 +85,8 @@
     /* ===== Pergunta bloco ===== */
     .q-block{ background:#444; border:2px solid #555; border-radius:12px; padding:16px; margin-bottom:14px }
     .q-title{ font-weight:700; color:#a5e8b1; margin-bottom:10px }
-    .q-inline{ display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:center }
-
+    .q-inline{ display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:start }
     .help{ font-size:.92rem; opacity:.85; margin-top:8px; color:#d8d8d8 }
-
-    /* ===== Star Rating ===== */
-    .rating-wrap{ display:flex; align-items:center; gap:14px; flex-wrap:wrap }
-    .rating{
-      display:inline-flex; flex-direction: row-reverse; gap:4px;
-    }
-    .rating input{ display:none }
-    .rating label{
-      font-size:26px; line-height:1; color:#8d8d8d; cursor:pointer; user-select:none;
-      transition: transform .15s ease, color .15s ease;
-    }
-    .rating label:hover,
-    .rating label:hover ~ label{ color:#FFD54F; transform:scale(1.05) }
-    .rating input:checked ~ label{ color:#FFC107 }
-    .rating-hint{ min-width:140px; color:#eaeaea; font-weight:600 }
-    .rating-legend{ font-size:.92rem; color:#d8d8d8; margin-top:8px }
 
     /* ===== Actions ===== */
     .actions{
@@ -125,7 +108,6 @@
     @media(max-width:800px){
       .q-inline{ grid-template-columns:1fr }
       .col-6{ grid-column: span 12 } .col-4{ grid-column: span 12 } .col-3{ grid-column: span 6 }
-      .rating-wrap{ justify-content:flex-start }
     }
   </style>
 </head>
@@ -166,7 +148,6 @@
                 <label for="email">E-mail</label>
                 <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
               </div>
-              <!-- NOVO: Função/cargo pretendido (OBRIGATÓRIO) -->
               <div class="col-3">
                 <label for="funcao_prevista">Função pretendida *</label>
                 <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
@@ -183,27 +164,6 @@
             <div class="q-block">
               <div class="q-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
 
-              <!-- SUBSTITUI: Situação (textarea) -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="foco_resultado_5" name="foco_resultado_score" value="5">
-                    <label for="foco_resultado_5" title="5 estrelas">★</label>
-                    <input type="radio" id="foco_resultado_4" name="foco_resultado_score" value="4">
-                    <label for="foco_resultado_4" title="4 estrelas">★</label>
-                    <input type="radio" id="foco_resultado_3" name="foco_resultado_score" value="3">
-                    <label for="foco_resultado_3" title="3 estrelas">★</label>
-                    <input type="radio" id="foco_resultado_2" name="foco_resultado_score" value="2">
-                    <label for="foco_resultado_2" title="2 estrelas">★</label>
-                    <input type="radio" id="foco_resultado_1" name="foco_resultado_score" value="1" required>
-                    <label for="foco_resultado_1" title="1 estrela">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-foco_resultado_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
-
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
                 <div class="radio-row">
@@ -212,32 +172,22 @@
                   <label class="pill"><input type="radio" name="foco_resultado_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_foco_resultado"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_foco_resultado" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="foco_resultado_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+              </div>
             </div>
 
             <!-- Relacionamento -->
             <div class="q-block">
               <div class="q-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
-
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="relacionamento_5" name="relacionamento_score" value="5">
-                    <label for="relacionamento_5">★</label>
-                    <input type="radio" id="relacionamento_4" name="relacionamento_score" value="4">
-                    <label for="relacionamento_4">★</label>
-                    <input type="radio" id="relacionamento_3" name="relacionamento_score" value="3">
-                    <label for="relacionamento_3">★</label>
-                    <input type="radio" id="relacionamento_2" name="relacionamento_score" value="2">
-                    <label for="relacionamento_2">★</label>
-                    <input type="radio" id="relacionamento_1" name="relacionamento_score" value="1" required>
-                    <label for="relacionamento_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-relacionamento_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
 
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
@@ -247,32 +197,22 @@
                   <label class="pill"><input type="radio" name="relacionamento_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_relacionamento"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_relacionamento" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="relacionamento_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+              </div>
             </div>
 
             <!-- Atitude -->
             <div class="q-block">
               <div class="q-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
-
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="atitude_5" name="atitude_score" value="5">
-                    <label for="atitude_5">★</label>
-                    <input type="radio" id="atitude_4" name="atitude_score" value="4">
-                    <label for="atitude_4">★</label>
-                    <input type="radio" id="atitude_3" name="atitude_score" value="3">
-                    <label for="atitude_3">★</label>
-                    <input type="radio" id="atitude_2" name="atitude_score" value="2">
-                    <label for="atitude_2">★</label>
-                    <input type="radio" id="atitude_1" name="atitude_score" value="1" required>
-                    <label for="atitude_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-atitude_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
 
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
@@ -282,32 +222,22 @@
                   <label class="pill"><input type="radio" name="atitude_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_atitude"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_atitude" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="atitude_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+              </div>
             </div>
 
             <!-- Comunicação -->
             <div class="q-block">
               <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
-
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="comunicacao_5" name="comunicacao_score" value="5">
-                    <label for="comunicacao_5">★</label>
-                    <input type="radio" id="comunicacao_4" name="comunicacao_score" value="4">
-                    <label for="comunicacao_4">★</label>
-                    <input type="radio" id="comunicacao_3" name="comunicacao_score" value="3">
-                    <label for="comunicacao_3">★</label>
-                    <input type="radio" id="comunicacao_2" name="comunicacao_score" value="2">
-                    <label for="comunicacao_2">★</label>
-                    <input type="radio" id="comunicacao_1" name="comunicacao_score" value="1" required>
-                    <label for="comunicacao_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-comunicacao_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
 
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
@@ -316,6 +246,17 @@
                   <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
                   <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
+              </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_comunicacao"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_comunicacao" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
               </div>
             </div>
           </div>
@@ -329,27 +270,6 @@
             <div class="q-block">
               <div class="q-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
 
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="dominio_tecnico_5" name="dominio_tecnico_score" value="5">
-                    <label for="dominio_tecnico_5">★</label>
-                    <input type="radio" id="dominio_tecnico_4" name="dominio_tecnico_score" value="4">
-                    <label for="dominio_tecnico_4">★</label>
-                    <input type="radio" id="dominio_tecnico_3" name="dominio_tecnico_score" value="3">
-                    <label for="dominio_tecnico_3">★</label>
-                    <input type="radio" id="dominio_tecnico_2" name="dominio_tecnico_score" value="2">
-                    <label for="dominio_tecnico_2">★</label>
-                    <input type="radio" id="dominio_tecnico_1" name="dominio_tecnico_score" value="1" required>
-                    <label for="dominio_tecnico_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-dominio_tecnico_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
-
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
                 <div class="radio-row">
@@ -358,32 +278,22 @@
                   <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_dominio_tecnico"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_dominio_tecnico" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="dominio_tecnico_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+              </div>
             </div>
 
             <!-- Trabalho em Equipe -->
             <div class="q-block">
               <div class="q-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
-
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="trabalho_equipe_5" name="trabalho_equipe_score" value="5">
-                    <label for="trabalho_equipe_5">★</label>
-                    <input type="radio" id="trabalho_equipe_4" name="trabalho_equipe_score" value="4">
-                    <label for="trabalho_equipe_4">★</label>
-                    <input type="radio" id="trabalho_equipe_3" name="trabalho_equipe_score" value="3">
-                    <label for="trabalho_equipe_3">★</label>
-                    <input type="radio" id="trabalho_equipe_2" name="trabalho_equipe_score" value="2">
-                    <label for="trabalho_equipe_2">★</label>
-                    <input type="radio" id="trabalho_equipe_1" name="trabalho_equipe_score" value="1" required>
-                    <label for="trabalho_equipe_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-trabalho_equipe_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
 
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
@@ -393,32 +303,22 @@
                   <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
               </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_trabalho_equipe"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_trabalho_equipe" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="trabalho_equipe_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+              </div>
             </div>
 
             <!-- Solução de Problemas -->
             <div class="q-block">
               <div class="q-title">SOLUÇÃO DE PROBLEMAS — Situação em que encontrou um espaço desorganizado e como fez para organizar.</div>
-
-              <!-- SUBSTITUI: Situação -> Estrelas -->
-              <div class="q-inline">
-                <label>Nota (1–5)</label>
-                <div class="rating-wrap">
-                  <div class="rating">
-                    <input type="radio" id="solucao_problemas_5" name="solucao_problemas_score" value="5">
-                    <label for="solucao_problemas_5">★</label>
-                    <input type="radio" id="solucao_problemas_4" name="solucao_problemas_score" value="4">
-                    <label for="solucao_problemas_4">★</label>
-                    <input type="radio" id="solucao_problemas_3" name="solucao_problemas_score" value="3">
-                    <label for="solucao_problemas_3">★</label>
-                    <input type="radio" id="solucao_problemas_2" name="solucao_problemas_score" value="2">
-                    <label for="solucao_problemas_2">★</label>
-                    <input type="radio" id="solucao_problemas_1" name="solucao_problemas_score" value="1" required>
-                    <label for="solucao_problemas_1">★</label>
-                  </div>
-                  <span class="rating-hint" id="hint-solucao_problemas_score">—</span>
-                </div>
-              </div>
-              <div class="rating-legend">1–2: Ruim • 3–4: Boa • 5: Excelente</div>
 
               <div class="q-inline" style="margin-top:10px">
                 <label>Evidenciou a competência?</label>
@@ -427,6 +327,17 @@
                   <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Não"><span class="dot"></span>Não</label>
                   <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Em parte"><span class="dot"></span>Em parte</label>
                 </div>
+              </div>
+
+              <div class="q-inline" style="margin-top:10px">
+                <label></label>
+                <label class="pill">
+                  <input type="checkbox" data-toggle="#obs_solucao_problemas"><span class="dot"></span>Adicionar observação
+                </label>
+              </div>
+              <div class="q-inline" id="obs_solucao_problemas" style="display:none; margin-top:10px">
+                <label>Observação</label>
+                <textarea name="solucao_problemas_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
               </div>
             </div>
           </div>
@@ -625,32 +536,25 @@
     /* === CONFIG: URL do seu GAS publicado como Web App === */
     const EVAL_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
-    // Data padrão + bind dos hints das estrelas
+    // Data padrão + toggles de observação
     document.addEventListener('DOMContentLoaded', () => {
       const today = new Date().toISOString().split('T')[0];
       const d = document.getElementById('data_avaliacao');
       if (d && !d.value) d.value = today;
 
-      const RATING_LABELS = {1:'Ruim',2:'Ruim',3:'Boa',4:'Boa',5:'Excelente'};
-      function bindRating(name){
-        const inputs = document.querySelectorAll(`input[name="${name}"]`);
-        const hint = document.getElementById(`hint-${name}`);
-        inputs.forEach(inp=>{
-          inp.addEventListener('change', () => {
-            const v = parseInt(inp.value,10);
-            if (hint) hint.textContent = `${v}/5 — ${RATING_LABELS[v]}`;
-          });
-        });
-      }
-      [
-        'foco_resultado_score',
-        'relacionamento_score',
-        'atitude_score',
-        'comunicacao_score',
-        'dominio_tecnico_score',
-        'trabalho_equipe_score',
-        'solucao_problemas_score'
-      ].forEach(bindRating);
+      // liga/desliga observações
+      document.querySelectorAll('input[type="checkbox"][data-toggle]').forEach(cb => {
+        const targetSel = cb.getAttribute('data-toggle');
+        const target = document.querySelector(targetSel);
+        const textarea = target ? target.querySelector('textarea') : null;
+        const update = () => {
+          if (!target) return;
+          target.style.display = cb.checked ? 'grid' : 'none';
+          if (!cb.checked && textarea) textarea.value = '';
+        };
+        cb.addEventListener('change', update);
+        update(); // estado inicial
+      });
     });
 
     function formToJSON(form){
