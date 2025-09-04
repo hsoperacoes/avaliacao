@@ -45,7 +45,6 @@
     .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
     .employee-info .start-date{color:#bbb;font-size:.9em}
 
-    /* badge MENOR como antes */
     .status-badge{padding:4px 10px;border-radius:16px;font-size:.75em;font-weight:800;text-transform:uppercase;background:#666;color:#fff;opacity:.95}
     .status-badge.pending{background:#FFF3E0;color:#F57C00}
     .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
@@ -62,13 +61,11 @@
     .employee-actions{display:flex;gap:10px;flex-wrap:wrap}
     .btn-small{padding:8px 15px;font-size:.9em;border-radius:6px}
 
-    /* Estado vazio */
     .empty-state{text-align:center;padding:60px 20px;color:#888}
     .empty-state i{font-size:4em;margin-bottom:20px;color:#555}
     .empty-state h3{font-size:1.5em;margin-bottom:10px}
     .empty-state p{font-size:1.1em;margin-bottom:25px}
 
-    /* Responsivo */
     @media(max-width:768px){
       .employees-grid{grid-template-columns:1fr}
       .action-bar{flex-direction:column;align-items:stretch}
@@ -76,11 +73,9 @@
       .employee-actions{justify-content:center}
     }
 
-    /* Animações */
     .fade-in{animation:fadeIn .6s ease-in}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-    /* Toast */
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
   </style>
@@ -125,7 +120,7 @@
     </div>
   </div>
 
-  <!-- Modal para adicionar funcionário -->
+  <!-- Modal -->
   <div class="modal" id="addEmployeeModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;justify-content:center;align-items:center">
     <div class="modal-content" style="background:#2a2a2a;border-radius:15px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto">
       <div class="modal-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555">
@@ -149,233 +144,180 @@
   <div id="toast" class="toast">Mensagem</div>
 
   <script>
-    /* === CONFIG: URL do seu GAS publicado como Web App === */
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
-    /* === NOVO: semeadura de progresso p/ 1.1 e 1.2 === */
-    const TOTAL_TASKS  = 15;  // 7 + 4 + 1 + 1 + 1 + 1
-    const DEFAULT_DONE = 2;   // 1.1 e 1.2
-    const SEEDED_PCT   = Math.round((DEFAULT_DONE / TOTAL_TASKS) * 100); // ≈13%
+    /* % inicial por 1.1 e 1.2 */
+    const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
 
-    /* Estado em memória */
-    let employees = [];
+    let employees=[];
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', ()=>{
       setupEventListeners();
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('employeeStartDate').value = today;
-      // AUTO–SYNC ao abrir
+      const today=new Date().toISOString().split('T')[0];
+      document.getElementById('employeeStartDate').value=today;
       loadEmployees();
     });
 
-    /* =================== LOAD & SAVE =================== */
     async function fetchEmployeesFromBackend(){
-      const url = GAS_WEB_APP_URL + '?type=employees-list';
-      const res = await fetch(url, { cache:'no-store' });
-      if(!res.ok) throw new Error('Falha HTTP na listagem ('+res.status+')');
-
-      let data;
-      try { data = await res.json(); }
-      catch { throw new Error('Resposta não é JSON (verifique permissões do Web App)'); }
-
-      if(data.ok === false) throw new Error(data.error || 'Backend retornou erro');
-
-      // Aceita "items" OU "employees"
-      const arr = Array.isArray(data.items) ? data.items
-                : Array.isArray(data.employees) ? data.employees
-                : [];
-      return arr;
+      const res = await fetch(GAS_WEB_APP_URL + '?type=employees-list', { cache:'no-store' });
+      if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
+      const data = await res.json();
+      if(data.ok===false) throw new Error(data.error||'Erro backend');
+      return Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
     }
 
-    // % vindo do backend; se vier 0 e estiver pending, mostramos os ~13% semeados
     function derivePct(rec){
-      const fromBackend = Math.max(Number(rec.progressPct || 0), Number(rec.progress || 0));
-      if (fromBackend > 0) return fromBackend;
-      const st = String(rec.status || '').toLowerCase();
-      return (st === '' || st === 'pending') ? SEEDED_PCT : 0;
+      const fromBackend=Math.max(Number(rec.progressPct||0), Number(rec.progress||0));
+      if(fromBackend>0) return fromBackend;
+      const st=String(rec.status||'').toLowerCase();
+      return (st===''||st==='pending')?SEEDED_PCT:0;
     }
-
-    function computeStatus(p){ if (p>=100) return 'completed'; if (p>0) return 'in-progress'; return 'pending'; }
+    function computeStatus(p){ if(p>=100) return 'completed'; if(p>0) return 'in-progress'; return 'pending'; }
 
     function normalizeEmployee(rec){
-      const id  = rec.employeeId || rec.id || String(Date.now());
-      const pct = derivePct(rec);
+      const id=rec.employeeId||rec.id||String(Date.now());
+      const pct=derivePct(rec);
       return {
-        id,
-        employeeId: id,
-        name: rec.name || '',
-        position: rec.position || '',
-        startDate: rec.startDate || '',
-        manager: rec.manager || '',
-        email: rec.email || '',
-        progressPct: pct,
-        progress: pct
+        id, employeeId:id,
+        name:rec.name||'', position:rec.position||'', startDate:rec.startDate||'',
+        manager:rec.manager||'', email:rec.email||'',
+        progressPct:pct, progress:pct,
+        locked:String(rec.locked||'yes'),
+        validatedBy: Array.isArray(rec.validatedBy)?rec.validatedBy:[]
       };
     }
 
     function saveEmployeesLocal(arr){
       localStorage.setItem('employees_sync', JSON.stringify(arr));
-      const legacy = arr.map(e => ({ ...e, progress: e.progressPct }));
+      const legacy=arr.map(e=>({...e, progress:e.progressPct}));
       localStorage.setItem('employees', JSON.stringify(legacy));
     }
 
     async function loadEmployees(){
       try{
-        const items = await fetchEmployeesFromBackend();
-        employees = items.map(normalizeEmployee);
+        const items=await fetchEmployeesFromBackend();
+        employees=items.map(normalizeEmployee);
         saveEmployeesLocal(employees);
         renderEmployees();
-        console.log('[SYNC] carregados do backend:', employees);
       }catch(err){
-        const saved = localStorage.getItem('employees_sync') || localStorage.getItem('employees');
-        employees = saved ? JSON.parse(saved) : [];
+        const saved=localStorage.getItem('employees_sync')||localStorage.getItem('employees');
+        employees=saved?JSON.parse(saved):[];
         renderEmployees();
         toast('Sem conexão com o backend. Carregado do dispositivo.');
-        console.warn('[SYNC] erro:', err);
       }
     }
 
-    async function reloadFromBackend(){
-      employees = [];
-      renderEmployees();
-      await loadEmployees();
-      toast('Sincronizado com o backend.');
-    }
+    async function reloadFromBackend(){ employees=[]; renderEmployees(); await loadEmployees(); toast('Sincronizado com o backend.'); }
 
-    /* =================== RENDER =================== */
     function renderEmployees(filtered=null){
-      const grid = document.getElementById('employeesGrid');
-      const emptyState = document.getElementById('emptyState');
-      const list = filtered || employees;
+      const grid=document.getElementById('employeesGrid');
+      const emptyState=document.getElementById('emptyState');
+      const list=filtered||employees;
 
-      if (!list.length){
-        grid.style.display = 'none';
-        emptyState.style.display = 'block';
-        return;
-      }
-      grid.style.display = 'grid';
-      emptyState.style.display = 'none';
+      if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; return; }
+      grid.style.display='grid'; emptyState.style.display='none';
 
-      grid.innerHTML = list.map(emp => {
-        const pct = typeof emp.progressPct === 'number' ? emp.progressPct : derivePct(emp);
-        const stt = computeStatus(pct); // status sempre coerente com o %
+      grid.innerHTML=list.map(emp=>{
+        const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
+        const stt=computeStatus(pct);
+        const isLocked=String(emp.locked||'yes')!=='no';
+        const vBy=(emp.validatedBy||[]).join(', ');
         return `
           <div class="employee-card fade-in">
             <div class="employee-header">
               <div class="employee-info">
                 <h3>${escapeHtml(emp.name)}</h3>
-                <div class="position">${escapeHtml(emp.position || '')}</div>
+                <div class="position">${escapeHtml(emp.position||'')}</div>
                 <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
+                ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
               </div>
-              <div class="status-badge ${stt}">
-                ${getStatusText(stt)}
+              <div style="display:flex;gap:8px;align-items:center">
+                ${isLocked
+                  ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
+                  : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
+                }
+                <div class="status-badge ${stt}">${getStatusText(stt)}</div>
               </div>
             </div>
 
             <div class="progress-section">
-              <div class="progress-label">
-                <span>Progresso do Onboarding</span>
-                <span>${pct}%</span>
-              </div>
-              <div class="progress-bar-container">
-                <div class="progress-bar ${stt}" style="width:${pct}%;"></div>
-              </div>
+              <div class="progress-label"><span>Progresso do Onboarding</span><span>${pct}%</span></div>
+              <div class="progress-bar-container"><div class="progress-bar ${stt}" style="width:${pct}%"></div></div>
             </div>
 
             <div class="employee-actions">
-              <button class="btn btn-info btn-small" onclick="startOnboarding('${emp.employeeId || emp.id}')"><i class="fas fa-play"></i> Onboarding</button>
-              <button class="btn btn-secondary btn-small" onclick="viewDetails('${emp.employeeId || emp.id}')"><i class="fas fa-eye"></i> Detalhes</button>
-              <button class="btn btn-small" style="background:#f44336" onclick="removeEmployee('${emp.employeeId || emp.id}')"><i class="fas fa-trash"></i> Remover</button>
+              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${emp.employeeId||emp.id}', '${escapeJs(emp.manager||'')}')">
+                <i class="fas fa-play"></i> Onboarding
+              </button>
+              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${emp.employeeId||emp.id}')">
+                <i class="fas fa-eye"></i> Detalhes
+              </button>
+              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${emp.employeeId||emp.id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
+              <button class="btn btn-small" style="background:#f44336" onclick="removeEmployee('${emp.employeeId||emp.id}')"><i class="fas fa-trash"></i> Remover</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    /* =================== UI HANDLERS =================== */
     function setupEventListeners(){
       document.getElementById('searchInput').addEventListener('input', filterEmployees);
       document.getElementById('statusFilter').addEventListener('change', filterEmployees);
       document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
-      document.getElementById('addEmployeeModal').addEventListener('click', (e)=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
+      document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
     }
 
     function filterEmployees(){
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const status = document.getElementById('statusFilter').value;
-      const filtered = employees.filter(e=>{
-        const matchesSearch = (e.name||'').toLowerCase().includes(term) || (e.position||'').toLowerCase().includes(term);
-        const pct = derivePct(e);
-        const stt = computeStatus(pct);
-        const matchesStatus = !status || stt === status;
+      const term=document.getElementById('searchInput').value.toLowerCase();
+      const status=document.getElementById('statusFilter').value;
+      const filtered=employees.filter(e=>{
+        const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
+        const pct=derivePct(e); const stt=computeStatus(pct);
+        const matchesStatus=!status || stt===status;
         return matchesSearch && matchesStatus;
       });
       renderEmployees(filtered);
     }
 
     function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
-    function closeAddEmployeeModal(){
-      document.getElementById('addEmployeeModal').style.display='none';
-      document.getElementById('addEmployeeForm').reset();
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('employeeStartDate').value = today;
-    }
+    function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
 
     async function handleAddEmployee(e){
       e.preventDefault();
-      const record = {
-        id: 'emp-' + Date.now(),
-        name: document.getElementById('employeeName').value.trim(),
-        position: document.getElementById('employeePosition').value.trim(),
-        startDate: document.getElementById('employeeStartDate').value,
-        manager: document.getElementById('employeeManager').value.trim(),
-        email: document.getElementById('employeeEmail').value.trim(),
-        status: 'pending',
-        progress: 0
+      const record={
+        id:'emp-'+Date.now(),
+        name:document.getElementById('employeeName').value.trim(),
+        position:document.getElementById('employeePosition').value.trim(),
+        startDate:document.getElementById('employeeStartDate').value,
+        manager:document.getElementById('employeeManager').value.trim(),
+        email:document.getElementById('employeeEmail').value.trim(),
+        status:'pending', progress:0, locked:'yes'
       };
-
-      // GAS aceita "record" OU "employee"
-      const payload = { type:'employees-upsert', record };
-
       try{
-        const res = await fetch(GAS_WEB_APP_URL, { method:'POST', headers:{ 'Content-Type':'text/plain' }, body: JSON.stringify(payload) });
-        if(!res.ok) throw new Error('Falha HTTP ao salvar');
-        const out = await res.json();
-        if(!out.ok) throw new Error(out.error || 'Erro ao salvar');
-
-        // Novo já entra semeado (~13%)
-        const newEmp = normalizeEmployee(record);
-        employees.push(newEmp);
-        saveEmployeesLocal(employees);
-        renderEmployees();
-        closeAddEmployeeModal();
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
+        const newEmp=normalizeEmployee(record);
+        employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
         toast('Funcionário salvo (Sheets) e sincronizado.');
       }catch(err){
-        console.error(err);
-        const newEmp = normalizeEmployee(record);
-        employees.push(newEmp);
-        saveEmployeesLocal(employees);
-        renderEmployees();
-        closeAddEmployeeModal();
+        const newEmp=normalizeEmployee(record); employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
         toast('Sem backend. Salvo apenas neste dispositivo.');
       }
     }
 
-    function startOnboarding(employeeId){
-      const emp = employees.find(e => (e.employeeId||e.id) === employeeId);
-      if(!emp) return;
-      const pct = derivePct(emp);
-      const legacyEmp = { id: employeeId, name: emp.name, position: emp.position, startDate: emp.startDate, manager: emp.manager, progress: pct };
-      localStorage.setItem('currentEmployee', JSON.stringify(legacyEmp));
-      window.location.href = 'onboarding.html';
-    }
+    /* ===== Proteções ===== */
 
-    function viewDetails(employeeId){
-      const e = employees.find(x => (x.employeeId||x.id) === employeeId);
-      if(!e) return;
-      const pct = derivePct(e);
-      const stt = computeStatus(pct);
-      alert(`Detalhes do Funcionário:
+    // Detalhes: sempre exige PIN de validador (1111/2222/3333) — não destrava nada
+    async function viewDetailsSecured(id){
+      const pin=prompt('PIN do validador (Detalhes):');
+      if(!pin) return;
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
+        // autorizado → mostra detalhes
+        const e=employees.find(x=>(x.employeeId||x.id)===id); if(!e) return;
+        const pct=derivePct(e); const stt=computeStatus(pct);
+        alert(`Detalhes do Funcionário:
 
 Nome: ${e.name}
 Cargo: ${e.position}
@@ -383,39 +325,52 @@ Data de Início: ${formatDate(e.startDate)}
 Gerente: ${e.manager}
 E-mail: ${e.email || 'Não informado'}
 Status: ${getStatusText(stt)}
-Progresso: ${pct}%`);
+Progresso: ${pct}%
+
+(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
+      }catch(err){ toast(String(err.message||err)); }
     }
 
-    function removeEmployee(employeeId){
+    // Validação (desbloqueia o funcionário e grava quem validou)
+    async function validateEmployee(id){
+      const pin=prompt('PIN do validador (para desbloquear):');
+      if(!pin) return;
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employee-validate',id,pin})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha na validação');
+        const idx=employees.findIndex(e=>(e.employeeId||e.id)===id);
+        if(idx>=0){ employees[idx].locked='no'; employees[idx].validatedBy=out.validators||[]; saveEmployeesLocal(employees); renderEmployees(); }
+        toast(`Validado por ${out.validator}`);
+      }catch(err){ toast(String(err.message||err)); }
+    }
+
+    // Onboarding: exige PIN do gerente do funcionário (cadastrado no backend na aba Managers)
+    async function startOnboardingSecured(id, managerName){
+      const pin=prompt(`PIN do gerente (${managerName||'—'}):`);
+      if(!pin) return;
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:managerName,pin})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
+        // ok → segue para onboarding
+        const emp=employees.find(e=>(e.employeeId||e.id)===id); if(!emp) return;
+        const pct=derivePct(emp);
+        const payload={ id, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
+        localStorage.setItem('currentEmployee', JSON.stringify(payload));
+        window.location.href='onboarding.html';
+      }catch(err){ toast(String(err.message||err)); }
+    }
+
+    /* ===== Outros utilitários ===== */
+    function removeEmployee(id){
       if(!confirm('Tem certeza que deseja remover este funcionário desta lista?')) return;
-      employees = employees.filter(e => (e.employeeId||e.id) !== employeeId);
-      saveEmployeesLocal(employees);
-      renderEmployees();
-      toast('Removido somente deste dispositivo. (Não remove da planilha)');
+      employees=employees.filter(e=>(e.employeeId||e.id)!==id);
+      saveEmployeesLocal(employees); renderEmployees(); toast('Removido deste dispositivo (não remove da planilha).');
     }
-
-    /* =================== HELPERS =================== */
-    function formatDate(d){
-      if(!d) return '—';
-      const dt = new Date(d);
-      if(isNaN(dt.getTime())) return String(d);
-      return dt.toLocaleDateString('pt-BR');
-    }
-
-    function getStatusText(s){
-      const map={ 'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído' };
-      return map[s] || s || 'Pendente';
-    }
-
-    function toast(msg){
-      const t=document.getElementById('toast');
-      t.textContent=msg; t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'), 2200);
-    }
-
-    function escapeHtml(s){
-      return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
+    function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt.getTime())) return String(d); return dt.toLocaleDateString('pt-BR'); }
+    function getStatusText(s){ const map={ 'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído' }; return map[s]||s||'Pendente'; }
+    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function escapeJs(s){ return String(s||'').replace(/['"\\]/g,'\\$&'); }
   </script>
 </body>
 </html>
