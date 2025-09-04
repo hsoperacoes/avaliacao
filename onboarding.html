@@ -87,10 +87,10 @@
       <section class="card employee-info">
         <h3><i class="fas fa-user"></i> Informações do Funcionário</h3>
         <div class="employee-details">
-          <div><strong>Nome:</strong> <span id="employeeName">João Silva</span></div>
-          <div><strong>Cargo:</strong> <span id="employeePosition">Vendedor</span></div>
-          <div><strong>Data de Início:</strong> <span id="startDate">01/12/2024</span></div>
-          <div><strong>Gerente:</strong> <span id="managerName">Maria Santos</span></div>
+          <div><strong>Nome:</strong> <span id="employeeName">—</span></div>
+          <div><strong>Cargo:</strong> <span id="employeePosition">—</span></div>
+          <div><strong>Data de Início:</strong> <span id="startDate">—</span></div>
+          <div><strong>Gerente:</strong> <span id="managerName">—</span></div>
         </div>
       </section>
 
@@ -101,7 +101,6 @@
         <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
       </section>
 
-      <!-- Passos (1..6) –– IDs/tarefas iguais aos seus -->
       <!-- 1 -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
@@ -244,8 +243,7 @@
 
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
-    // startDateRaw será usado para enviar corretamente pro backend; startDate (formatado) só para exibição
-    let employeeData = { id:null, name:'Funcionário Exemplo', position:'Cargo', startDate:'2025-09-03', startDateRaw:'2025-09-03', manager:'Gerente' };
+    let employeeData = { id:null, name:'—', position:'—', startDate:'—', manager:'—' };
 
     const STEPS = [
       { id:1, title:'1º Passo - Gerente.', tasks:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },
@@ -265,20 +263,61 @@
 
     function computeContiguousCompletedIndex(){ let idx=-1; for (let i=0;i<ORDERED_TASK_IDS.length;i++){ if(isTaskCompleted(ORDERED_TASK_IDS[i])) idx=i; else break; } return idx; }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadCurrentEmployee(); renderEmployeeInfo();
-      const hasSaved = !!getSavedEmployeeRecord();
-      if (!hasSaved){
-        // NOVO: para candidato novo, 1.1 e 1.2 vêm concluídas
-        markTaskUI('1.1', true);
-        markTaskUI('1.2', true);
-      } else {
-        restoreProgressFromStorage();
-      }
-      applySequentialLocking();
+    // ===== backend load/save =====
+    async function loadOnboardingFromBackend(id){
+      try{
+        const url = `${GAS_WEB_APP_URL}?type=onboarding-load&id=${encodeURIComponent(id)}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if(!res.ok) return null;
+        const data = await res.json();
+        return data && data.ok ? data.record : null;
+      }catch{ return null; }
+    }
+    function applyBackendRecord(rec){
+      if(!rec) return;
+      (rec.completedTasks || []).forEach(tid => markTaskUI(String(tid), true));
+      if (typeof rec.lockedIndex === 'number') lockedIndex = rec.lockedIndex;
       updateProgressBar();
       updateStepStatuses();
       updateEvaluations();
+    }
+    async function saveOnboardingToBackend(stepInfo, reportText){
+      const completed = getCompletedTaskIds();
+      const pct = ORDERED_TASK_IDS.length ? Math.round((completed.length/ORDERED_TASK_IDS.length)*100) : 0;
+      const record = {
+        id: employeeData.id,
+        name: employeeData.name,
+        position: employeeData.position,
+        startDate: employeeData.startDate,
+        manager: employeeData.manager,
+        onboardingData: { completedTasks: completed, lockedIndex },
+        progressPct: pct,
+        status: pct>=100 ? 'completed' : (pct>0 ? 'in-progress' : 'pending'),
+        lastStepNumber: stepInfo.stepNumber,
+        lastStepTitle : stepInfo.stepTitle
+      };
+      await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ type: 'onboarding-save', record, notify: false, reportText })
+      });
+    }
+
+    // ===== init =====
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadCurrentEmployee();  // pega do localStorage quem é o funcionário
+      // busca progresso no Sheets antes de desenhar tudo
+      const rec = employeeData.id ? await loadOnboardingFromBackend(employeeData.id) : null;
+
+      if (rec){
+        applyBackendRecord(rec);
+      } else {
+        // funcionário realmente novo: 1.1 e 1.2 pré-concluídas
+        markTaskUI('1.1', true);
+        markTaskUI('1.2', true);
+        updateProgressBar(); updateStepStatuses(); updateEvaluations();
+      }
+
       restoreRatings();
       toggleStep('step1');
       document.querySelectorAll('.step-section').forEach((s,i)=>{ s.style.animationDelay=(i*0.1)+'s'; s.classList.add('fade-in'); });
@@ -317,14 +356,13 @@
       const allTasksDone = step.tasks.every(t=>isTaskCompleted(t));
       if (!allTasksDone) return;
 
-      // Tarefas concluídas, agora exige avaliação antes de seguir
+      // exige avaliação antes de seguir
       if (!hasRating(step.id)){
         const c=document.getElementById('eval-step'+step.id);
         if (c){ c.style.display='block'; }
         showToast('Avalie esta etapa para liberar a próxima.');
         return;
       }
-      // Já tem avaliação: pode abrir a próxima
       if (stepIndex<STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
     }
 
@@ -332,12 +370,9 @@
     function isTaskCompleted(taskId){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); return !!el && el.classList.contains('completed'); }
     function getTaskPosition(taskId){ const idx=ORDERED_TASK_IDS.indexOf(taskId); let acc=0, stepIndex=0, localIndex=idx; for(let i=0;i<STEPS.length;i++){ if(idx<acc+STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; } acc+=STEPS[i].tasks.length; } return {stepIndex,localIndex}; }
 
-    // BLOQUEIA avanço para próxima etapa até avaliar a atual
     function nextAvailableTaskId(){
       for (const step of STEPS){
-        // se houver alguma tarefa desta etapa ainda não concluída, ela é a próxima
         for (const id of step.tasks){ if (!isTaskCompleted(id)) return id; }
-        // se todas concluídas, mas SEM avaliação: trava aqui
         if (!hasRating(step.id)) return null;
       }
       return null;
@@ -366,7 +401,7 @@
     function isStepDone(stepObj){
       const tasksOk = stepObj.tasks.every(t=>isTaskCompleted(t));
       const rated   = hasRating(stepObj.id);
-      return tasksOk && rated; // etapa só “Concluída” se também tiver avaliação
+      return tasksOk && rated;
     }
 
     function updateStepStatuses(){
@@ -379,9 +414,7 @@
       });
     }
 
-    /* ===== Avaliação por etapa ===== */
     function updateEvaluations(){
-      // mostra o bloco de avaliação quando todas as tarefas da etapa estiverem concluídas
       STEPS.forEach((s)=>{ 
         const tasksOk = s.tasks.every(t=>isTaskCompleted(t));
         const c=document.getElementById('eval-step'+s.id);
@@ -395,14 +428,11 @@
       const container=e.target.closest('.evaluation-container');
       const stepId=parseInt(container.id.replace('eval-step',''),10);
 
-      // marca visualmente
       const parent=container.querySelector('.stars');
       parent.querySelectorAll('.star').forEach(st=>{ st.classList.toggle('selected', parseInt(st.dataset.value,10)<=val); });
 
-      // salva nota POR FUNCIONÁRIO
       const r=getRatings(); r[String(stepId)] = val; setRatings(r);
 
-      // após avaliar, libera próxima etapa (se todas tarefas desta etapa estiverem concluídas)
       const step = STEPS.find(s=>s.id===stepId);
       if (step && step.tasks.every(t=>isTaskCompleted(t))){
         applySequentialLocking();
@@ -421,12 +451,19 @@
       });
     }
 
-    /* ======= SALVAR / RELATÓRIO ======= */
+    // ===== salvar / relatório / envio =====
     async function onSaveClick(){
-      saveProgressToStorage();                 // mantém local
-      const stepInfo = lastCompletedStep();
-      const reportText = buildTxtReport();
-      await persistToBackend(stepInfo, reportText); // grava na planilha (e envia e-mail com TXT se quiser)
+      saveProgressToStorage();
+      const stepInfo=lastCompletedStep();
+      const reportText=buildTxtReport();
+      try{
+        await saveOnboardingToBackend(stepInfo, reportText);
+        await sendEmail(stepInfo, reportText); // opcional: mantém e-mail com TXT
+        showToast('Progresso salvo no Sheets.');
+      }catch(err){
+        console.error(err);
+        showToast('Falha ao salvar no backend.');
+      }
     }
 
     function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
@@ -449,7 +486,7 @@
 
       const record={
         id:employeeData.id, name:employeeData.name, position:employeeData.position,
-        startDate:employeeData.startDateRaw || employeeData.startDate, manager:employeeData.manager,
+        startDate:employeeData.startDate, manager:employeeData.manager,
         onboardingData:{ completedTasks:completed, lastUpdate:new Date().toISOString(), lockedIndex:newLockedIndex },
         progress:pct, status:pct===0?'pending':(pct===100?'completed':'in-progress')
       };
@@ -470,39 +507,19 @@
     }
 
     function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
-
     function loadCurrentEmployee(){
       const stored=localStorage.getItem('currentEmployee');
       if(stored){
         const emp=JSON.parse(stored);
-        employeeData={
-          id:emp.id,
-          name:emp.name,
-          position:emp.position,
-          // guardo as duas representações
-          startDateRaw: emp.startDate,
-          startDate: formatDate(emp.startDate),
-          manager:emp.manager
-        };
+        employeeData={ id:emp.id, name:emp.name, position:emp.position, startDate:formatDate(emp.startDate), manager:emp.manager };
       }
       renderEmployeeInfo();
     }
-
-    function renderEmployeeInfo(){
-      document.getElementById('employeeName').textContent=employeeData.name;
-      document.getElementById('employeePosition').textContent=employeeData.position;
-      document.getElementById('startDate').textContent=employeeData.startDate;
-      document.getElementById('managerName').textContent=employeeData.manager;
-    }
-
+    function renderEmployeeInfo(){ document.getElementById('employeeName').textContent=employeeData.name; document.getElementById('employeePosition').textContent=employeeData.position; document.getElementById('startDate').textContent=employeeData.startDate; document.getElementById('managerName').textContent=employeeData.manager; }
     function formatDate(s){ return new Date(s).toLocaleDateString('pt-BR'); }
 
-    function getTaskTextById(id){
-      const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`);
-      return el?el.textContent.trim():id;
-    }
+    function getTaskTextById(id){ const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`); return el?el.textContent.trim():id; }
 
-    /* ===== TXT inclui AVALIAÇÕES ===== */
     function buildTxtReport(){
       const completed=getCompletedTaskIds();
       const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
@@ -540,51 +557,25 @@
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
-    /* ===== Envio para o BACKEND (Sheets) ===== */
-    async function persistToBackend(stepInfo, reportText){
+    async function sendEmail(stepInfo, reportText){
       if (!GAS_WEB_APP_URL){ showToast('URL do Web App (GAS) não configurada.'); return; }
-
       const completed = getCompletedTaskIds();
       const pct = ORDERED_TASK_IDS.length ? Math.round((completed.length / ORDERED_TASK_IDS.length) * 100) : 0;
-      const newLockedIndex = computeContiguousCompletedIndex();
-      lockedIndex = newLockedIndex;
-
-      const record = {
-        id: employeeData.id,
-        name: employeeData.name,
-        position: employeeData.position,
-        startDate: employeeData.startDateRaw || employeeData.startDate, // ISO preferencial
-        manager: employeeData.manager,
-        completedTasks: completed,
-        lockedIndex: newLockedIndex,
-        progressPct: pct,
-        status: (pct===0 ? 'pending' : (pct===100 ? 'completed' : 'in-progress')),
-        lastStepNumber: stepInfo.stepNumber || '',
-        lastStepTitle : stepInfo.stepTitle  || ''
-      };
-
-      const payload = {
-        type: 'onboarding-save',   // ESSENCIAL
-        record,
-        notify: true,              // envia e-mail; remove se não quiser
+      const payload={
+        employeeName:employeeData.name,
+        position:employeeData.position,
+        manager:employeeData.manager,
+        stepNumber:stepInfo.stepNumber,
+        stepTitle:stepInfo.stepTitle,
+        completedTasks:completed,
+        progressPct:pct,
+        savedAt:new Date().toISOString(),
         reportText
       };
-
       try{
-        const res = await fetch(GAS_WEB_APP_URL, {
-          method:'POST',
-          headers:{ 'Content-Type':'text/plain' },
-          body: JSON.stringify(payload)
-        });
-        const out = await res.json().catch(()=>({}));
-        if (res.ok && out.ok){
-          showToast('Progresso salvo no backend.');
-        } else {
-          throw new Error(out.error || 'Falha no backend');
-        }
+        await fetch(GAS_WEB_APP_URL,{ method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload)});
       }catch(err){
         console.error(err);
-        showToast('Não consegui salvar no backend. O progresso continua salvo aqui.');
       }
     }
   </script>
