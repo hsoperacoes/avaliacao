@@ -44,6 +44,8 @@
     .employee-info h3{color:#fff;font-size:1.3em;margin-bottom:5px}
     .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
     .employee-info .start-date{color:#bbb;font-size:.9em}
+
+    /* badge MENOR como antes */
     .status-badge{padding:4px 10px;border-radius:16px;font-size:.75em;font-weight:800;text-transform:uppercase;background:#666;color:#fff;opacity:.95}
     .status-badge.pending{background:#FFF3E0;color:#F57C00}
     .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
@@ -150,6 +152,11 @@
     /* === CONFIG: URL do seu GAS publicado como Web App === */
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
+    /* === NOVO: semeadura de progresso p/ 1.1 e 1.2 === */
+    const TOTAL_TASKS  = 15;  // 7 + 4 + 1 + 1 + 1 + 1
+    const DEFAULT_DONE = 2;   // 1.1 e 1.2
+    const SEEDED_PCT   = Math.round((DEFAULT_DONE / TOTAL_TASKS) * 100); // ≈13%
+
     /* Estado em memória */
     let employees = [];
 
@@ -180,18 +187,19 @@
       return arr;
     }
 
+    // % vindo do backend; se vier 0 e estiver pending, mostramos os ~13% semeados
     function derivePct(rec){
-      const a = Number(rec.progressPct ?? 0);
-      const b = Number(rec.progress ?? 0);
-      return Math.max(a, b, 0);
+      const fromBackend = Math.max(Number(rec.progressPct || 0), Number(rec.progress || 0));
+      if (fromBackend > 0) return fromBackend;
+      const st = String(rec.status || '').toLowerCase();
+      return (st === '' || st === 'pending') ? SEEDED_PCT : 0;
     }
 
     function computeStatus(p){ if (p>=100) return 'completed'; if (p>0) return 'in-progress'; return 'pending'; }
 
     function normalizeEmployee(rec){
+      const id  = rec.employeeId || rec.id || String(Date.now());
       const pct = derivePct(rec);
-      const status = rec.status || computeStatus(pct);
-      const id = rec.employeeId || rec.id || String(Date.now());
       return {
         id,
         employeeId: id,
@@ -201,8 +209,7 @@
         manager: rec.manager || '',
         email: rec.email || '',
         progressPct: pct,
-        progress: pct, // compat
-        status
+        progress: pct
       };
     }
 
@@ -251,7 +258,7 @@
 
       grid.innerHTML = list.map(emp => {
         const pct = typeof emp.progressPct === 'number' ? emp.progressPct : derivePct(emp);
-        const stt = emp.status || computeStatus(pct);
+        const stt = computeStatus(pct); // status sempre coerente com o %
         return `
           <div class="employee-card fade-in">
             <div class="employee-header">
@@ -299,7 +306,7 @@
       const filtered = employees.filter(e=>{
         const matchesSearch = (e.name||'').toLowerCase().includes(term) || (e.position||'').toLowerCase().includes(term);
         const pct = derivePct(e);
-        const stt = e.status || computeStatus(pct);
+        const stt = computeStatus(pct);
         const matchesStatus = !status || stt === status;
         return matchesSearch && matchesStatus;
       });
@@ -336,6 +343,7 @@
         const out = await res.json();
         if(!out.ok) throw new Error(out.error || 'Erro ao salvar');
 
+        // Novo já entra semeado (~13%)
         const newEmp = normalizeEmployee(record);
         employees.push(newEmp);
         saveEmployeesLocal(employees);
@@ -366,7 +374,7 @@
       const e = employees.find(x => (x.employeeId||x.id) === employeeId);
       if(!e) return;
       const pct = derivePct(e);
-      const stt = e.status || computeStatus(pct);
+      const stt = computeStatus(pct);
       alert(`Detalhes do Funcionário:
 
 Nome: ${e.name}
