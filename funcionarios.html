@@ -50,6 +50,14 @@
     .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
     .status-badge.completed{background:#E8F5E8;color:#388E3C}
 
+    /* Novo: chip com o gerente no cabeçalho */
+    .manager-chip{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:16px;font-size:.78em;font-weight:700;
+      background:#424242;color:#e0e0e0;white-space:nowrap
+    }
+    .manager-chip i{font-size:.9em;color:#FFB300}
+
     .progress-section{margin-bottom:20px}
     .progress-label{color:#ddd;font-size:.9em;margin-bottom:8px;display:flex;justify-content:space-between}
     .progress-bar-container{background:#4a4a4a;border-radius:10px;height:8px;overflow:hidden}
@@ -95,7 +103,7 @@
       <div class="action-bar">
         <div class="search-container">
           <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
-          <select class="filter-select" id="statusFilter">
+        <select class="filter-select" id="statusFilter">
             <option value="">Todos os status</option>
             <option value="pending">Pendente</option>
             <option value="in-progress">Em andamento</option>
@@ -170,9 +178,18 @@
       const fromBackend=Math.max(Number(rec.progressPct||0), Number(rec.progress||0));
       if(fromBackend>0) return fromBackend;
       const st=String(rec.status||'').toLowerCase();
+      // mantém a semente inicial apenas para exibir “um pontinho de progresso”
       return (st===''||st==='pending')?SEEDED_PCT:0;
     }
-    function computeStatus(p){ if(p>=100) return 'completed'; if(p>0) return 'in-progress'; return 'pending'; }
+
+    // <<< AJUSTE: status “pendente” enquanto bloqueado (não validado) >>>
+    function computeStatus(p, rec){
+      const locked = String(rec?.locked || 'yes') !== 'no'; // true se ainda bloqueado
+      if (locked) return 'pending';
+      if (p>=100) return 'completed';
+      if (p>0) return 'in-progress';
+      return 'pending';
+    }
 
     function normalizeEmployee(rec){
       const id=rec.employeeId||rec.id||String(Date.now());
@@ -219,7 +236,7 @@
 
       grid.innerHTML=list.map(emp=>{
         const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
-        const stt=computeStatus(pct);
+        const stt=computeStatus(pct, emp);
         const isLocked=String(emp.locked||'yes')!=='no';
         const vBy=(emp.validatedBy||[]).join(', ');
         return `
@@ -231,7 +248,10 @@
                 <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
                 ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
               </div>
-              <div style="display:flex;gap:8px;align-items:center">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+                <span class="manager-chip" title="Gerente que cadastrou">
+                  <i class="fas fa-user-tie"></i> Gerente: ${escapeHtml(emp.manager || '—')}
+                </span>
                 ${isLocked
                   ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
                   : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
@@ -272,7 +292,7 @@
       const status=document.getElementById('statusFilter').value;
       const filtered=employees.filter(e=>{
         const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
-        const pct=derivePct(e); const stt=computeStatus(pct);
+        const pct=derivePct(e); const stt=computeStatus(pct, e);
         const matchesStatus=!status || stt===status;
         return matchesSearch && matchesStatus;
       });
@@ -307,16 +327,15 @@
 
     /* ===== Proteções ===== */
 
-    // Detalhes: sempre exige PIN de validador (1111/2222/3333) — não destrava nada
+    // Detalhes: exige PIN de validador (1111/2222/3333) — não destrava nada
     async function viewDetailsSecured(id){
       const pin=prompt('PIN do validador (Detalhes):');
       if(!pin) return;
       try{
         const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
         const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
-        // autorizado → mostra detalhes
         const e=employees.find(x=>(x.employeeId||x.id)===id); if(!e) return;
-        const pct=derivePct(e); const stt=computeStatus(pct);
+        const pct=derivePct(e); const stt=computeStatus(pct, e);
         alert(`Detalhes do Funcionário:
 
 Nome: ${e.name}
@@ -351,7 +370,6 @@ Progresso: ${pct}%
       try{
         const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:managerName,pin})});
         const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
-        // ok → segue para onboarding
         const emp=employees.find(e=>(e.employeeId||e.id)===id); if(!emp) return;
         const pct=derivePct(emp);
         const payload={ id, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
