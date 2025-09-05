@@ -6,12 +6,10 @@
   <title>Lista de Funcionários - Sistema de RH</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    /* Reset e básicas */
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;background:#1a1a1a;min-height:100vh;padding:20px 0}
     .container{max-width:1400px;margin:0 auto;padding:0 20px}
 
-    /* Header */
     .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
     .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
     @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -21,10 +19,8 @@
     .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
     .header p{font-size:1.1em;opacity:.9;max-width:600px;margin:0 auto}
 
-    /* Container principal */
     .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
 
-    /* Barra de ações */
     .action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px}
     .search-container{display:flex;gap:15px;align-items:center;flex:1;max-width:500px}
     .search-input{flex:1;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
@@ -36,7 +32,6 @@
     .btn-info{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
 
-    /* Lista */
     .employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-bottom:30px}
     .employee-card{background:#3a3a3a;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:all .3s ease;border-left:4px solid #FF9800;position:relative;overflow:hidden}
     .employee-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
@@ -50,7 +45,6 @@
     .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
     .status-badge.completed{background:#E8F5E8;color:#388E3C}
 
-    /* Chip do gerente no cabeçalho */
     .manager-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;font-size:.78em;font-weight:700;background:#424242;color:#e0e0e0;white-space:nowrap}
     .manager-chip i{font-size:.9em;color:#FFB300}
 
@@ -83,7 +77,7 @@
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
 
-    /* --- Modal do PIN --- */
+    /* Modal genérico (PIN) + modal de cadastro */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;justify-content:center;align-items:center}
     .modal-content{background:#2a2a2a;border-radius:15px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555}
@@ -152,7 +146,7 @@
     </div>
   </div>
 
-  <!-- Modal: PIN (para remover com segurança) -->
+  <!-- Modal: PIN -->
   <div class="modal" id="pinModal">
     <div class="modal-content" style="max-width:420px">
       <div class="modal-header">
@@ -309,6 +303,7 @@
       // PIN modal
       document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
       document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
+      document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
     }
 
     function filterEmployees(){
@@ -349,29 +344,17 @@
       }
     }
 
-    /* ===== Proteções já existentes (detalhes/validar/iniciar) ===== */
-    async function viewDetailsSecured(id){
-      const pin=prompt('PIN do validador (Detalhes):');
-      if(!pin) return;
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
-        const e=employees.find(x=>(x.employeeId||x.id)===id); if(!e) return;
-        const pct=derivePct(e); const stt=computeStatus(pct, e);
-        alert(`Detalhes do Funcionário:
+    /* ===== Ações com PIN (modais) ===== */
 
-Nome: ${e.name}
-Cargo: ${e.position}
-Data de Início: ${formatDate(e.startDate)}
-Gerente: ${e.manager}
-E-mail: ${e.email || 'Não informado'}
-Status: ${getStatusText(stt)}
-Progresso: ${pct}%
-
-(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
-      }catch(err){ toast(String(err.message||err)); }
+    // DETALHES → precisa de validador (master)
+    function viewDetailsSecured(id){
+      pinContext = { action:'details', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Digite o PIN do validador para ver os detalhes.';
+      document.getElementById('pinInput').value='';
+      openPinModal();
     }
 
+    // VALIDAR continua com prompt simples (se quiser eu migro pro modal também depois)
     async function validateEmployee(id){
       const pin=prompt('PIN do validador (para desbloquear):');
       if(!pin) return;
@@ -384,21 +367,21 @@ Progresso: ${pct}%
       }catch(err){ toast(String(err.message||err)); }
     }
 
-    async function startOnboardingSecured(id, managerName){
-      const pin=prompt(`PIN do gerente (${managerName||'—'}):`);
-      if(!pin) return;
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:managerName,pin})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
-        const emp=employees.find(e=>(e.employeeId||e.id)===id); if(!emp) return;
-        const pct=derivePct(emp);
-        const payload={ id, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
-        localStorage.setItem('currentEmployee', JSON.stringify(payload));
-        window.location.href='onboarding.html';
-      }catch(err){ toast(String(err.message||err)); }
+    // ONBOARDING → precisa de PIN do gerente e só se já estiver validado
+    function startOnboardingSecured(id, managerName){
+      const emp=employees.find(e=>(e.employeeId||e.id)===id);
+      if(!emp) return;
+      if(String(emp.locked||'yes')!=='no'){
+        toast('Este candidato ainda não foi validado por um gestor.');
+        return;
+      }
+      pinContext = { action:'start', employeeId:id, managerName:managerName||'' };
+      document.getElementById('pinModalText').textContent = 'Digite o PIN do gerente para iniciar o onboarding.';
+      document.getElementById('pinInput').value='';
+      openPinModal();
     }
 
-    /* ===== Remoção segura (MASTER OU GERENTE) ===== */
+    // REMOVER → aceita PIN de master OU do gerente responsável
     function removeEmployeeSecured(id, managerName){
       pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
       document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN.';
@@ -406,6 +389,7 @@ Progresso: ${pct}%
       openPinModal();
     }
 
+    /* Modal helpers */
     function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
     function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
 
@@ -413,42 +397,67 @@ Progresso: ${pct}%
       const pin = document.getElementById('pinInput').value.trim();
       if(!pin){ toast('Informe o PIN.'); return; }
 
-      if(pinContext.action==='remove'){
-        await handleSecureRemoval(pinContext.employeeId, pinContext.managerName, pin);
-      }
-    }
-
-    async function handleSecureRemoval(id, managerName, pin){
       try{
-        // 1) tenta validar como MASTER
-        let ok=false;
-        try{
+        if(pinContext.action==='details'){
+          // valida master
           const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-          const out = await r.json(); ok = !!out.ok;
-        }catch(_){ ok=false; }
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
+          closePinModal();
+          const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
+          const pct=derivePct(e); const stt=computeStatus(pct, e);
+          alert(`Detalhes do Funcionário:
 
-        // 2) se não for master, tenta como GERENTE responsável
-        if(!ok && managerName){
-          const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:managerName,pin})});
-          const out2 = await r2.json(); ok = !!out2.ok;
+Nome: ${e.name}
+Cargo: ${e.position}
+Data de Início: ${formatDate(e.startDate)}
+Gerente: ${e.manager}
+E-mail: ${e.email || 'Não informado'}
+Status: ${getStatusText(stt)}
+Progresso: ${pct}%
+
+(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
         }
 
-        if(!ok) throw new Error('PIN inválido para esta ação.');
+        if(pinContext.action==='start'){
+          // autentica gerente
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
+          closePinModal();
+          const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId); if(!emp) return;
+          const pct=derivePct(emp);
+          const payload={ id:pinContext.employeeId, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
+          localStorage.setItem('currentEmployee', JSON.stringify(payload));
+          window.location.href='onboarding.html';
+        }
 
-        // 3) autorizado → arquiva no backend (soft delete) e remove da UI/local
-        const delRes = await fetch(GAS_WEB_APP_URL,{
-          method:'POST',
-          headers:{'Content-Type':'text/plain'},
-          body:JSON.stringify({type:'employees-delete', id, mode:'soft'})
-        });
-        const delOut = await delRes.json();
-        if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
+        if(pinContext.action==='remove'){
+          // primeiro tenta master; se falhar, tenta gerente
+          let ok=false;
+          try{
+            const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+            const out = await r.json(); ok = !!out.ok;
+          }catch(_){}
+          if(!ok && pinContext.managerName){
+            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
+            const out2 = await r2.json(); ok = !!out2.ok;
+          }
+          if(!ok) throw new Error('PIN inválido para esta ação.');
 
-        employees = employees.filter(e => (e.employeeId||e.id)!==id);
-        saveEmployeesLocal(employees);
-        renderEmployees();
-        closePinModal();
-        toast('Candidato removido (arquivado na planilha).');
+          // envia credenciais para o backend concluir a remoção (soft)
+          const delRes = await fetch(GAS_WEB_APP_URL,{
+            method:'POST',
+            headers:{'Content-Type':'text/plain'},
+            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', manager:pinContext.managerName, pin})
+          });
+          const delOut = await delRes.json();
+          if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
+
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          renderEmployees();
+          closePinModal();
+          toast('Candidato removido (arquivado na planilha).');
+        }
       }catch(err){
         toast(String(err.message||err));
       }
