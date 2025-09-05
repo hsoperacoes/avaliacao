@@ -103,7 +103,7 @@
       <div class="action-bar">
         <div class="search-container">
           <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
-        <select class="filter-select" id="statusFilter">
+          <select class="filter-select" id="statusFilter">
             <option value="">Todos os status</option>
             <option value="pending">Pendente</option>
             <option value="in-progress">Em andamento</option>
@@ -182,7 +182,7 @@
       return (st===''||st==='pending')?SEEDED_PCT:0;
     }
 
-    // <<< AJUSTE: status “pendente” enquanto bloqueado (não validado) >>>
+    // status “pendente” enquanto bloqueado (não validado)
     function computeStatus(p, rec){
       const locked = String(rec?.locked || 'yes') !== 'no'; // true se ainda bloqueado
       if (locked) return 'pending';
@@ -273,7 +273,10 @@
                 <i class="fas fa-eye"></i> Detalhes
               </button>
               ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${emp.employeeId||emp.id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
-              <button class="btn btn-small" style="background:#f44336" onclick="removeEmployee('${emp.employeeId||emp.id}')"><i class="fas fa-trash"></i> Remover</button>
+              <!-- Botão de remoção segura -->
+              <button class="btn btn-small" style="background:#f44336" onclick="removeEmployeeSecured('${emp.employeeId||emp.id}')">
+                <i class="fas fa-trash"></i> Remover
+              </button>
             </div>
           </div>
         `;
@@ -327,7 +330,7 @@
 
     /* ===== Proteções ===== */
 
-    // Detalhes: exige PIN de validador (1111/2222/3333) — não destrava nada
+    // Detalhes: exige PIN de validador (1111/2222/3333)
     async function viewDetailsSecured(id){
       const pin=prompt('PIN do validador (Detalhes):');
       if(!pin) return;
@@ -363,7 +366,7 @@ Progresso: ${pct}%
       }catch(err){ toast(String(err.message||err)); }
     }
 
-    // Onboarding: exige PIN do gerente do funcionário (cadastrado no backend na aba Managers)
+    // Onboarding: exige PIN do gerente do funcionário (cadastrado no backend)
     async function startOnboardingSecured(id, managerName){
       const pin=prompt(`PIN do gerente (${managerName||'—'}):`);
       if(!pin) return;
@@ -378,12 +381,73 @@ Progresso: ${pct}%
       }catch(err){ toast(String(err.message||err)); }
     }
 
-    /* ===== Outros utilitários ===== */
-    function removeEmployee(id){
-      if(!confirm('Tem certeza que deseja remover este funcionário desta lista?')) return;
-      employees=employees.filter(e=>(e.employeeId||e.id)!==id);
-      saveEmployeesLocal(employees); renderEmployees(); toast('Removido deste dispositivo (não remove da planilha).');
+    // Remoção segura: MASTER (validator PIN) OU gerente que cadastrou (manager PIN)
+    async function removeEmployeeSecured(id){
+      const emp = employees.find(e => (e.employeeId||e.id) === id);
+      if(!emp){ toast('Funcionário não encontrado.'); return; }
+
+      if(!confirm(`Remover "${emp.name}" da lista? Ele ficará arquivado e não aparecerá mais.`)) return;
+
+      // 1) Tenta autenticar como MASTER (validator)
+      let authorized = false;
+      let asWho = '';
+
+      const masterPin = prompt('Se você é MASTER, digite seu PIN (1111/2222/3333).\nSe for o GERENTE, deixe em branco e aperte OK para usar o PIN do gerente.');
+      if (masterPin) {
+        try{
+          const r = await fetch(GAS_WEB_APP_URL, {
+            method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({ type:'validator-auth', pin: masterPin })
+          });
+          const out = await r.json();
+          if(out.ok){ authorized = true; asWho = `MASTER: ${out.validator}`; }
+        }catch(_){}
+      }
+
+      // 2) Se não for MASTER, tenta autenticar como GERENTE que cadastrou
+      if (!authorized) {
+        const managerPin = prompt(`PIN do gerente que cadastrou (${emp.manager||'—'}):`);
+        if(!managerPin){ toast('Ação cancelada.'); return; }
+        try{
+          const r = await fetch(GAS_WEB_APP_URL, {
+            method:'POST', headers:{'Content-Type':'text/plain'},
+            body: JSON.stringify({ type:'manager-auth', manager: emp.manager, pin: managerPin })
+          });
+          const out = await r.json();
+          if(out.ok){ authorized = true; asWho = `Gerente: ${emp.manager}`; }
+        }catch(_){}
+      }
+
+      if(!authorized){
+        toast('Permissão negada: PIN inválido.');
+        return;
+      }
+
+      // 3) Autorizado → arquiva na planilha e some da lista
+      try{
+        const r = await fetch(GAS_WEB_APP_URL, {
+          method:'POST', headers:{'Content-Type':'text/plain'},
+          body: JSON.stringify({ type:'employees-delete', id, mode:'soft' }) // "soft" = status 'archived'
+        });
+        const out = await r.json();
+        if(!out.ok) throw new Error(out.error || 'Falha ao remover no backend');
+
+        // Remove da lista local
+        employees = employees.filter(e => (e.employeeId||e.id) !== id);
+        saveEmployeesLocal(employees);
+        renderEmployees();
+        toast(`Removido por ${asWho} (arquivado na planilha).`);
+      }catch(err){
+        // Sem backend: remove só local
+        employees = employees.filter(e => (e.employeeId||e.id) !== id);
+        saveEmployeesLocal(employees);
+        renderEmployees();
+        toast('Sem backend: removido apenas deste dispositivo.');
+        console.warn(err);
+      }
     }
+
+    /* ===== Outros utilitários ===== */
     function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt.getTime())) return String(d); return dt.toLocaleDateString('pt-BR'); }
     function getStatusText(s){ const map={ 'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído' }; return map[s]||s||'Pendente'; }
     function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
