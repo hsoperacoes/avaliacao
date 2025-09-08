@@ -196,7 +196,7 @@
     });
 
     async function fetchEmployeesFromBackend(){
-      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now(); // no-store + cache buster
+      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
       const res = await fetch(url, { cache:'no-store' });
       if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
       const data = await res.json();
@@ -239,10 +239,8 @@
     async function loadEmployees(){
       try{
         let items=await fetchEmployeesFromBackend();
-        // segurança extra: o backend já exclui 'archived', mas filtramos mesmo assim
         items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
 
-        // aplica denylist local
         const removed = getRemovedSet();
         employees = items
           .map(normalizeEmployee)
@@ -254,7 +252,6 @@
         const saved=localStorage.getItem('employees_sync')||localStorage.getItem('employees');
         const removed = getRemovedSet();
         employees = saved?JSON.parse(saved):[];
-        // filtra qualquer arquivado (caso tenha ficado no cache) + denylist
         employees = employees.filter(e => {
           const st = String(e.status||'').toLowerCase();
           const id = String(e.employeeId||e.id);
@@ -284,6 +281,14 @@
         const stt=computeStatus(pct, emp);
         const isLocked=String(emp.locked||'yes')!=='no';
         const vBy=(emp.validatedBy||[]).join(', ');
+        const id = (emp.employeeId||emp.id);
+
+        const concludeBtn = (pct>=100)
+          ? `<button class="btn btn-small" style="background:#2e7d32;color:#fff" onclick="concludeEmployeeSecured('${id}')">
+               <i class="fas fa-check-double"></i> Concluir
+             </button>`
+          : '';
+
         return `
           <div class="employee-card fade-in">
             <div class="employee-header">
@@ -311,14 +316,15 @@
             </div>
 
             <div class="employee-actions">
-              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${emp.employeeId||emp.id}', '${escapeJs(emp.manager||'')}')">
+              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${id}', '${escapeJs(emp.manager||'')}')">
                 <i class="fas fa-play"></i> Onboarding
               </button>
-              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${emp.employeeId||emp.id}')">
+              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${id}')">
                 <i class="fas fa-eye"></i> Detalhes
               </button>
-              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${emp.employeeId||emp.id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
-              <button class="btn btn-small" style="background:#f44336" onclick="removeEmployeeSecured('${emp.employeeId||emp.id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
+              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
+              <button class="btn btn-small" style="background:#f44336;color:#fff" onclick="removeEmployeeSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
+              ${concludeBtn}
             </div>
           </div>
         `;
@@ -377,7 +383,7 @@
     // ===== Ações com PIN (modais)
     function viewDetailsSecured(id){
       pinContext = { action:'details', employeeId:id, managerName:'' };
-      document.getElementById('pinModalText').textContent = 'Digite o PIN do validador para ver os detalhes.';
+      document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
       document.getElementById('pinInput').value='';
       openPinModal();
     }
@@ -406,7 +412,14 @@
     }
     function removeEmployeeSecured(id, managerName){
       pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
-      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN.';
+      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN (master ou do gerente).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    // NOVO: concluir/arquivar (somente master)
+    function concludeEmployeeSecured(id){
+      pinContext = { action:'conclude', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
       document.getElementById('pinInput').value='';
       openPinModal();
     }
@@ -456,22 +469,22 @@ Progresso: ${pct}%
             const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
             const out = await r.json(); ok = !!out.ok;
           }catch(_){}
-          if(!ok && pinContext.managerName){
-            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
+          if(!ok){
+            // tenta gerente se não for master
+            const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
+            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
             const out2 = await r2.json(); ok = !!out2.ok;
           }
           if(!ok) throw new Error('PIN inválido para esta ação.');
 
-          // SOFT DELETE no backend (mantém dados na planilha como "archived")
           const delRes = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', manager:pinContext.managerName, pin})
+            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed'})
           });
           const delOut = await delRes.json();
           if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
 
-          // marca denylist local + remove do estado atual + limpa caches
           markRemoved(pinContext.employeeId);
           employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
           saveEmployeesLocal(employees);
@@ -481,9 +494,33 @@ Progresso: ${pct}%
           closePinModal();
           toast('Candidato removido (arquivado na planilha).');
 
-          // sincroniza do backend para garantir consistência
           await reloadFromBackend();
         }
+
+        if(pinContext.action==='conclude'){
+          // somente master
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
+
+          // Arquiva como concluído (usa o mesmo endpoint/soft delete com reason específica)
+          const res = await fetch(GAS_WEB_APP_URL,{
+            method:'POST',
+            headers:{'Content-Type':'text/plain'},
+            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'concluded'})
+          });
+          const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
+
+          // tira da tela
+          markRemoved(pinContext.employeeId);
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          renderEmployees();
+          closePinModal();
+          toast('Onboarding concluído e arquivado.');
+
+          await reloadFromBackend();
+        }
+
       }catch(err){
         toast(String(err.message||err));
       }
