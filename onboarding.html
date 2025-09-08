@@ -20,7 +20,7 @@
     .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
     .header p{font-size:1.05em;opacity:.9;max-width:700px;margin:0 auto}
 
-    /* Header actions (Home / Voltar) */
+    /* Header actions */
     .header-actions{position:absolute;inset:auto 24px 24px auto;display:flex;gap:10px;z-index:2}
     .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s ease}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
@@ -66,7 +66,8 @@
     .item-text{color:#e0e0e0;font-size:1rem;flex:1}
     .item-note{font-size:.92rem;color:#cfcfcf;margin-top:6px;font-style:italic}
 
-    .action-buttons{display:flex;gap:14px;justify-content:center;margin-top:26px;padding-top:18px;border-top:2px solid #555}
+    .action-buttons{display:flex;gap:14px;justify-content:center;margin-top:26px;padding-top:18px;border-top:2px solid #555;flex-wrap:wrap}
+
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
 
@@ -84,12 +85,8 @@
     .eval-note{margin-top:8px;font-size:.9rem;color:#ddd;opacity:.85}
 
     /* Overlay loading */
-    .overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.72); display:none; align-items:center; justify-content:center; z-index:2000
-    }
-    .overlay .box{
-      background:#2a2a2a; border:1px solid #555; border-radius:12px; padding:22px 26px; color:#e0e0e0; box-shadow:0 12px 28px rgba(0,0,0,.45); text-align:center; min-width:280px
-    }
+    .overlay{position:fixed; inset:0; background:rgba(0,0,0,.72); display:none; align-items:center; justify-content:center; z-index:2000}
+    .overlay .box{background:#2a2a2a; border:1px solid #555; border-radius:12px; padding:22px 26px; color:#e0e0e0; box-shadow:0 12px 28px rgba(0,0,0,.45); text-align:center; min-width:280px}
     .overlay .spinner{font-size:22px;margin-right:10px}
   </style>
 </head>
@@ -102,8 +99,6 @@
         <h2>Jornada do Novo Funcionário</h2>
         <p>Acompanhe o progresso e marque as etapas concluídas. Para avançar, conclua as tarefas, avalie a etapa e <b>salve o progresso</b>.</p>
       </div>
-
-      <!-- Ações do cabeçalho -->
       <div class="header-actions">
         <a href="home.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
         <a href="funcionarios.html" class="btn btn-primary"><i class="fas fa-users"></i> Lista</a>
@@ -129,6 +124,7 @@
         <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
       </section>
 
+      <!-- Etapas (mesmo conteúdo da versão anterior)… -->
       <!-- 1 -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
@@ -264,10 +260,12 @@
         </div>
       </section>
 
-      <!-- Ações -->
+      <!-- Ações (AGORA COM HOME E LISTA EMBAIXO TAMBÉM) -->
       <div class="action-buttons">
         <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
         <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
+        <a href="home.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
+        <a href="funcionarios.html" class="btn btn-primary"><i class="fas fa-users"></i> Lista</a>
       </div>
     </div>
   </div>
@@ -285,7 +283,6 @@
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
-    // Regras
     const STEPS = [
       { id:1, title:'1º Passo - Gerente.', tasks:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },
       { id:2, title:'2º Passo - Primeiro dia de Trabalho.', tasks:['2.1','2.2','2.3','2.4'] },
@@ -295,32 +292,25 @@
       { id:6, title:'6º Passo - Sétimo dia.', tasks:['6.1'] }
     ];
     const ORDERED_TASK_IDS = STEPS.flatMap(s=>s.tasks);
-    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']); // não pode desmarcar no primeiro acesso
+    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']);
 
     let employeeData = { id:null, name:'—', position:'—', startDate:'—', manager:'—' };
     let lockedIndex = -1;
-    let bootPrefilled = false; // sinaliza se marcamos 1.1/1.2 por ser novo (sem registro)
+    let bootPrefilled = false;
     let ratingsLoaded = false;
-    let lastSavedCheckpoint = 0; // para obrigar "Salvar" antes de abrir próxima etapa
+    let lastSavedCheckpoint = 0;
 
-    /* ======= Helpers de ratings ======= */
     function ratingsKey(){ return 'ratings:' + (employeeData.id || 'sem_id'); }
     function getRatings(){ try{ return JSON.parse(localStorage.getItem(ratingsKey())||'{}'); }catch{ return {}; } }
     function setRatings(obj){ localStorage.setItem(ratingsKey(), JSON.stringify(obj||{})); }
     function hasRating(stepId){ const r=getRatings(); return !!r[String(stepId)]; }
-
     function computeContiguousCompletedIndex(){ let idx=-1; for (let i=0;i<ORDERED_TASK_IDS.length;i++){ if(isTaskCompleted(ORDERED_TASK_IDS[i])) idx=i; else break; } return idx; }
-
     function showOverlay(on){ document.getElementById('overlay').style.display = on ? 'flex' : 'none'; }
 
     document.addEventListener('DOMContentLoaded', () => {
       showOverlay(true);
       loadCurrentEmployee(); renderEmployeeInfo();
-
-      // UX: pinta (1.1/1.2) como concluído no primeiro carregamento
       prefillIfNew();
-
-      // busca dados reais no backend
       hydrateFromBackend().finally(()=>{
         applySequentialLocking();
         updateProgressBar();
@@ -329,7 +319,6 @@
         restoreRatingsUI();
         toggleStep('step1');
         document.querySelectorAll('.step-section').forEach((s,i)=>{ s.style.animationDelay=(i*0.06)+'s'; s.classList.add('fade-in'); });
-        // define checkpoint salvo inicial
         lastSavedCheckpoint = checkpointStepIndex();
         showOverlay(false);
       });
@@ -345,7 +334,6 @@
     async function hydrateFromBackend(){
       if (!employeeData.id) return;
       try{
-        // onboarding
         const url = GAS_WEB_APP_URL + '?type=onboarding-load&id=' + encodeURIComponent(employeeData.id);
         const res = await fetch(url, { cache:'no-store' });
         const out = await res.json();
@@ -358,7 +346,6 @@
         }
       }catch(e){ console.warn('onboarding-load falhou:', e); }
 
-      // ratings
       try{
         const url = GAS_WEB_APP_URL + '?type=ratings-load&id=' + encodeURIComponent(employeeData.id);
         const res = await fetch(url, { cache:'no-store' });
@@ -374,10 +361,9 @@
       const content=document.getElementById(stepDomId);
       const toggle=document.getElementById('toggle'+stepDomId.slice(-1));
 
-      // BLOQUEIO: só permite abrir etapas até o último checkpoint SALVO
       const stepNum = parseInt(stepDomId.replace('step',''),10);
-      const cp = lastSavedCheckpoint;       // etapa na qual o progresso foi salvo
-      const nextAllowed = cp + 1;           // próxima etapa liberada após salvar
+      const cp = lastSavedCheckpoint;
+      const nextAllowed = cp + 1;
 
       if (stepNum > nextAllowed){
         showToast('Para abrir esta etapa, conclua as anteriores, avalie e clique em "Salvar Progresso".');
@@ -396,7 +382,6 @@
       const next=nextAvailableTaskId();
       const isCompleted=el.classList.contains('completed');
 
-      // trava 1.1 e 1.2 quando vieram de regra inicial (ou quando lockedIndex cobrir)
       if ((DEFAULT_LOCKED_IDS.has(id) && bootPrefilled) || (isCompleted && idx<=lockedIndex)){
         showToast(DEFAULT_LOCKED_IDS.has(id) ? 'Essa tarefa é padrão do processo e não pode ser desmarcada.' : 'Essa etapa já foi confirmada anteriormente.');
         return;
@@ -426,7 +411,6 @@
         return;
       }
 
-      // **Obrigar salvar** antes de abrir a próxima etapa
       const cp = checkpointStepIndex();
       if (cp === stepIndex){
         showToast('Clique em "Salvar Progresso" para liberar a próxima etapa.');
@@ -436,19 +420,9 @@
       if (stepIndex<STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
     }
 
-    /* ======== Lock / Status ======== */
     function markTaskUI(taskId,completed){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); if(el) el.classList.toggle('completed',!!completed); }
     function isTaskCompleted(taskId){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); return !!el && el.classList.contains('completed'); }
-
-    function getTaskPosition(taskId){
-      const idx=ORDERED_TASK_IDS.indexOf(taskId);
-      let acc=0, stepIndex=0, localIndex=idx;
-      for(let i=0;i<STEPS.length;i++){
-        if(idx<acc+STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; }
-        acc+=STEPS[i].tasks.length;
-      }
-      return {stepIndex,localIndex};
-    }
+    function getTaskPosition(taskId){ const idx=ORDERED_TASK_IDS.indexOf(taskId); let acc=0, stepIndex=0, localIndex=idx; for(let i=0;i<STEPS.length;i++){ if(idx<acc+STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; } acc+=STEPS[i].tasks.length; } return {stepIndex,localIndex}; }
     function stepIndexOfTask(taskId){ return getTaskPosition(taskId).stepIndex; }
 
     function nextAvailableTaskId(){
@@ -505,7 +479,6 @@
       });
     }
 
-    // Clique nas estrelas → salva local + backend
     document.addEventListener('click', async (e)=>{
       if(!e.target.classList.contains('star')) return;
       const val=parseInt(e.target.dataset.value,10);
@@ -538,7 +511,6 @@
       });
     }
 
-    /* ======= SALVAR / RELATÓRIO ======= */
     function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
     function lastCompletedStep(){
       let last={stepNumber:null, stepTitle:null};
@@ -579,11 +551,9 @@
         const out = await res.json();
         if(!out.ok) throw new Error(out.error||'Falha ao salvar');
 
-        // garante que as notas também subam
         const r = getRatings();
         await fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ type:'ratings-save', employeeId: employeeData.id, ratings: r }) });
 
-        // local: atualiza travas e checkpoint salvo
         lockedIndex = newLockedIndex;
         lastSavedCheckpoint = checkpointStepIndex();
 
@@ -599,7 +569,6 @@
       }
     }
 
-    /* ===== TXT inclui AVALIAÇÕES ===== */
     function buildTxtReport(){
       const completed=getCompletedTaskIds();
       const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
@@ -637,8 +606,6 @@
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
-    /* ===== helpers de funcionário/DOM ===== */
-    function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
     function loadCurrentEmployee(){
       const stored=localStorage.getItem('currentEmployee');
       if(stored){
@@ -649,20 +616,14 @@
     }
     function renderEmployeeInfo(){ document.getElementById('employeeName').textContent=employeeData.name; document.getElementById('employeePosition').textContent=employeeData.position; document.getElementById('startDate').textContent=employeeData.startDate; document.getElementById('managerName').textContent=employeeData.manager; }
     function formatDate(s){ const d=new Date(s); return isNaN(d)? String(s) : d.toLocaleDateString('pt-BR'); }
-
     function getTaskTextById(id){ const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`); return el?el.textContent.trim():id; }
 
-    /* ===== CORREÇÃO do checkpoint (libera etapa seguinte após salvar) ===== */
     function checkpointStepIndex(){
       if (lockedIndex < 0) return 0;
       const s = stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
-
-      // calcula o índice absoluto do último item dessa etapa
       let firstIdx = 0;
       for (let i = 0; i < s; i++) firstIdx += STEPS[i].tasks.length;
       const lastIdxInStep = firstIdx + STEPS[s].tasks.length - 1;
-
-      // se salvou estando no fim da etapa s -> checkpoint avança para a próxima
       if (lockedIndex >= lastIdxInStep) {
         return Math.min(s + 1, STEPS.length - 1);
       }
