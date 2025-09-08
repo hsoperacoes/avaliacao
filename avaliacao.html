@@ -467,14 +467,7 @@
                 <input id="espera_hering" name="espera_hering" type="text"/>
               </div>
 
-              <div class="col-12">
-                <label for="parecer_gerente">Parecer do Gerente</label>
-                <textarea id="parecer_gerente" name="parecer_gerente"></textarea>
-              </div>
-              <div class="col-6">
-                <label for="nome_gerente">Nome do Gerente</label>
-                <input id="nome_gerente" name="nome_gerente" type="text"/>
-              </div>
+              <!-- REMOVIDO: Parecer do Gerente + Nome do Gerente -->
             </div>
           </div>
         </section>
@@ -507,11 +500,18 @@
             <div class="form-grid">
               <div class="col-6">
                 <label for="nome_avaliador">Nome do Avaliador *</label>
-                <input id="nome_avaliador" name="nome_avaliador" type="text" required/>
+                <select id="nome_avaliador" name="nome_avaliador" required>
+                  <option value="" hidden>Selecione...</option>
+                  <option>Bruno</option>
+                  <option>Dayane</option>
+                  <option>Lucilene</option>
+                  <option>Meire</option>
+                  <option>Sônia</option>
+                </select>
               </div>
               <div class="col-6">
                 <label for="cargo_avaliador">Cargo</label>
-                <input id="cargo_avaliador" name="cargo_avaliador" type="text" placeholder="ex.: Gerente"/>
+                <input id="cargo_avaliador" name="cargo_avaliador" type="text" value="Gerente" readonly/>
               </div>
               <div class="col-6">
                 <label for="data_avaliacao">Data da Avaliação *</label>
@@ -584,7 +584,7 @@
         name: data.nome,
         position: data.funcao_prevista || 'A definir',
         startDate: new Date().toISOString().slice(0,10),
-        manager: data.nome_gerente || data.nome_avaliador || '',
+        manager: data.nome_avaliador || '',   // usa o avaliador como gerente
         email: data.email || '',
         source: 'avaliacao.html'
       };
@@ -608,7 +608,7 @@
         name: data.nome,
         position: data.funcao_prevista || 'A definir',
         startDate: new Date().toISOString().slice(0,10),
-        manager: data.nome_avaliador || data.nome_gerente || '',
+        manager: data.nome_avaliador || '',
         email: data.email || '',
         status: 'pending',
         progress: 0,
