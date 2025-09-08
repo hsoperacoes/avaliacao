@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- força layout desktop também no celular -->
+    <meta name="viewport" content="width=1280, initial-scale=1.0">
     <title>Sistema de Gestão de RH - Home</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -154,16 +155,6 @@
         .footer-links a { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
         .footer-links a:hover { color: #45a049; }
 
-        /* Responsividade */
-        @media (max-width: 768px) {
-            .navigation-grid { grid-template-columns: 1fr; gap: 20px; }
-            .nav-card { padding: 30px 20px; }
-            .header h1 { font-size: 2.2em; }
-            .header h2 { font-size: 1.3em; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .footer-links { flex-direction: column; gap: 15px; }
-        }
-
         /* Animações */
         .fade-in { animation: fadeIn 0.8s ease-in; }
         @keyframes fadeIn { from {opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);} }
@@ -275,7 +266,7 @@
                     animateNumber('approvedCandidates',    Number(s.aprovados ?? 0));
                     animateNumber('activeEmployees',       Number(s.funcionariosAtivos ?? 0));
                     animateNumber('completedOnboarding',   Number(s.onboardingConcluido ?? 0));
-                    return; // deu certo, encerra aqui
+                    return;
                 }
             } catch (e) {
                 console.warn('Falha ao buscar stats no GAS, usando fallback localStorage.', e);
@@ -310,17 +301,14 @@
             }, duration / steps);
         }
 
-        // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             loadStatistics();
-            // efeito de hover extra
             document.querySelectorAll('.nav-card').forEach(card => {
                 card.addEventListener('mouseenter', function(){ this.style.transform = 'translateY(-10px) scale(1.02)'; });
                 card.addEventListener('mouseleave', function(){ this.style.transform = 'translateY(0) scale(1)'; });
             });
         });
 
-        // Garante chaves locais (para quem ainda usa localStorage)
         (function ensureLocalKeys(){
             if (!localStorage.getItem('evaluations')) localStorage.setItem('evaluations', JSON.stringify([]));
             if (!localStorage.getItem('employees'))   localStorage.setItem('employees', JSON.stringify([]));
