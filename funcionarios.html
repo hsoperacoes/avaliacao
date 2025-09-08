@@ -82,6 +82,24 @@
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555}
     .close-modal{background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px}
     .pin-input{width:100%;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
+
+    /* ===== Loader Overlay (igual vibe do onboarding) ===== */
+    .loader-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.85);
+      display:none; align-items:center; justify-content:center; z-index:2000;
+      backdrop-filter: blur(1px);
+    }
+    .loader-box{
+      background:#2a2a2a; border:1px solid #444; border-radius:14px;
+      padding:26px 28px; min-width:280px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.45)
+    }
+    .spinner{
+      width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;
+      margin:0 auto 14px; animation:spin 1s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader-title{color:#fff;font-weight:700;margin-bottom:4px}
+    .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
   </style>
 </head>
 <body>
@@ -121,6 +139,15 @@
         <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
         <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div id="loader" class="loader-overlay" aria-hidden="true">
+    <div class="loader-box">
+      <div class="spinner"></div>
+      <div class="loader-title">Carregando funcionários…</div>
+      <div class="loader-sub">Aguarde enquanto buscamos os dados</div>
     </div>
   </div>
 
@@ -167,13 +194,25 @@
 
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
-
     const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
 
     let employees=[];
     let pinContext = { action:null, employeeId:null, managerName:'' };
 
-    // ===== Denylist local de removidos
+    // ===== Loader helpers
+    const loaderEl = document.getElementById('loader');
+    function showLoader(msg='Carregando funcionários…', sub='Aguarde enquanto buscamos os dados'){
+      loaderEl.querySelector('.loader-title').textContent = msg;
+      loaderEl.querySelector('.loader-sub').textContent = sub;
+      loaderEl.style.display='flex';
+      loaderEl.setAttribute('aria-hidden','false');
+    }
+    function hideLoader(){
+      loaderEl.style.display='none';
+      loaderEl.setAttribute('aria-hidden','true');
+    }
+
+    // ===== Denylist local
     function getRemovedSet(){
       const raw = localStorage.getItem('employees_removed');
       try{ return new Set(JSON.parse(raw || '[]')); } catch(_){ return new Set(); }
@@ -188,11 +227,11 @@
       localStorage.removeItem('currentEmployee');
     }
 
-    document.addEventListener('DOMContentLoaded', ()=>{
+    document.addEventListener('DOMContentLoaded', async ()=>{
       setupEventListeners();
       const today=new Date().toISOString().split('T')[0];
       document.getElementById('employeeStartDate').value=today;
-      loadEmployees();
+      await loadEmployees();
     });
 
     async function fetchEmployeesFromBackend(){
@@ -237,6 +276,7 @@
     }
 
     async function loadEmployees(){
+      showLoader();
       try{
         let items=await fetchEmployeesFromBackend();
         items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
@@ -259,13 +299,19 @@
         });
         renderEmployees();
         toast('Sem conexão com o backend. Carregado do dispositivo.');
+      } finally {
+        hideLoader();
       }
     }
 
     async function reloadFromBackend(){
-      employees=[]; renderEmployees();
-      await loadEmployees();
-      toast('Sincronizado com o backend.');
+      showLoader('Sincronizando…','Atualizando dados com o servidor');
+      try{
+        employees=[]; renderEmployees();
+        await loadEmployees(); // loadEmployees já fecha o loader no finally, então não fechar aqui.
+      }catch(_){
+        hideLoader();
+      }
     }
 
     function renderEmployees(filtered=null){
@@ -380,7 +426,7 @@
       }
     }
 
-    // ===== Fluxos com PIN
+    // ===== Fluxos com PIN (inclui concluir/arquivar)
     function viewDetailsSecured(id){
       pinContext = { action:'details', employeeId:id, managerName:'' };
       document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
@@ -462,7 +508,6 @@ Progresso: ${pct}%
         }
 
         if(pinContext.action==='remove'){
-          // autoriza: master OU gerente
           let ok=false;
           try{
             const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
@@ -496,11 +541,9 @@ Progresso: ${pct}%
         }
 
         if(pinContext.action==='conclude'){
-          // MASTER auth
           const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
           const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
 
-          // Arquiva como concluído — agora enviando o PIN e role: 'master'
           const res = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
