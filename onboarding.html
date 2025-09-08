@@ -54,6 +54,8 @@
     .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s ease}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
     .btn-secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
+    /* novo: igual ao funcionarios.html */
+    .btn-info{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
@@ -101,6 +103,7 @@
         <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
       </section>
 
+      <!-- Passos (…mantidos iguais) -->
       <!-- 1 -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
@@ -235,6 +238,8 @@
         <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
         <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
         <a href="funcionarios.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i>Voltar à Lista</a>
+        <!-- novo botão home (igual ao da página de funcionários) -->
+        <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
       </div>
     </div>
   </div>
@@ -254,11 +259,11 @@
       { id:6, title:'6º Passo - Sétimo dia.', tasks:['6.1'] }
     ];
     const ORDERED_TASK_IDS = STEPS.flatMap(s=>s.tasks);
-    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']); // não pode desmarcar no primeiro acesso
+    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']);
 
     let employeeData = { id:null, name:'—', position:'—', startDate:'—', manager:'—' };
     let lockedIndex = -1;
-    let bootPrefilled = false; // sinaliza se marcamos 1.1/1.2 por ser novo (sem registro)
+    let bootPrefilled = false;
     let ratingsLoaded = false;
 
     function ratingsKey(){ return 'ratings:' + (employeeData.id || 'sem_id'); }
@@ -270,9 +275,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       loadCurrentEmployee(); renderEmployeeInfo();
-      // Primeiro pinta como se fosse novo (UX rápido)…
       prefillIfNew();
-      // …e já tenta buscar no backend para substituir pelos dados reais
       hydrateFromBackend().finally(()=>{
         applySequentialLocking();
         updateProgressBar();
@@ -285,7 +288,6 @@
     });
 
     function prefillIfNew(){
-      // marca 1.1 e 1.2 e TRAVA visualmente (antes de saber do backend)
       markTaskUI('1.1', true);
       markTaskUI('1.2', true);
       bootPrefilled = true;
@@ -294,22 +296,18 @@
 
     async function hydrateFromBackend(){
       if (!employeeData.id) return;
-      // onboarding
       try{
         const url = GAS_WEB_APP_URL + '?type=onboarding-load&id=' + encodeURIComponent(employeeData.id);
         const res = await fetch(url, { cache:'no-store' });
         const out = await res.json();
         if (out && out.ok && out.record){
-          bootPrefilled = false; // existe registro real, não considerar como "novo"
-          // limpa UI
+          bootPrefilled = false;
           ORDERED_TASK_IDS.forEach(id=>markTaskUI(id,false));
-          // aplica do backend
           const rec = out.record;
           (rec.completedTasks||[]).forEach(id=>markTaskUI(id,true));
           lockedIndex = (typeof rec.lockedIndex==='number') ? rec.lockedIndex : computeContiguousCompletedIndex();
         }
       }catch(e){ console.warn('onboarding-load falhou:', e); }
-      // ratings
       try{
         const url = GAS_WEB_APP_URL + '?type=ratings-load&id=' + encodeURIComponent(employeeData.id);
         const res = await fetch(url, { cache:'no-store' });
@@ -335,7 +333,6 @@
       const next=nextAvailableTaskId();
       const isCompleted=el.classList.contains('completed');
 
-      // trava 1.1 e 1.2 quando vieram de regra inicial (ou quando lockedIndex cobrir)
       if ((DEFAULT_LOCKED_IDS.has(id) && bootPrefilled) || (isCompleted && idx<=lockedIndex)){
         showToast(DEFAULT_LOCKED_IDS.has(id) ? 'Essa tarefa é padrão do processo e não pode ser desmarcada.' : 'Essa etapa já foi confirmada anteriormente.');
         return;
@@ -425,7 +422,6 @@
       });
     }
 
-    // clique nas estrelas → salva local + backend
     document.addEventListener('click', async (e)=>{
       if(!e.target.classList.contains('star')) return;
       const val=parseInt(e.target.dataset.value,10);
@@ -437,7 +433,6 @@
 
       const r=getRatings(); r[String(stepId)] = val; setRatings(r);
 
-      // backend
       try{
         await fetch(GAS_WEB_APP_URL, {
           method:'POST',
@@ -464,7 +459,7 @@
     }
 
     /* ======= SALVAR / RELATÓRIO ======= */
-    function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
+    function getCompletedTaskIds(){ return STEPS.flatMap(s=>s.tasks).filter(id=>isTaskCompleted(id)); }
     function lastCompletedStep(){
       let last={stepNumber:null, stepTitle:null};
       for (const s of STEPS){
@@ -476,10 +471,10 @@
 
     async function onSaveClick(){
       const reportText = buildTxtReport();
-      // salva onboarding + atualiza Employees via backend
       try{
         const completed = getCompletedTaskIds();
-        const pct = ORDERED_TASK_IDS.length ? Math.round((completed.length / ORDERED_TASK_IDS.length) * 100) : 0;
+        const all = STEPS.flatMap(s=>s.tasks).length;
+        const pct = all ? Math.round((completed.length / all) * 100) : 0;
         const stepInfo = lastCompletedStep();
         const payload = {
           type:'onboarding-save',
@@ -502,7 +497,6 @@
         const out = await res.json();
         if(!out.ok) throw new Error(out.error||'Falha ao salvar');
 
-        // garante que as notas também subam
         const r = getRatings();
         await fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ type:'ratings-save', employeeId: employeeData.id, ratings: r }) });
 
@@ -519,11 +513,11 @@
       }
     }
 
-    /* ===== TXT inclui AVALIAÇÕES ===== */
     function buildTxtReport(){
-      const completed=getCompletedTaskIds();
-      const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
-      const all=ORDERED_TASK_IDS.length; const done=completed.length;
+      const completed=STEPS.flatMap(s=>s.tasks).filter(id=>isTaskCompleted(id));
+      const all=STEPS.flatMap(s=>s.tasks).length;
+      const pending=STEPS.flatMap(s=>s.tasks).filter(id=>!completed.includes(id));
+      const done=completed.length;
       const pct=all?Math.round((done/all)*100):0;
       const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
       const ratings=getRatings();
@@ -557,7 +551,6 @@
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
-    /* ===== helpers de funcionário/DOM ===== */
     function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
     function loadCurrentEmployee(){
       const stored=localStorage.getItem('currentEmployee');
