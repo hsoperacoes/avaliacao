@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,12 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Reset e configurações básicas */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -22,12 +16,7 @@
             min-height: 100vh;
             padding: 20px 0;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
         /* Header */
         .header {
@@ -41,7 +30,6 @@
             overflow: hidden;
             margin-bottom: 40px;
         }
-
         .header::before {
             content: '';
             position: absolute;
@@ -52,42 +40,12 @@
             background: radial-gradient(circle, rgba(255,255,255,.05) 0%, transparent 70%);
             animation: rotate 30s linear infinite;
         }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .header-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            color: #4CAF50;
-        }
-
-        .header h1 {
-            font-size: 2.8em;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        .header h2 {
-            font-size: 1.6em;
-            font-weight: 400;
-            margin-bottom: 20px;
-            color: #ecf0f1;
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: .9;
-            max-width: 700px;
-            margin: 0 auto;
-        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .header-content { position: relative; z-index: 1; }
+        .header-icon { font-size: 4em; margin-bottom: 20px; color: #4CAF50; }
+        .header h1 { font-size: 2.8em; font-weight: 700; margin-bottom: 15px; }
+        .header h2 { font-size: 1.6em; font-weight: 400; margin-bottom: 20px; color: #ecf0f1; }
+        .header p { font-size: 1.2em; opacity: .9; max-width: 700px; margin: 0 auto; }
 
         /* Cards de navegação */
         .navigation-grid {
@@ -96,7 +54,6 @@
             gap: 30px;
             margin-bottom: 40px;
         }
-
         .nav-card {
             background: #2a2a2a;
             border-radius: 15px;
@@ -110,7 +67,13 @@
             color: inherit;
             position: relative;
             overflow: hidden;
+            animation: slideInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(30px);
         }
+        .nav-card:nth-child(1) { animation-delay: 0.1s; }
+        .nav-card:nth-child(2) { animation-delay: 0.2s; }
+        .nav-card:nth-child(3) { animation-delay: 0.3s; }
 
         .nav-card::before {
             content: '';
@@ -122,87 +85,24 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
             transition: left 0.5s ease;
         }
-
-        .nav-card:hover::before {
-            left: 100%;
-        }
-
+        .nav-card:hover::before { left: 100%; }
         .nav-card:hover {
             transform: translateY(-10px);
             border-color: #4CAF50;
             box-shadow: 0 15px 35px rgba(0,0,0,.4);
         }
-
-        .nav-card.evaluation {
-            border-left: 4px solid #4CAF50;
-        }
-
-        .nav-card.onboarding {
-            border-left: 4px solid #2196F3;
-        }
-
-        .nav-card.employees {
-            border-left: 4px solid #FF9800;
-        }
-
-        .card-icon {
-            font-size: 3.5em;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .nav-card.evaluation .card-icon {
-            color: #4CAF50;
-        }
-
-        .nav-card.onboarding .card-icon {
-            color: #2196F3;
-        }
-
-        .nav-card.employees .card-icon {
-            color: #FF9800;
-        }
-
-        .card-title {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: #fff;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-description {
-            font-size: 1.1em;
-            color: #bbb;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-features {
-            list-style: none;
-            margin-top: 20px;
-            text-align: left;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-features li {
-            color: #ddd;
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .card-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #4CAF50;
-            font-weight: bold;
-        }
+        .nav-card.evaluation { border-left: 4px solid #4CAF50; }
+        .nav-card.onboarding { border-left: 4px solid #2196F3; }
+        .nav-card.employees { border-left: 4px solid #FF9800; }
+        .card-icon { font-size: 3.5em; margin-bottom: 20px; position: relative; z-index: 1; }
+        .nav-card.evaluation .card-icon { color: #4CAF50; }
+        .nav-card.onboarding .card-icon { color: #2196F3; }
+        .nav-card.employees .card-icon { color: #FF9800; }
+        .card-title { font-size: 1.8em; font-weight: 700; margin-bottom: 15px; color: #fff; position: relative; z-index: 1; }
+        .card-description { font-size: 1.1em; color: #bbb; line-height: 1.6; position: relative; z-index: 1; }
+        .card-features { list-style: none; margin-top: 20px; text-align: left; position: relative; z-index: 1; }
+        .card-features li { color: #ddd; margin-bottom: 8px; padding-left: 20px; position: relative; }
+        .card-features li::before { content: '✓'; position: absolute; left: 0; color: #4CAF50; font-weight: bold; }
 
         /* Estatísticas */
         .stats-section {
@@ -212,7 +112,6 @@
             margin-bottom: 40px;
             box-shadow: 0 8px 25px rgba(0,0,0,.3);
         }
-
         .stats-title {
             text-align: center;
             color: #fff;
@@ -223,13 +122,11 @@
             justify-content: center;
             gap: 15px;
         }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 25px;
         }
-
         .stat-item {
             background: #3a3a3a;
             padding: 25px 20px;
@@ -237,18 +134,8 @@
             text-align: center;
             border-left: 4px solid #4CAF50;
         }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: 700;
-            color: #4CAF50;
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: #ddd;
-            font-size: 1.1em;
-        }
+        .stat-number { font-size: 2.5em; font-weight: 700; color: #4CAF50; margin-bottom: 10px; }
+        .stat-label { color: #ddd; font-size: 1.1em; }
 
         /* Footer */
         .footer {
@@ -257,89 +144,30 @@
             padding: 30px 0;
             border-top: 2px solid #333;
         }
-
-        .footer p {
-            margin-bottom: 10px;
-        }
-
+        .footer p { margin-bottom: 10px; }
         .footer-links {
             display: flex;
             justify-content: center;
             gap: 30px;
             margin-top: 20px;
         }
-
-        .footer-links a {
-            color: #4CAF50;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: #45a049;
-        }
+        .footer-links a { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
+        .footer-links a:hover { color: #45a049; }
 
         /* Responsividade */
         @media (max-width: 768px) {
-            .navigation-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .nav-card {
-                padding: 30px 20px;
-            }
-            
-            .header h1 {
-                font-size: 2.2em;
-            }
-            
-            .header h2 {
-                font-size: 1.3em;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .footer-links {
-                flex-direction: column;
-                gap: 15px;
-            }
+            .navigation-grid { grid-template-columns: 1fr; gap: 20px; }
+            .nav-card { padding: 30px 20px; }
+            .header h1 { font-size: 2.2em; }
+            .header h2 { font-size: 1.3em; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-links { flex-direction: column; gap: 15px; }
         }
 
         /* Animações */
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-
-        .nav-card {
-            animation: slideInUp 0.6s ease-out forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .nav-card:nth-child(1) { animation-delay: 0.1s; }
-        .nav-card:nth-child(2) { animation-delay: 0.2s; }
-        .nav-card:nth-child(3) { animation-delay: 0.3s; }
-
-        @keyframes slideInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .fade-in { animation: fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from {opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);} }
+        @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -356,13 +184,10 @@
 
         <!-- Navegação Principal -->
         <div class="navigation-grid">
-            <!-- Card Avaliação de Candidatos -->
             <a href="avaliacao.html" class="nav-card evaluation">
                 <i class="fas fa-user-check card-icon"></i>
                 <h3 class="card-title">Avaliação de Candidatos</h3>
-                <p class="card-description">
-                    Realize avaliações completas de candidatos durante o processo seletivo
-                </p>
+                <p class="card-description">Realize avaliações completas de candidatos durante o processo seletivo</p>
                 <ul class="card-features">
                     <li>Coleta de dados pessoais</li>
                     <li>Análise de competências</li>
@@ -372,13 +197,10 @@
                 </ul>
             </a>
 
-            <!-- Card Lista de Funcionários -->
             <a href="funcionarios.html" class="nav-card employees">
                 <i class="fas fa-users card-icon"></i>
                 <h3 class="card-title">Lista de Funcionários</h3>
-                <p class="card-description">
-                    Gerencie funcionários aprovados e seus processos de onboarding
-                </p>
+                <p class="card-description">Gerencie funcionários aprovados e seus processos de onboarding</p>
                 <ul class="card-features">
                     <li>Candidatos aprovados</li>
                     <li>Status de onboarding</li>
@@ -388,13 +210,10 @@
                 </ul>
             </a>
 
-            <!-- Card Sistema de Onboarding -->
             <a href="onboarding.html" class="nav-card onboarding">
                 <i class="fas fa-route card-icon"></i>
                 <h3 class="card-title">Sistema de Onboarding</h3>
-                <p class="card-description">
-                    Acompanhe a jornada completa de integração dos novos funcionários
-                </p>
+                <p class="card-description">Acompanhe a jornada completa de integração dos novos funcionários</p>
                 <ul class="card-features">
                     <li>Checklist por etapas</li>
                     <li>Progresso visual</li>
@@ -443,19 +262,34 @@
     </div>
 
     <script>
-        // Simular estatísticas (em produção, viriam de um banco de dados)
-        function loadStatistics() {
-            // Buscar dados do localStorage
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+
+        async function loadStatistics() {
+            // 1) tenta via GAS (oficial)
+            try {
+                const res = await fetch(GAS_URL + '?type=stats', { cache: 'no-store' });
+                const out = await res.json();
+                if (out && out.ok && out.stats) {
+                    const s = out.stats;
+                    animateNumber('totalCandidates',       Number(s.avaliados ?? 0));
+                    animateNumber('approvedCandidates',    Number(s.aprovados ?? 0));
+                    animateNumber('activeEmployees',       Number(s.funcionariosAtivos ?? 0));
+                    animateNumber('completedOnboarding',   Number(s.onboardingConcluido ?? 0));
+                    return; // deu certo, encerra aqui
+                }
+            } catch (e) {
+                console.warn('Falha ao buscar stats no GAS, usando fallback localStorage.', e);
+            }
+
+            // 2) fallback local (mesma lógica que você já usava)
             const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
-            const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-            
-            // Calcular estatísticas
-            const totalCandidates = evaluations.length;
-            const approvedCandidates = evaluations.filter(e => e.apto_vaga === 'sim').length;
-            const activeEmployees = employees.length;
-            const completedOnboarding = employees.filter(e => e.onboardingComplete).length;
-            
-            // Animar números
+            const employees   = JSON.parse(localStorage.getItem('employees')   || '[]');
+
+            const totalCandidates      = evaluations.length;
+            const approvedCandidates   = evaluations.filter(e => String(e.apto_vaga || e.aptoVaga || '').toLowerCase() === 'sim').length;
+            const activeEmployees      = employees.length;
+            const completedOnboarding  = employees.filter(e => e.onboardingComplete || String(e.status).toLowerCase()==='completed').length;
+
             animateNumber('totalCandidates', totalCandidates);
             animateNumber('approvedCandidates', approvedCandidates);
             animateNumber('activeEmployees', activeEmployees);
@@ -464,55 +298,33 @@
 
         function animateNumber(elementId, targetNumber) {
             const element = document.getElementById(elementId);
-            const duration = 2000; // 2 segundos
+            const duration = 1200;
             const steps = 60;
-            const increment = targetNumber / steps;
-            let current = 0;
-            
+            const inc = (Number(targetNumber) || 0) / steps;
+            let current = 0, tick = 0;
             const timer = setInterval(() => {
-                current += increment;
-                if (current >= targetNumber) {
-                    current = targetNumber;
-                    clearInterval(timer);
-                }
+                tick++;
+                current += inc;
+                if (tick >= steps) { current = Number(targetNumber) || 0; clearInterval(timer); }
                 element.textContent = Math.floor(current);
             }, duration / steps);
         }
 
-        // Inicializar página
-        document.addEventListener('DOMContentLoaded', function() {
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
             loadStatistics();
-            
-            // Adicionar efeito de hover nos cards
-            const cards = document.querySelectorAll('.nav-card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-10px) scale(1.02)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(-10px) scale(1)';
-                });
+            // efeito de hover extra
+            document.querySelectorAll('.nav-card').forEach(card => {
+                card.addEventListener('mouseenter', function(){ this.style.transform = 'translateY(-10px) scale(1.02)'; });
+                card.addEventListener('mouseleave', function(){ this.style.transform = 'translateY(0) scale(1)'; });
             });
         });
 
-        // Função para verificar se há dados salvos
-        function checkSavedData() {
-            const evaluations = localStorage.getItem('evaluations');
-            const employees = localStorage.getItem('employees');
-            
-            if (!evaluations) {
-                localStorage.setItem('evaluations', JSON.stringify([]));
-            }
-            
-            if (!employees) {
-                localStorage.setItem('employees', JSON.stringify([]));
-            }
-        }
-
-        // Inicializar dados se necessário
-        checkSavedData();
+        // Garante chaves locais (para quem ainda usa localStorage)
+        (function ensureLocalKeys(){
+            if (!localStorage.getItem('evaluations')) localStorage.setItem('evaluations', JSON.stringify([]));
+            if (!localStorage.getItem('employees'))   localStorage.setItem('employees', JSON.stringify([]));
+        })();
     </script>
 </body>
 </html>
-
