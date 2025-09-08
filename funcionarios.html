@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- força layout desktop também no celular -->
+  <meta name="viewport" content="width=1280, initial-scale=1.0">
   <title>Lista de Funcionários - Sistema de RH</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -64,12 +65,7 @@
     .empty-state h3{font-size:1.5em;margin-bottom:10px}
     .empty-state p{font-size:1.1em;margin-bottom:25px}
 
-    @media(max-width:768px){
-      .employees-grid{grid-template-columns:1fr}
-      .action-bar{flex-direction:column;align-items:stretch}
-      .search-container{max-width:none}
-      .employee-actions{justify-content:center}
-    }
+    /* (REMOVIDO o @media mobile para manter o layout de desktop em telas pequenas) */
 
     .fade-in{animation:fadeIn .6s ease-in}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -308,7 +304,7 @@
       showLoader('Sincronizando…','Atualizando dados com o servidor');
       try{
         employees=[]; renderEmployees();
-        await loadEmployees(); // loadEmployees já fecha o loader no finally, então não fechar aqui.
+        await loadEmployees(); // o finally do load fecha o loader
       }catch(_){
         hideLoader();
       }
