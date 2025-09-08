@@ -77,7 +77,6 @@
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
 
-    /* Modal genérico (PIN) + modal de cadastro */
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;justify-content:center;align-items:center}
     .modal-content{background:#2a2a2a;border-radius:15px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555}
@@ -174,6 +173,21 @@
     let employees=[];
     let pinContext = { action:null, employeeId:null, managerName:'' };
 
+    // ===== Denylist local de removidos (persiste mesmo offline)
+    function getRemovedSet(){
+      const raw = localStorage.getItem('employees_removed');
+      try{ return new Set(JSON.parse(raw || '[]')); } catch(_){ return new Set(); }
+    }
+    function markRemoved(id){
+      const s = getRemovedSet(); s.add(String(id));
+      localStorage.setItem('employees_removed', JSON.stringify(Array.from(s)));
+    }
+    function clearLocalCaches(){
+      localStorage.removeItem('employees');
+      localStorage.removeItem('employees_sync');
+      localStorage.removeItem('currentEmployee');
+    }
+
     document.addEventListener('DOMContentLoaded', ()=>{
       setupEventListeners();
       const today=new Date().toISOString().split('T')[0];
@@ -182,11 +196,13 @@
     });
 
     async function fetchEmployeesFromBackend(){
-      const res = await fetch(GAS_WEB_APP_URL + '?type=employees-list', { cache:'no-store' });
+      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now(); // no-store + cache buster
+      const res = await fetch(url, { cache:'no-store' });
       if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
       const data = await res.json();
       if(data.ok===false) throw new Error(data.error||'Erro backend');
-      return Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
+      const rows = Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
+      return rows;
     }
 
     function derivePct(rec){
@@ -195,8 +211,6 @@
       const st=String(rec.status||'').toLowerCase();
       return (st===''||st==='pending')?SEEDED_PCT:0;
     }
-
-    // status fica "Pendente" enquanto bloqueado
     function computeStatus(p, rec){
       const locked = String(rec?.locked || 'yes') !== 'no';
       if (locked) return 'pending';
@@ -204,7 +218,6 @@
       if (p>0) return 'in-progress';
       return 'pending';
     }
-
     function normalizeEmployee(rec){
       const id=rec.employeeId||rec.id||String(Date.now());
       const pct=derivePct(rec);
@@ -217,7 +230,6 @@
         validatedBy: Array.isArray(rec.validatedBy)?rec.validatedBy:[]
       };
     }
-
     function saveEmployeesLocal(arr){
       localStorage.setItem('employees_sync', JSON.stringify(arr));
       const legacy=arr.map(e=>({...e, progress:e.progressPct}));
@@ -226,24 +238,43 @@
 
     async function loadEmployees(){
       try{
-        const items=await fetchEmployeesFromBackend();
-        employees=items.map(normalizeEmployee);
+        let items=await fetchEmployeesFromBackend();
+        // segurança extra: o backend já exclui 'archived', mas filtramos mesmo assim
+        items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
+
+        // aplica denylist local
+        const removed = getRemovedSet();
+        employees = items
+          .map(normalizeEmployee)
+          .filter(e => !removed.has(String(e.employeeId||e.id)));
+
         saveEmployeesLocal(employees);
         renderEmployees();
       }catch(err){
         const saved=localStorage.getItem('employees_sync')||localStorage.getItem('employees');
-        employees=saved?JSON.parse(saved):[];
+        const removed = getRemovedSet();
+        employees = saved?JSON.parse(saved):[];
+        // filtra qualquer arquivado (caso tenha ficado no cache) + denylist
+        employees = employees.filter(e => {
+          const st = String(e.status||'').toLowerCase();
+          const id = String(e.employeeId||e.id);
+          return st !== 'archived' && !removed.has(id);
+        });
         renderEmployees();
         toast('Sem conexão com o backend. Carregado do dispositivo.');
       }
     }
 
-    async function reloadFromBackend(){ employees=[]; renderEmployees(); await loadEmployees(); toast('Sincronizado com o backend.'); }
+    async function reloadFromBackend(){
+      employees=[]; renderEmployees();
+      await loadEmployees();
+      toast('Sincronizado com o backend.');
+    }
 
     function renderEmployees(filtered=null){
       const grid=document.getElementById('employeesGrid');
       const emptyState=document.getElementById('emptyState');
-      const list=filtered||employees;
+      const list=(filtered||employees);
 
       if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; return; }
       grid.style.display='grid'; emptyState.style.display='none';
@@ -300,7 +331,6 @@
       document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
       document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
 
-      // PIN modal
       document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
       document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
       document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
@@ -335,7 +365,7 @@
       try{
         const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
         const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
-        const newEmp=normalizeEmployee(record);
+        const newEmp=normalizeEmployee({ ...record, employeeId: out.employeeId || record.id });
         employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
         toast('Funcionário salvo (Sheets) e sincronizado.');
       }catch(err){
@@ -344,17 +374,13 @@
       }
     }
 
-    /* ===== Ações com PIN (modais) ===== */
-
-    // DETALHES → precisa de validador (master)
+    // ===== Ações com PIN (modais)
     function viewDetailsSecured(id){
       pinContext = { action:'details', employeeId:id, managerName:'' };
       document.getElementById('pinModalText').textContent = 'Digite o PIN do validador para ver os detalhes.';
       document.getElementById('pinInput').value='';
       openPinModal();
     }
-
-    // VALIDAR continua com prompt simples (se quiser eu migro pro modal também depois)
     async function validateEmployee(id){
       const pin=prompt('PIN do validador (para desbloquear):');
       if(!pin) return;
@@ -366,8 +392,6 @@
         toast(`Validado por ${out.validator}`);
       }catch(err){ toast(String(err.message||err)); }
     }
-
-    // ONBOARDING → precisa de PIN do gerente e só se já estiver validado
     function startOnboardingSecured(id, managerName){
       const emp=employees.find(e=>(e.employeeId||e.id)===id);
       if(!emp) return;
@@ -380,8 +404,6 @@
       document.getElementById('pinInput').value='';
       openPinModal();
     }
-
-    // REMOVER → aceita PIN de master OU do gerente responsável
     function removeEmployeeSecured(id, managerName){
       pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
       document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN.';
@@ -389,7 +411,6 @@
       openPinModal();
     }
 
-    /* Modal helpers */
     function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
     function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
 
@@ -399,7 +420,6 @@
 
       try{
         if(pinContext.action==='details'){
-          // valida master
           const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
           const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
           closePinModal();
@@ -419,7 +439,6 @@ Progresso: ${pct}%
         }
 
         if(pinContext.action==='start'){
-          // autentica gerente
           const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
           const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
           closePinModal();
@@ -431,7 +450,7 @@ Progresso: ${pct}%
         }
 
         if(pinContext.action==='remove'){
-          // primeiro tenta master; se falhar, tenta gerente
+          // autoriza: master OU gerente
           let ok=false;
           try{
             const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
@@ -443,7 +462,7 @@ Progresso: ${pct}%
           }
           if(!ok) throw new Error('PIN inválido para esta ação.');
 
-          // envia credenciais para o backend concluir a remoção (soft)
+          // SOFT DELETE no backend (mantém dados na planilha como "archived")
           const delRes = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
@@ -452,18 +471,25 @@ Progresso: ${pct}%
           const delOut = await delRes.json();
           if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
 
+          // marca denylist local + remove do estado atual + limpa caches
+          markRemoved(pinContext.employeeId);
           employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
           saveEmployeesLocal(employees);
+          clearLocalCaches();
+
           renderEmployees();
           closePinModal();
           toast('Candidato removido (arquivado na planilha).');
+
+          // sincroniza do backend para garantir consistência
+          await reloadFromBackend();
         }
       }catch(err){
         toast(String(err.message||err));
       }
     }
 
-    /* ===== Utilitários ===== */
+    // ===== Utilitários =====
     function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt.getTime())) return String(d); return dt.toLocaleDateString('pt-BR'); }
     function getStatusText(s){ const map={ 'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído' }; return map[s]||s||'Pendente'; }
     function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
