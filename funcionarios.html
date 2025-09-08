@@ -173,7 +173,7 @@
     let employees=[];
     let pinContext = { action:null, employeeId:null, managerName:'' };
 
-    // ===== Denylist local de removidos (persiste mesmo offline)
+    // ===== Denylist local de removidos
     function getRemovedSet(){
       const raw = localStorage.getItem('employees_removed');
       try{ return new Set(JSON.parse(raw || '[]')); } catch(_){ return new Set(); }
@@ -380,7 +380,7 @@
       }
     }
 
-    // ===== Ações com PIN (modais)
+    // ===== Fluxos com PIN
     function viewDetailsSecured(id){
       pinContext = { action:'details', employeeId:id, managerName:'' };
       document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
@@ -416,7 +416,6 @@
       document.getElementById('pinInput').value='';
       openPinModal();
     }
-    // NOVO: concluir/arquivar (somente master)
     function concludeEmployeeSecured(id){
       pinContext = { action:'conclude', employeeId:id, managerName:'' };
       document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
@@ -470,7 +469,6 @@ Progresso: ${pct}%
             const out = await r.json(); ok = !!out.ok;
           }catch(_){}
           if(!ok){
-            // tenta gerente se não for master
             const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
             const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
             const out2 = await r2.json(); ok = !!out2.ok;
@@ -480,7 +478,7 @@ Progresso: ${pct}%
           const delRes = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed'})
+            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})
           });
           const delOut = await delRes.json();
           if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
@@ -498,19 +496,25 @@ Progresso: ${pct}%
         }
 
         if(pinContext.action==='conclude'){
-          // somente master
+          // MASTER auth
           const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
           const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
 
-          // Arquiva como concluído (usa o mesmo endpoint/soft delete com reason específica)
+          // Arquiva como concluído — agora enviando o PIN e role: 'master'
           const res = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'concluded'})
+            body:JSON.stringify({
+              type:'employees-delete',
+              id:pinContext.employeeId,
+              mode:'soft',
+              reason:'concluded',
+              pin,
+              role:'master'
+            })
           });
           const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
 
-          // tira da tela
           markRemoved(pinContext.employeeId);
           employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
           saveEmployeesLocal(employees);
