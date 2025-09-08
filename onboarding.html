@@ -54,10 +54,9 @@
     .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s ease}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
     .btn-secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
-    /* novo: igual ao funcionarios.html */
     .btn-info{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:1200}
     .toast.show{opacity:1}
     @media(max-width:768px){.employee-details{grid-template-columns:1fr}.action-buttons{flex-direction:column}}
     .fade-in{animation:fadeIn .5s ease-in}
@@ -71,6 +70,15 @@
     .star:hover{transform:translateY(-1px)}
     .star.selected{background:#4CAF50;border-color:#4CAF50;color:#fff}
     .eval-note{margin-top:8px;font-size:.9rem;color:#ddd;opacity:.85}
+
+    /* Overlay de carregamento */
+    .loading-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.85);
+      display:none; align-items:center; justify-content:center; gap:14px;
+      z-index:1100; color:#fff; font-weight:700; letter-spacing:.2px
+    }
+    .loader{width:38px;height:38px;border-radius:50%;border:4px solid #666;border-top-color:#4CAF50;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
@@ -103,7 +111,6 @@
         <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
       </section>
 
-      <!-- Passos (…mantidos iguais) -->
       <!-- 1 -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
@@ -238,13 +245,19 @@
         <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
         <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
         <a href="funcionarios.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i>Voltar à Lista</a>
-        <!-- novo botão home (igual ao da página de funcionários) -->
         <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
       </div>
     </div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast">Mensagem</div>
+
+  <!-- Overlay de carregamento -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loader"></div>
+    <span>Carregando progresso, aguarde…</span>
+  </div>
 
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
@@ -259,23 +272,29 @@
       { id:6, title:'6º Passo - Sétimo dia.', tasks:['6.1'] }
     ];
     const ORDERED_TASK_IDS = STEPS.flatMap(s=>s.tasks);
-    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']);
+    const DEFAULT_LOCKED_IDS = new Set(['1.1','1.2']); // não pode desmarcar no primeiro acesso
 
     let employeeData = { id:null, name:'—', position:'—', startDate:'—', manager:'—' };
-    let lockedIndex = -1;
+    let lockedIndex = -1;         // índice do ÚLTIMO item oficialmente salvo (checkpoint)
     let bootPrefilled = false;
     let ratingsLoaded = false;
 
+    /* ===== utilidades ===== */
+    const $ = s => document.querySelector(s);
     function ratingsKey(){ return 'ratings:' + (employeeData.id || 'sem_id'); }
     function getRatings(){ try{ return JSON.parse(localStorage.getItem(ratingsKey())||'{}'); }catch{ return {}; } }
     function setRatings(obj){ localStorage.setItem(ratingsKey(), JSON.stringify(obj||{})); }
     function hasRating(stepId){ const r=getRatings(); return !!r[String(stepId)]; }
-
+    function stepIndexOfTask(taskId){ let acc=0; for(let i=0;i<STEPS.length;i++){ const len=STEPS[i].tasks.length; if(ORDERED_TASK_IDS.indexOf(taskId)<acc+len) return i; acc+=len; } return 0; }
+    function checkpointStepIndex(){ if(lockedIndex<0) return 0; return stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]); }
     function computeContiguousCompletedIndex(){ let idx=-1; for (let i=0;i<ORDERED_TASK_IDS.length;i++){ if(isTaskCompleted(ORDERED_TASK_IDS[i])) idx=i; else break; } return idx; }
 
+    /* ===== boot ===== */
     document.addEventListener('DOMContentLoaded', () => {
+      showOverlay(true);
       loadCurrentEmployee(); renderEmployeeInfo();
       prefillIfNew();
+
       hydrateFromBackend().finally(()=>{
         applySequentialLocking();
         updateProgressBar();
@@ -284,9 +303,14 @@
         restoreRatingsUI();
         toggleStep('step1');
         document.querySelectorAll('.step-section').forEach((s,i)=>{ s.style.animationDelay=(i*0.06)+'s'; s.classList.add('fade-in'); });
+        showOverlay(false);
       });
     });
 
+    /* ===== overlay ===== */
+    function showOverlay(show){ $('#loadingOverlay').style.display = show ? 'flex' : 'none'; }
+
+    /* ===== estado inicial rápido ===== */
     function prefillIfNew(){
       markTaskUI('1.1', true);
       markTaskUI('1.2', true);
@@ -294,6 +318,7 @@
       lockedIndex = Math.max(lockedIndex, ORDERED_TASK_IDS.indexOf('1.2'));
     }
 
+    /* ===== hidratação backend ===== */
     async function hydrateFromBackend(){
       if (!employeeData.id) return;
       try{
@@ -319,72 +344,110 @@
       }catch(e){ console.warn('ratings-load falhou:', e); }
     }
 
+    /* ===== UI: abrir/fechar etapa com a trava de "Salvar Progresso" ===== */
     function toggleStep(stepId){
-      const content=document.getElementById(stepId); const toggle=document.getElementById('toggle'+stepId.slice(-1));
+      const numeric = parseInt(stepId.replace('step',''),10);
+      const targetIndex = numeric-1;
+      const cpIndex = checkpointStepIndex();
+      // se tentar abrir etapa futura sem salvar o checkpoint, bloqueia
+      if (targetIndex > cpIndex){
+        const cpStep = STEPS[cpIndex];
+        const cpTasksDone = cpStep.tasks.every(t=>isTaskCompleted(t));
+        const cpRated = hasRating(cpStep.id);
+        const unsaved = cpTasksDone && cpRated && (computeContiguousCompletedIndex() > lockedIndex);
+        if (unsaved){
+          showToast('Etapa concluída! Clique em "Salvar Progresso" para liberar a próxima.');
+          return;
+        }
+      }
+      // abre normalmente
+      const content=document.getElementById(stepId);
+      const toggle=document.getElementById('toggle'+numeric);
       document.querySelectorAll('.step-content').forEach(s=>{ if(s.id!==stepId) s.classList.remove('active'); });
-      document.querySelectorAll('.step-toggle').forEach(i=>{ if(i.id!=='toggle'+stepId.slice(-1)) i.style.transform='rotate(0)'; });
-      content.classList.toggle('active'); toggle.style.transform=content.classList.contains('active')?'rotate(180deg)':'rotate(0)';
+      document.querySelectorAll('.step-toggle').forEach(i=>{ if(i.id!=='toggle'+numeric) i.style.transform='rotate(0)'; });
+      content.classList.toggle('active');
+      toggle.style.transform=content.classList.contains('active')?'rotate(180deg)':'rotate(0)';
     }
 
+    /* ===== clique nas tarefas (sequencial dentro da etapa do checkpoint) ===== */
     function onTaskClick(ev, el){
       if (el.classList.contains('disabled')){ showToast('Conclua as etapas anteriores primeiro.'); return; }
       const id=el.dataset.taskId;
       const idx=ORDERED_TASK_IDS.indexOf(id);
-      const next=nextAvailableTaskId();
       const isCompleted=el.classList.contains('completed');
 
+      // trava 1.1/1.2 padrão ou qualquer item até lockedIndex
       if ((DEFAULT_LOCKED_IDS.has(id) && bootPrefilled) || (isCompleted && idx<=lockedIndex)){
         showToast(DEFAULT_LOCKED_IDS.has(id) ? 'Essa tarefa é padrão do processo e não pode ser desmarcada.' : 'Essa etapa já foi confirmada anteriormente.');
         return;
       }
-      if (!isCompleted && id!==next){ showToast('Você só pode concluir a próxima tarefa disponível.'); return; }
+
+      // só permite avançar sequencialmente DENTRO da etapa do checkpoint
+      const cpIndex = checkpointStepIndex();
+      const step = STEPS[cpIndex];
+      const nextWithinStep = step.tasks.find(t=>!isTaskCompleted(t));
+      if (!isCompleted && id !== nextWithinStep){
+        showToast('Siga a ordem: conclua a próxima tarefa disponível desta etapa.');
+        return;
+      }
 
       el.classList.toggle('completed');
 
       applySequentialLocking();
       updateProgressBar();
-      maybeOpenNextStep(id);
+      maybeEndOfStepMessage(id);
       updateStepStatuses();
       updateEvaluations();
     }
 
-    function maybeOpenNextStep(taskId){
-      const { stepIndex }=getTaskPosition(taskId);
-      const step=STEPS[stepIndex];
-
+    // ao terminar a etapa: mostrar mensagem pedindo para salvar (NÃO abre a próxima)
+    function maybeEndOfStepMessage(taskId){
+      const { stepIndex } = getTaskPosition(taskId);
+      const step = STEPS[stepIndex];
       const allTasksDone = step.tasks.every(t=>isTaskCompleted(t));
       if (!allTasksDone) return;
 
       if (!hasRating(step.id)){
         const c=document.getElementById('eval-step'+step.id);
         if (c){ c.style.display='block'; }
-        showToast('Avalie esta etapa para liberar a próxima.');
+        showToast('Avalie esta etapa para continuar.');
         return;
       }
-      if (stepIndex<STEPS.length-1) toggleStep('step'+STEPS[stepIndex+1].id);
+      // tarefas + avaliação concluídas ⇒ exigir "Salvar Progresso"
+      showToast('Etapa concluída! Clique em "Salvar Progresso" para liberar a próxima.');
     }
 
     function markTaskUI(taskId,completed){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); if(el) el.classList.toggle('completed',!!completed); }
     function isTaskCompleted(taskId){ const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`); return !!el && el.classList.contains('completed'); }
     function getTaskPosition(taskId){ const idx=ORDERED_TASK_IDS.indexOf(taskId); let acc=0, stepIndex=0, localIndex=idx; for(let i=0;i<STEPS.length;i++){ if(idx<acc+STEPS[i].tasks.length){ stepIndex=i; localIndex=idx-acc; break; } acc+=STEPS[i].tasks.length; } return {stepIndex,localIndex}; }
 
-    function nextAvailableTaskId(){
-      for (const step of STEPS){
-        for (const id of step.tasks){ if (!isTaskCompleted(id)) return id; }
-        if (!hasRating(step.id)) return null;
-      }
-      return null;
-    }
-
+    // aplica bloqueios: só libera itens da etapa do checkpoint; próximas etapas ficam bloqueadas até salvar
     function applySequentialLocking(){
-      const next=nextAvailableTaskId();
+      const cpIndex = checkpointStepIndex();
+      const step = STEPS[cpIndex];
+      const nextWithinStep = step.tasks.find(t=>!isTaskCompleted(t)); // pode ser undefined quando etapa concluída (ainda precisa salvar)
+
       document.querySelectorAll('.checklist-item').forEach(el=>{
         const id=el.dataset.taskId; if(!id) return;
         const idx=ORDERED_TASK_IDS.indexOf(id);
-        const mustLock = (idx<=lockedIndex) || (DEFAULT_LOCKED_IDS.has(id) && bootPrefilled);
-        if (mustLock){ el.classList.add('disabled'); return; }
-        if (isTaskCompleted(id) || (next && id===next)){ el.classList.remove('disabled'); }
-        else { el.classList.add('disabled'); }
+        const sIndex = stepIndexOfTask(id);
+
+        // nunca permitir mexer no que já foi salvo
+        if (idx<=lockedIndex || (DEFAULT_LOCKED_IDS.has(id) && bootPrefilled)){ el.classList.add('disabled'); return; }
+
+        if (sIndex>cpIndex){
+          // etapa futura: sempre bloqueada até salvar
+          el.classList.add('disabled'); return;
+        }
+
+        // etapa do checkpoint:
+        if (nextWithinStep && id===nextWithinStep){ el.classList.remove('disabled'); }
+        else if (!nextWithinStep){ // etapa está completa: tudo bloqueado até salvar
+          el.classList.add('disabled');
+        } else {
+          // qualquer outro item da mesma etapa fica travado
+          el.classList.add('disabled');
+        }
       });
     }
 
@@ -392,11 +455,11 @@
       const all=ORDERED_TASK_IDS.length;
       const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;
       const pct=all?Math.round((done/all)*100):0;
-      document.getElementById('progressBar').style.width=pct+'%';
-      document.getElementById('progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
+      $('#progressBar').style.width=pct+'%';
+      $('#progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
     }
 
-    function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+    function showToast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 
     function isStepDone(stepObj){
       const tasksOk = stepObj.tasks.every(t=>isTaskCompleted(t));
@@ -406,7 +469,7 @@
 
     function updateStepStatuses(){
       STEPS.forEach((step)=>{
-        const header=document.querySelector(`#step${step.id}`).previousElementSibling; if(!header) return;
+        const header=$(`#step${step.id}`).previousElementSibling; if(!header) return;
         let badge=header.querySelector('.step-badge'); if(!badge){ badge=document.createElement('span'); badge.className='step-badge'; const chev=header.querySelector('.step-toggle'); header.insertBefore(badge,chev); }
         const done=isStepDone(step);
         header.classList.toggle('done',done);
@@ -417,11 +480,12 @@
     function updateEvaluations(){
       STEPS.forEach((s)=>{ 
         const tasksOk = s.tasks.every(t=>isTaskCompleted(t));
-        const c=document.getElementById('eval-step'+s.id);
+        const c=$('#eval-step'+s.id);
         if(c) c.style.display = tasksOk ? 'block' : 'none';
       });
     }
 
+    // estrelas (avaliação)
     document.addEventListener('click', async (e)=>{
       if(!e.target.classList.contains('star')) return;
       const val=parseInt(e.target.dataset.value,10);
@@ -441,11 +505,12 @@
         });
       }catch(err){ console.warn('ratings-save falhou', err); }
 
-      if (STEPS.find(s=>s.id===stepId)?.tasks.every(t=>isTaskCompleted(t))){
+      // terminou avaliação? lembra de salvar para liberar a próxima
+      const s = STEPS.find(x=>x.id===stepId);
+      if (s && s.tasks.every(t=>isTaskCompleted(t))){
         applySequentialLocking();
         updateStepStatuses();
-        const idx = STEPS.findIndex(s=>s.id===stepId);
-        if (idx>-1 && idx<STEPS.length-1) toggleStep('step'+STEPS[idx+1].id);
+        showToast('Etapa avaliada! Clique em "Salvar Progresso" para liberar a próxima.');
       }
     });
 
@@ -459,7 +524,7 @@
     }
 
     /* ======= SALVAR / RELATÓRIO ======= */
-    function getCompletedTaskIds(){ return STEPS.flatMap(s=>s.tasks).filter(id=>isTaskCompleted(id)); }
+    function getCompletedTaskIds(){ return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)); }
     function lastCompletedStep(){
       let last={stepNumber:null, stepTitle:null};
       for (const s of STEPS){
@@ -471,14 +536,15 @@
 
     async function onSaveClick(){
       const reportText = buildTxtReport();
+      const cpBefore = checkpointStepIndex();
+
       try{
         const completed = getCompletedTaskIds();
-        const all = STEPS.flatMap(s=>s.tasks).length;
-        const pct = all ? Math.round((completed.length / all) * 100) : 0;
+        const pct = ORDERED_TASK_IDS.length ? Math.round((completed.length / ORDERED_TASK_IDS.length) * 100) : 0;
         const stepInfo = lastCompletedStep();
         const payload = {
           type:'onboarding-save',
-          notify:true,
+          notify:true, // envia e-mail no GAS
           record:{
             id:employeeData.id,
             name:employeeData.name,
@@ -497,16 +563,25 @@
         const out = await res.json();
         if(!out.ok) throw new Error(out.error||'Falha ao salvar');
 
+        // garante que as notas também subam
         const r = getRatings();
         await fetch(GAS_WEB_APP_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify({ type:'ratings-save', employeeId: employeeData.id, ratings: r }) });
 
-        const btn=document.getElementById('saveBtn'); const txt=btn.innerHTML;
-        btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
-        setTimeout(()=>btn.innerHTML=txt,1500);
-        showToast('Progresso salvo e sincronizado.');
+        // avança o checkpoint local (agora a próxima etapa pode abrir)
         lockedIndex = computeContiguousCompletedIndex();
         applySequentialLocking();
         updateStepStatuses();
+
+        const btn=$('#saveBtn'); const txt=btn.innerHTML;
+        btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
+        setTimeout(()=>btn.innerHTML=txt,1500);
+        showToast('Progresso salvo e e-mail enviado. Próxima etapa liberada.');
+
+        // se liberou uma nova etapa, abre automaticamente
+        const cpAfter = checkpointStepIndex();
+        if (cpAfter > cpBefore && cpAfter < STEPS.length){
+          toggleStep('step'+(cpAfter+1));
+        }
       }catch(err){
         console.error(err);
         showToast('Falha ao contatar o Web App.');
@@ -514,10 +589,9 @@
     }
 
     function buildTxtReport(){
-      const completed=STEPS.flatMap(s=>s.tasks).filter(id=>isTaskCompleted(id));
-      const all=STEPS.flatMap(s=>s.tasks).length;
-      const pending=STEPS.flatMap(s=>s.tasks).filter(id=>!completed.includes(id));
-      const done=completed.length;
+      const completed=getCompletedTaskIds();
+      const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
+      const all=ORDERED_TASK_IDS.length; const done=completed.length;
       const pct=all?Math.round((done/all)*100):0;
       const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
       const ratings=getRatings();
@@ -551,6 +625,7 @@
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
     }
 
+    /* ===== helpers de funcionário/DOM ===== */
     function getSavedEmployeeRecord(){ const employees=JSON.parse(localStorage.getItem('employees')||'[]'); return employees.find(e=>e.id===employeeData.id); }
     function loadCurrentEmployee(){
       const stored=localStorage.getItem('currentEmployee');
@@ -560,9 +635,8 @@
       }
       renderEmployeeInfo();
     }
-    function renderEmployeeInfo(){ document.getElementById('employeeName').textContent=employeeData.name; document.getElementById('employeePosition').textContent=employeeData.position; document.getElementById('startDate').textContent=employeeData.startDate; document.getElementById('managerName').textContent=employeeData.manager; }
+    function renderEmployeeInfo(){ $('#employeeName').textContent=employeeData.name; $('#employeePosition').textContent=employeeData.position; $('#startDate').textContent=employeeData.startDate; $('#managerName').textContent=employeeData.manager; }
     function formatDate(s){ const d=new Date(s); return isNaN(d)? String(s) : d.toLocaleDateString('pt-BR'); }
-
     function getTaskTextById(id){ const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`); return el?el.textContent.trim():id; }
   </script>
 </body>
