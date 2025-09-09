@@ -30,12 +30,14 @@
     .col-4{grid-column:span 4}
 
     label{display:block;color:#eaeaea;font-weight:700;margin-bottom:6px}
-    input[type="text"],input[type="email"],input[type="date"],textarea,select{
+    input[type="text"],input[type="email"],input[type="date"],textarea,select,input[type="number"]{
       width:100%;background:#4a4a4a;border:2px solid #555;border-radius:10px;padding:11px 12px;color:#fff;transition:.2s
     }
     textarea{min-height:90px;resize:vertical}
     input:read-only{opacity:.85}
     input:focus,textarea:focus,select:focus{outline:none;border-color:#4CAF50;box-shadow:0 0 0 3px rgba(76,175,80,.2);background:#565656}
+    input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    input[type="number"]{appearance:textfield}
 
     .q{background:#444;border:2px solid #555;border-radius:10px;padding:14px}
     .q + .q{margin-top:12px}
@@ -54,10 +56,56 @@
     .ok{display:none;background:#2e7d32;color:#fff;border-radius:10px;padding:14px;text-align:center;margin-bottom:14px}
     .err{display:none;background:#b71c1c;color:#fff;border-radius:10px;padding:14px;text-align:center;margin-bottom:14px}
 
+    /* Overlay de carregamento (estilo onboarding) */
+    .overlay{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.65);backdrop-filter:blur(2px);z-index:9999
+    }
+    .overlay.show{display:flex}
+    .loader{
+      display:flex;flex-direction:column;align-items:center;gap:14px;
+      background:#262626;border:1px solid #444;border-radius:16px;padding:22px 26px;box-shadow:0 10px 30px rgba(0,0,0,.45)
+    }
+    .spinner{
+      width:52px;height:52px;border-radius:50%;
+      border:4px solid #555;border-top-color:#4CAF50;animation:spin 1s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader h4{margin:0;color:#fff}
+    .loader small{color:#cfcfcf}
+    .loader .actions{border:0;margin:0;padding:0}
+
+    /* Esqueleto rápido para os campos read-only enquanto carrega */
+    .skeleton{position:relative;overflow:hidden;background:#4a4a4a}
+    .skeleton::after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+      animation:shimmer 1.2s infinite
+    }
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+    .is-disabled{opacity:.6;pointer-events:none}
     @media(max-width:820px){.col-6{grid-column:span 12}.col-4{grid-column:span 12}}
   </style>
 </head>
 <body>
+  <!-- Overlay -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="loader" role="status" aria-live="polite">
+      <div class="spinner" aria-label="Carregando"></div>
+      <h4>Carregando dados do colaborador…</h4>
+      <small>Buscando informações na planilha. Pode levar alguns segundos.</small>
+      <div class="actions">
+        <button id="btnRetry" class="btn btn-secondary" type="button">
+          <i class="fas fa-rotate-right"></i> Tentar novamente
+        </button>
+        <button id="btnContinuarSemPrefill" class="btn btn-primary" type="button">
+          <i class="fas fa-forward"></i> Continuar sem preencher
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <header class="header">
       <div class="header-content">
@@ -72,38 +120,38 @@
       <div id="err" class="err"><i class="fas fa-triangle-exclamation"></i> Não foi possível enviar. Tente novamente.</div>
 
       <!-- Dados do colaborador -->
-      <section class="card">
+      <section class="card" id="secDados">
         <h3><i class="fas fa-id-badge"></i> Seus dados <span class="badge">preenchidos automaticamente</span></h3>
         <div class="grid">
           <div class="col-6">
             <label>Nome</label>
-            <input id="employeeName" type="text" readonly>
+            <input id="employeeName" type="text" readonly class="skeleton">
           </div>
           <div class="col-6">
             <label>E-mail</label>
-            <input id="email" type="email" readonly>
+            <input id="email" type="email" readonly class="skeleton">
           </div>
           <div class="col-4">
             <label>Cargo</label>
-            <input id="position" type="text" readonly>
+            <input id="position" type="text" readonly class="skeleton">
           </div>
           <div class="col-4">
             <label>Data de Início</label>
-            <input id="startDate" type="text" readonly>
+            <input id="startDate" type="text" readonly class="skeleton">
           </div>
           <div class="col-4">
             <label>Gerente</label>
-            <input id="manager" type="text" readonly>
+            <input id="manager" type="text" readonly class="skeleton">
           </div>
           <input id="employeeId" type="hidden">
         </div>
       </section>
 
       <!-- Perguntas -->
-      <section class="card">
+      <section class="card" id="secForm">
         <h3><i class="fas fa-list-check"></i> Questionário</h3>
 
-        <form id="fbForm">
+        <form id="fbForm" class="is-disabled" aria-disabled="true">
           <div class="q">
             <p>1) Ficou claro quais serão suas tarefas?</p>
             <div class="inline">
@@ -115,7 +163,7 @@
 
           <div class="q">
             <p>2) Quem mais te ajudou no processo?</p>
-            <select name="q2">
+            <select name="q2" required>
               <option value="" disabled selected>Selecione</option>
               <option value="vendedora">Vendedora</option>
               <option value="estoquista">Estoquista</option>
@@ -124,7 +172,7 @@
             </select>
           </div>
 
-          <div class="q"><p>3) Quanto você se sente seguro(a) para atuar na área solicitada? (0 a 10)</p><input type="number" name="q3" min="0" max="10" step="1"></div>
+          <div class="q"><p>3) Quanto você se sente seguro(a) para atuar na área solicitada? (0 a 10)</p><input type="number" name="q3" min="0" max="10" step="1" inputmode="numeric"></div>
           <div class="q"><p>4) O que você achou mais difícil e mais fácil?</p><textarea name="q4"></textarea></div>
 
           <div class="q">
@@ -178,7 +226,7 @@
 
           <div class="actions">
             <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i> Enviar feedback</button>
-            <a class="btn btn-secondary" href="home.html"><i class="fas fa-home"></i> Home</a>
+            <!-- Botão Home removido a pedido -->
           </div>
         </form>
       </section>
@@ -188,30 +236,97 @@
   <script>
     const GAS = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
+    const $ = (s,all=false)=> all?document.querySelectorAll(s):document.querySelector(s);
     function qs(k){ return new URLSearchParams(location.search).get(k) || ''; }
-    function setVal(id,v){ const el=document.getElementById(id); if(el) el.value=v||''; }
+    function setVal(id,v){ const el=document.getElementById(id); if(el){ el.value=v||''; el.classList.remove('skeleton'); } }
 
-    async function prefill(){
-      const q=qs('q'), token=qs('token');
-      if(!q||!token) return;
+    const overlay = document.getElementById('overlay');
+    const btnRetry = document.getElementById('btnRetry');
+    const btnSkip  = document.getElementById('btnContinuarSemPrefill');
+    const form = document.getElementById('fbForm');
+
+    function setLoadingUI(loading){
+      overlay.classList.toggle('show', loading);
+      overlay.setAttribute('aria-hidden', loading ? 'false' : 'true');
+      form.classList.toggle('is-disabled', loading);
+      form.setAttribute('aria-disabled', loading ? 'true' : 'false');
+    }
+
+    function toggleConditional(groupName, textareaName) {
+      const radios = document.querySelectorAll(\`input[name="\${groupName}"]\`);
+      const ta = document.querySelector(\`textarea[name="\${textareaName}"]\`);
+      if (!radios.length || !ta) return;
+      const update = () => {
+        const val = Array.from(radios).find(r => r.checked)?.value;
+        ta.style.display = (val === 'Não') ? 'block' : 'none';
+        if (val !== 'Não') ta.value = '';
+      };
+      radios.forEach(r => r.addEventListener('change', update));
+      update();
+    }
+
+    // fetch com timeout
+    async function fetchWithTimeout(url, ms=12000){
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), ms);
+      try{ return await fetch(url, { signal: ctrl.signal, cache:'no-store' }); }
+      finally{ clearTimeout(t); }
+    }
+
+    async function prefill(attempt=1){
+      const q=qs('q'), token=qs('token'); // token é ignorado pelo backend, mantido por compat
+      if(!q || !token){
+        // sem parâmetros → libera o formulário sem prefill
+        setLoadingUI(false);
+        ['employeeName','email','position','startDate','manager'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.classList.remove('skeleton');
+        });
+        return;
+      }
+      setLoadingUI(true);
       try{
-        const r = await fetch(`${GAS}?view=feedback&q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`,{cache:'no-store'});
+        const url = \`\${GAS}?view=feedback&q=\${encodeURIComponent(q)}&token=\${encodeURIComponent(token)}\`;
+        const r = await fetchWithTimeout(url, 12000);
+        if(!r.ok) throw new Error('HTTP '+r.status);
         const out = await r.json();
-        if(!out.ok || !out.record){ document.getElementById('err').style.display='block'; return; }
-        const d=out.record;
-        setVal('employeeId', d.employeeId);
-        setVal('employeeName', d.name);
-        setVal('email', d.email);
-        setVal('position', d.position);
-        setVal('startDate', d.startDate);
-        setVal('manager', d.manager);
-      }catch(e){ document.getElementById('err').style.display='block'; }
+
+        if(out?.ok && out.record){
+          const d = out.record;
+          setVal('employeeId', d.employeeId);
+          setVal('employeeName', d.name);
+          setVal('email', d.email);
+          setVal('position', d.position);
+          setVal('startDate', d.startDate);
+          setVal('manager', d.manager);
+          setLoadingUI(false);
+          return;
+        }
+
+        // ok=false ou record=null → libera uso sem prefill, mas mostra alerta
+        document.getElementById('err').style.display='block';
+        setLoadingUI(false);
+      }catch(e){
+        // erro/timeout → se 1ª ou 2ª tentativa, deixa overlay com botão "Tentar novamente"
+        if(attempt < 2){
+          overlay.classList.add('show');
+          btnRetry.onclick = () => prefill(attempt+1);
+          btnSkip.onclick  = () => { setLoadingUI(false); };
+        }else{
+          document.getElementById('err').style.display='block';
+          setLoadingUI(false);
+        }
+      }finally{
+        // remove skeletons visuais, mesmo se falhar
+        ['employeeName','email','position','startDate','manager'].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.classList.remove('skeleton');
+        });
+      }
     }
 
     document.getElementById('fbForm').addEventListener('submit', async (ev)=>{
       ev.preventDefault();
       const fd = new FormData(ev.target);
-      const payload = { 
+      const payload = {
         type:'feedback-submit',
         employeeId: document.getElementById('employeeId').value,
         name:       document.getElementById('employeeName').value,
@@ -224,28 +339,27 @@
       try{
         const res = await fetch(GAS, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) });
         const out = await res.json();
-        if(out.ok){ document.getElementById('ok').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); ev.target.reset(); }
-        else{ document.getElementById('err').style.display='block'; }
-      }catch(_){ document.getElementById('err').style.display='block'; }
+        if(out.ok){
+          document.getElementById('ok').style.display='block';
+          document.getElementById('err').style.display='none';
+          window.scrollTo({top:0,behavior:'smooth'});
+          ev.target.reset();
+        }else{
+          document.getElementById('err').style.display='block';
+        }
+      }catch(_){
+        document.getElementById('err').style.display='block';
+      }
     });
 
-    function toggleConditional(groupName, textareaName) {
-      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
-      const ta = document.querySelector(`textarea[name="${textareaName}"]`);
-      if (!radios.length || !ta) return;
-      const update = () => {
-        const val = Array.from(radios).find(r => r.checked)?.value;
-        ta.style.display = (val === 'Não') ? 'block' : 'none';
-        if (val !== 'Não') ta.value = '';
-      };
-      radios.forEach(r => r.addEventListener('change', update));
-      update();
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      prefill();
+      // Inicial
+      setLoadingUI(true);
+      // Campos condicionais
       toggleConditional('q6', 'q6_just');
       toggleConditional('q11', 'q11_obs');
+      // Prefill
+      prefill();
     });
   </script>
 </body>
