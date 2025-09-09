@@ -104,7 +104,6 @@
         <h3><i class="fas fa-list-check"></i> Questionário</h3>
 
         <form id="fbForm">
-          <!-- 1 -->
           <div class="q">
             <p>1) Ficou claro quais serão suas tarefas?</p>
             <div class="inline">
@@ -114,13 +113,18 @@
             </div>
           </div>
 
-          <div class="q"><p>2) Quem mais te ajudou no processo?</p><input type="text" name="q2"></div>
-
           <div class="q">
-            <p>3) Quanto você se sente seguro(a) para atuar na área solicitada? (0 a 10)</p>
-            <input type="number" name="q3" min="0" max="10" step="1" placeholder="0–10">
+            <p>2) Quem mais te ajudou no processo?</p>
+            <select name="q2">
+              <option value="" disabled selected>Selecione</option>
+              <option value="vendedora">Vendedora</option>
+              <option value="estoquista">Estoquista</option>
+              <option value="caixa">Caixa</option>
+              <option value="gerente">Gerente</option>
+            </select>
           </div>
 
+          <div class="q"><p>3) Quanto você se sente seguro(a) para atuar na área solicitada? (0 a 10)</p><input type="number" name="q3" min="0" max="10" step="1"></div>
           <div class="q"><p>4) O que você achou mais difícil e mais fácil?</p><textarea name="q4"></textarea></div>
 
           <div class="q">
@@ -132,17 +136,43 @@
             </div>
           </div>
 
-          <div class="q"><p>6) Você se sente parte da equipe após a integração? Justifique</p><textarea name="q6"></textarea></div>
+          <div class="q">
+            <p>6) Você se sente parte da equipe após a integração?</p>
+            <div class="inline">
+              <label class="opt"><input type="radio" name="q6" value="Sim"><span class="dot"></span>Sim</label>
+              <label class="opt"><input type="radio" name="q6" value="Não"><span class="dot"></span>Não</label>
+            </div>
+            <textarea name="q6_just" placeholder="Se marcou 'Não', explique..." style="display:none"></textarea>
+          </div>
 
-          <div class="q"><p>7) Foi lhe apresentado todas as ferramentas e sistemas da empresa que estarão a sua disposição? Se sim, qual te chamou mais atenção?</p><textarea name="q7"></textarea></div>
+          <div class="q"><p>7) Foi lhe apresentado todas as ferramentas e sistemas da empresa? Se sim, qual te chamou mais atenção?</p><textarea name="q7"></textarea></div>
 
-          <div class="q"><p>8) Foi lhe apresentado o estoque?</p><input type="text" name="q8"></div>
+          <div class="q">
+            <p>8) Foi lhe apresentado o estoque?</p>
+            <div class="inline">
+              <label class="opt"><input type="radio" name="q8" value="Sim"><span class="dot"></span>Sim</label>
+              <label class="opt"><input type="radio" name="q8" value="Não"><span class="dot"></span>Não</label>
+            </div>
+          </div>
 
-          <div class="q"><p>9) Foi lhe apresentada a área de vendas? (dobras, divisões de setores etc.)</p><textarea name="q9"></textarea></div>
+          <div class="q">
+            <p>9) Foi lhe apresentada a área de vendas? (dobras, divisões de setores etc.)</p>
+            <div class="inline">
+              <label class="opt"><input type="radio" name="q9" value="Sim"><span class="dot"></span>Sim</label>
+              <label class="opt"><input type="radio" name="q9" value="Não"><span class="dot"></span>Não</label>
+            </div>
+          </div>
 
           <div class="q"><p>10) Como foi seu primeiro dia de vendas?</p><textarea name="q10"></textarea></div>
 
-          <div class="q"><p>11) Você acha que teve um bom acompanhamento e auxílio durante seus atendimentos?</p><textarea name="q11"></textarea></div>
+          <div class="q">
+            <p>11) Você acha que teve um bom acompanhamento e auxílio durante seus atendimentos?</p>
+            <div class="inline">
+              <label class="opt"><input type="radio" name="q11" value="Sim"><span class="dot"></span>Sim</label>
+              <label class="opt"><input type="radio" name="q11" value="Não"><span class="dot"></span>Não</label>
+            </div>
+            <textarea name="q11_obs" placeholder="Se marcou 'Não', descreva..." style="display:none"></textarea>
+          </div>
 
           <div class="q"><p>12) Dê uma sugestão para melhorarmos a integração.</p><textarea name="q12"></textarea></div>
 
@@ -156,15 +186,14 @@
   </div>
 
   <script>
-    // === CONFIG ===
-    const GAS = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec'; // coloque a URL do seu Web App
+    const GAS = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
     function qs(k){ return new URLSearchParams(location.search).get(k) || ''; }
     function setVal(id,v){ const el=document.getElementById(id); if(el) el.value=v||''; }
 
     async function prefill(){
       const q=qs('q'), token=qs('token');
-      if(!q||!token) return; // opcional: bloquear sem token
+      if(!q||!token) return;
       try{
         const r = await fetch(`${GAS}?view=feedback&q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`,{cache:'no-store'});
         const out = await r.json();
@@ -190,7 +219,7 @@
         position:   document.getElementById('position').value,
         startDate:  document.getElementById('startDate').value,
         manager:    document.getElementById('manager').value,
-        answers: Object.fromEntries(fd.entries()) // q1..q12
+        answers: Object.fromEntries(fd.entries())
       };
       try{
         const res = await fetch(GAS, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) });
@@ -200,7 +229,24 @@
       }catch(_){ document.getElementById('err').style.display='block'; }
     });
 
-    document.addEventListener('DOMContentLoaded', prefill);
+    function toggleConditional(groupName, textareaName) {
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      const ta = document.querySelector(`textarea[name="${textareaName}"]`);
+      if (!radios.length || !ta) return;
+      const update = () => {
+        const val = Array.from(radios).find(r => r.checked)?.value;
+        ta.style.display = (val === 'Não') ? 'block' : 'none';
+        if (val !== 'Não') ta.value = '';
+      };
+      radios.forEach(r => r.addEventListener('change', update));
+      update();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      prefill();
+      toggleConditional('q6', 'q6_just');
+      toggleConditional('q11', 'q11_obs');
+    });
   </script>
 </body>
 </html>
