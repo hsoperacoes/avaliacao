@@ -69,7 +69,7 @@
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
 
-    /* (REMOVIDO o @media para manter layout desktop no mobile) */
+    /* (sem @media para manter layout desktop no mobile) */
 
     .fade-in{animation:fadeIn .5s ease-in}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -249,7 +249,9 @@
   <div id="toast" class="toast">Mensagem</div>
 
   <script>
+    /* ====== CONFIG ====== */
     const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+    const FEEDBACK_AUTO_SEND_ON_COMPLETE = true; // envia link do feedback quando atingir 100%
 
     const STEPS=[
       {id:1,title:'1º Passo - Gerente.',tasks:['1.1','1.2','1.3','1.4','1.5','1.6','1.7']},
@@ -262,23 +264,44 @@
     const ORDERED_TASK_IDS=STEPS.flatMap(s=>s.tasks);
     const DEFAULT_LOCKED_IDS=new Set(['1.1','1.2']);
 
-    let employeeData={id:null,name:'—',position:'—',startDate:'—',manager:'—'};
+    let employeeData={id:null,name:'—',position:'—',startDate:'—',manager:'—',email:''};
     let lockedIndex=-1;
     let bootPrefilled=false;
     let ratingsLoaded=false;
     let lastSavedCheckpoint=0;
 
+    /* ====== Helpers ====== */
     function ratingsKey(){return'ratings:'+(employeeData.id||'sem_id')}
+    function fbInviteKey(){return 'fbInviteSent:'+(employeeData.id||'sem_id')}
     function getRatings(){try{return JSON.parse(localStorage.getItem(ratingsKey())||'{}')}catch{return{}}}
     function setRatings(o){localStorage.setItem(ratingsKey(),JSON.stringify(o||{}))}
     function hasRating(stepId){const r=getRatings();return!!r[String(stepId)]}
     function computeContiguousCompletedIndex(){let idx=-1;for(let i=0;i<ORDERED_TASK_IDS.length;i++){if(isTaskCompleted(ORDERED_TASK_IDS[i]))idx=i;else break}return idx}
     function showOverlay(on){document.getElementById('overlay').style.display=on?'flex':'none'}
+    function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+    function markTaskUI(taskId,completed){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);if(el)el.classList.toggle('completed',!!completed)}
+    function isTaskCompleted(taskId){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);return!!el&&el.classList.contains('completed')}
+    function getTaskPosition(taskId){const idx=ORDERED_TASK_IDS.indexOf(taskId);let acc=0,stepIndex=0,localIndex=idx;for(let i=0;i<STEPS.length;i++){if(idx<acc+STEPS[i].tasks.length){stepIndex=i;localIndex=idx-acc;break}acc+=STEPS[i].tasks.length}return{stepIndex,localIndex}}
+    function stepIndexOfTask(taskId){return getTaskPosition(taskId).stepIndex}
+    function getCompletedTaskIds(){return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id))}
+    function lastCompletedStep(){let last={stepNumber:null,stepTitle:null};for(const s of STEPS){if(isStepDone(s))last={stepNumber:s.id,stepTitle:s.title};else break}return last}
+    function checkpointStepIndex(){
+      if(lockedIndex<0)return 0;
+      const s=stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
+      let firstIdx=0;for(let i=0;i<s;i++)firstIdx+=STEPS[i].tasks.length;
+      const lastIdxInStep=firstIdx+STEPS[s].tasks.length-1;
+      if(lockedIndex>=lastIdxInStep)return Math.min(s+1,STEPS.length-1);
+      return s;
+    }
+    function isStepDone(s){return s.tasks.every(t=>isTaskCompleted(t))&&hasRating(s.id)}
 
+    /* ====== Boot ====== */
     document.addEventListener('DOMContentLoaded',()=>{
       showOverlay(true);
-      loadCurrentEmployee();renderEmployeeInfo();
+      loadCurrentEmployee(); renderEmployeeInfo();
       prefillIfNew();
+      // carrega email e dados adicionais
+      fetchEmployeeFull();
       hydrateFromBackend().finally(()=>{
         applySequentialLocking();updateProgressBar();updateStepStatuses();updateEvaluations();restoreRatingsUI();
         toggleStep('step1');
@@ -288,7 +311,24 @@
       });
     });
 
-    function prefillIfNew(){markTaskUI('1.1',true);markTaskUI('1.2',true);bootPrefilled=true;lockedIndex=Math.max(lockedIndex,ORDERED_TASK_IDS.indexOf('1.2'))}
+    function prefillIfNew(){
+      // pré-marca padrão
+      markTaskUI('1.1',true);
+      markTaskUI('1.2',true);
+      bootPrefilled=true;
+      lockedIndex=Math.max(lockedIndex,ORDERED_TASK_IDS.indexOf('1.2'));
+    }
+
+    async function fetchEmployeeFull(){
+      if(!employeeData.id) return;
+      try{
+        const r=await fetch(`${GAS_WEB_APP_URL}?type=employees-get&id=${encodeURIComponent(employeeData.id)}`,{cache:'no-store'});
+        const out=await r.json();
+        if(out?.ok && out.record){
+          employeeData.email = out.record.email || '';
+        }
+      }catch(_){}
+    }
 
     async function hydrateFromBackend(){
       if(!employeeData.id) return;
@@ -307,6 +347,7 @@
       }catch(e){console.warn('ratings-load falhou:',e)}
     }
 
+    /* ====== UI ====== */
     function toggleStep(stepDomId){
       const content=document.getElementById(stepDomId);
       const toggle=document.getElementById('toggle'+stepDomId.slice(-1));
@@ -335,13 +376,11 @@
       if(stepIndex<STEPS.length-1)toggleStep('step'+STEPS[stepIndex+1].id);
     }
 
-    function markTaskUI(taskId,completed){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);if(el)el.classList.toggle('completed',!!completed)}
-    function isTaskCompleted(taskId){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);return!!el&&el.classList.contains('completed')}
-    function getTaskPosition(taskId){const idx=ORDERED_TASK_IDS.indexOf(taskId);let acc=0,stepIndex=0,localIndex=idx;for(let i=0;i<STEPS.length;i++){if(idx<acc+STEPS[i].tasks.length){stepIndex=i;localIndex=idx-acc;break}acc+=STEPS[i].tasks.length}return{stepIndex,localIndex}}
-    function stepIndexOfTask(taskId){return getTaskPosition(taskId).stepIndex}
-
     function nextAvailableTaskId(){
-      for(const step of STEPS){for(const id of step.tasks){if(!isTaskCompleted(id))return id}if(!hasRating(step.id))return null}
+      for(const step of STEPS){
+        for(const id of step.tasks){if(!isTaskCompleted(id))return id}
+        if(!hasRating(step.id))return null
+      }
       return null;
     }
 
@@ -357,19 +396,23 @@
     }
 
     function updateProgressBar(){
-      const all=ORDERED_TASK_IDS.length;const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;const pct=all?Math.round((done/all)*100):0;
-      document.getElementById('progressBar').style.width=pct+'%';document.getElementById('progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
+      const all=ORDERED_TASK_IDS.length;
+      const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;
+      const pct=all?Math.round((done/all)*100):0;
+      document.getElementById('progressBar').style.width=pct+'%';
+      document.getElementById('progressText').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
     }
-
-    function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
-
-    function isStepDone(s){return s.tasks.every(t=>isTaskCompleted(t))&&hasRating(s.id)}
 
     function updateStepStatuses(){
       STEPS.forEach(step=>{
         const header=document.querySelector(`#step${step.id}`).previousElementSibling;if(!header)return;
-        let badge=header.querySelector('.step-badge');if(!badge){badge=document.createElement('span');badge.className='step-badge';const chev=header.querySelector('.step-toggle');header.insertBefore(badge,chev)}
-        header.classList.toggle('done',isStepDone(step));badge.textContent=isStepDone(step)?'Concluído':'Em andamento';
+        let badge=header.querySelector('.step-badge');
+        if(!badge){
+          badge=document.createElement('span');badge.className='step-badge';
+          const chev=header.querySelector('.step-toggle');header.insertBefore(badge,chev)
+        }
+        header.classList.toggle('done',isStepDone(step));
+        badge.textContent=isStepDone(step)?'Concluído':'Em andamento';
       });
     }
 
@@ -377,18 +420,27 @@
 
     document.addEventListener('click',async e=>{
       if(!e.target.classList.contains('star'))return;
-      const val=parseInt(e.target.dataset.value,10);const container=e.target.closest('.evaluation-container');const stepId=parseInt(container.id.replace('eval-step',''),10);
-      const parent=container.querySelector('.stars');parent.querySelectorAll('.star').forEach(st=>{st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val)});
+      const val=parseInt(e.target.dataset.value,10);
+      const container=e.target.closest('.evaluation-container');
+      const stepId=parseInt(container.id.replace('eval-step',''),10);
+      const parent=container.querySelector('.stars');
+      parent.querySelectorAll('.star').forEach(st=>{st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val)});
       const r=getRatings();r[String(stepId)]=val;setRatings(r);
-      try{await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});}catch(err){console.warn('ratings-save falhou',err)}
+      try{
+        await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
+      }catch(err){console.warn('ratings-save falhou',err)}
       applySequentialLocking();updateStepStatuses();
     });
 
-    function restoreRatingsUI(){const ratings=getRatings();Object.keys(ratings).forEach(stepId=>{const val=ratings[stepId];document.querySelectorAll('#eval-step'+stepId+' .star').forEach(st=>st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val))})}
+    function restoreRatingsUI(){
+      const ratings=getRatings();
+      Object.keys(ratings).forEach(stepId=>{
+        const val=ratings[stepId];
+        document.querySelectorAll('#eval-step'+stepId+' .star').forEach(st=>st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val))
+      })
+    }
 
-    function getCompletedTaskIds(){return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id))}
-    function lastCompletedStep(){let last={stepNumber:null,stepTitle:null};for(const s of STEPS){if(isStepDone(s))last={stepNumber:s.id,stepTitle:s.title};else break}return last}
-
+    /* ====== SAVE / REPORT / FEEDBACK ====== */
     async function onSaveClick(){
       const reportText=buildTxtReport();
       try{
@@ -412,8 +464,38 @@
 
         lockedIndex=newLockedIndex; lastSavedCheckpoint=checkpointStepIndex();
         const btn=document.getElementById('saveBtn');const txt=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Salvo!';setTimeout(()=>btn.innerHTML=txt,1500);
-        showToast('Progresso salvo e sincronizado.');applySequentialLocking();updateStepStatuses();
-      }catch(err){console.error(err);showToast('Falha ao contatar o Web App.')}
+        showToast('Progresso salvo e sincronizado.');
+        applySequentialLocking();updateStepStatuses();
+
+        // >>> NOVO: envio automático do link de feedback quando concluir 100%
+        if (FEEDBACK_AUTO_SEND_ON_COMPLETE && pct===100){
+          await ensureFeedbackInviteSent();
+        }
+
+      }catch(err){
+        console.error(err);
+        showToast('Falha ao contatar o Web App.');
+      }
+    }
+
+    async function ensureFeedbackInviteSent(){
+      try{
+        if (localStorage.getItem(fbInviteKey())==='yes') return; // já enviou
+        // dispara convite via GAS (GAS buscará o e-mail na planilha)
+        const body={type:'feedback-send', employeeId: employeeData.id};
+        const r=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});
+        const out=await r.json();
+        if(out?.ok){
+          localStorage.setItem(fbInviteKey(),'yes');
+          showToast('Convite de feedback enviado por e-mail.');
+        }else{
+          console.warn('feedback-send falhou',out);
+          showToast('Não foi possível enviar o convite de feedback agora.');
+        }
+      }catch(e){
+        console.warn('feedback-send erro',e);
+        showToast('Não foi possível enviar o convite de feedback agora.');
+      }
     }
 
     function buildTxtReport(){
@@ -421,29 +503,57 @@
       const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
       const all=ORDERED_TASK_IDS.length,done=completed.length,pct=all?Math.round((done/all)*100):0;
       const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});const ratings=getRatings();
-      const lines=['RELATÓRIO DE ONBOARDING','',`Funcionário: ${employeeData.name}`,`Cargo: ${employeeData.position}`,`Data de Início: ${employeeData.startDate}`,`Gerente: ${employeeData.manager}`,`Data do Relatório: ${today}`,'','PROGRESSO GERAL',`Total de tarefas: ${all}`,`Tarefas concluídas: ${done}`,`Percentual: ${pct}%`,'','TAREFAS CONCLUÍDAS:',...completed.map(id=>'✓ '+getTaskTextById(id)),'','TAREFAS PENDENTES:',...pending.map(id=>'○ '+getTaskTextById(id)),'','AVALIAÇÕES POR ETAPA (1–5):',...STEPS.map(s=>`- ${s.title}: ${ratings[String(s.id)]?ratings[String(s.id)]+'/5':'sem avaliação'}`)];
+      const lines=[
+        'RELATÓRIO DE ONBOARDING','',
+        `Funcionário: ${employeeData.name}`,
+        `Cargo: ${employeeData.position}`,
+        `Data de Início: ${employeeData.startDate}`,
+        `Gerente: ${employeeData.manager}`,
+        `Data do Relatório: ${today}`,
+        '',
+        'PROGRESSO GERAL',
+        `Total de tarefas: ${all}`,
+        `Tarefas concluídas: ${done}`,
+        `Percentual: ${pct}%`,
+        '',
+        'TAREFAS CONCLUÍDAS:',
+        ...completed.map(id=>'✓ '+getTaskTextById(id)),
+        '',
+        'TAREFAS PENDENTES:',
+        ...pending.map(id=>'○ '+getTaskTextById(id)),
+        '',
+        'AVALIAÇÕES POR ETAPA (1–5):',
+        ...STEPS.map(s=>`- ${s.title}: ${ratings[String(s.id)]?ratings[String(s.id)]+'/5':'sem avaliação'}`)
+      ];
       return lines.join('\n');
     }
 
     function generateReportTXT(){
-      const content=buildTxtReport();const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');const safe=(employeeData.name||'Funcionario').replace(/\s+/g,'_');const iso=new Date().toISOString().slice(0,10);
+      const content=buildTxtReport();
+      const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      const safe=(employeeData.name||'Funcionario').replace(/\s+/g,'_');
+      const iso=new Date().toISOString().slice(0,10);
       a.href=url;a.download=`relatorio_onboarding_${safe}_${iso}.txt`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
     }
 
-    function loadCurrentEmployee(){const s=localStorage.getItem('currentEmployee');if(s){const e=JSON.parse(s);employeeData={id:e.id,name:e.name,position:e.position,startDate:formatDate(e.startDate),manager:e.manager}}renderEmployeeInfo()}
-    function renderEmployeeInfo(){document.getElementById('employeeName').textContent=employeeData.name;document.getElementById('employeePosition').textContent=employeeData.position;document.getElementById('startDate').textContent=employeeData.startDate;document.getElementById('managerName').textContent=employeeData.manager}
+    function loadCurrentEmployee(){
+      const s=localStorage.getItem('currentEmployee');
+      if(s){
+        const e=JSON.parse(s);
+        employeeData={id:e.id,name:e.name,position:e.position,startDate:formatDate(e.startDate),manager:e.manager,email:e.email||''}
+      }
+      renderEmployeeInfo()
+    }
+    function renderEmployeeInfo(){
+      document.getElementById('employeeName').textContent=employeeData.name;
+      document.getElementById('employeePosition').textContent=employeeData.position;
+      document.getElementById('startDate').textContent=employeeData.startDate;
+      document.getElementById('managerName').textContent=employeeData.manager;
+    }
     function formatDate(s){const d=new Date(s);return isNaN(d)?String(s):d.toLocaleDateString('pt-BR')}
     function getTaskTextById(id){const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`);return el?el.textContent.trim():id}
-
-    function checkpointStepIndex(){
-      if(lockedIndex<0)return 0;
-      const s=stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
-      let firstIdx=0;for(let i=0;i<s;i++)firstIdx+=STEPS[i].tasks.length;
-      const lastIdxInStep=firstIdx+STEPS[s].tasks.length-1;
-      if(lockedIndex>=lastIdxInStep)return Math.min(s+1,STEPS.length-1);
-      return s;
-    }
   </script>
 </body>
 </html>
