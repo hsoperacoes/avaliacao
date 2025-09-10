@@ -322,6 +322,7 @@
           const r = await fetch(`${GAS_WEB_APP_URL}?type=onboarding-load&id=${encodeURIComponent(employeeData.id)}`, {cache:'no-store'});
           const out = await r.json();
           if (out?.ok && out.record) {
+            // Rehidrata UI
             ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
             (out.record.completedTasks || []).forEach(id => markTaskUI(id,true));
             lockedIndex = (typeof out.record.lockedIndex === 'number')
@@ -333,12 +334,16 @@
             updateProgressBar();
 
             const cp = checkpointStepIndex();
-            if (cp > previousCheckpoint) return true;
+            if (cp > previousCheckpoint) {
+              // >>> ATUALIZA checkpoint local quando liberar <<<
+              lastSavedCheckpoint = cp;
+              return true; // liberou!
+            }
           }
         } catch(_) {}
         await new Promise(r => setTimeout(r, intervalMs));
       }
-      return false;
+      return false; // estourou tempo
     }
 
     /* ====== Boot ====== */
@@ -474,6 +479,8 @@
         await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
       }catch(err){console.warn('ratings-save falhou',err)}
       applySequentialLocking();updateStepStatuses();
+      // >>> Atualiza checkpoint local após avaliar a etapa <<<
+      lastSavedCheckpoint = checkpointStepIndex();
     });
 
     function restoreRatingsUI(){
@@ -486,6 +493,7 @@
 
     /* ====== SAVE / REPORT / FEEDBACK ====== */
     async function onSaveClick(){
+      // Mantém overlay durante todo o fluxo
       setOverlay(true,'Salvando progresso…','Sincronizando com a planilha');
       const beforeCheckpoint = checkpointStepIndex();
       const reportText=buildTxtReport();
@@ -503,24 +511,32 @@
           lastStepNumber:stepInfo.stepNumber,lastStepTitle:stepInfo.stepTitle
         },reportText};
 
+        // 1) Salvar Onboarding (dispara e-mail do relatório no GAS)
         const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
         const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha ao salvar');
 
+        // 2) Salvar Ratings
         setOverlay(true,'Enviando avaliação…','Atualizando notas da etapa');
         const r=getRatings();
         await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
 
+        // 3) Atualiza checkpoints locais e UI
         lockedIndex=newLockedIndex;
         applySequentialLocking();updateStepStatuses();updateProgressBar();
+        // >>> Garante abertura local da próxima etapa
+        lastSavedCheckpoint = checkpointStepIndex();
 
+        // 4) Se concluiu 100%, dispara convite de feedback
         if (FEEDBACK_AUTO_SEND_ON_COMPLETE && pct===100){
           setOverlay(true,'Enviando convite de feedback…','Aguarde enquanto preparamos o e-mail');
           await ensureFeedbackInviteSent();
         }
 
+        // 5) Espera liberação REAL da próxima etapa (poll no GAS)
         setOverlay(true,'Liberando próxima etapa…','Validando informações no servidor');
         const unlocked = await waitForNextCheckpoint(beforeCheckpoint, {timeoutMs: 15000, intervalMs: 900});
 
+        // feedback visual do botão
         const btn=document.getElementById('saveBtn');const txt=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
         setTimeout(()=>btn.innerHTML=txt,1500);
 
@@ -535,7 +551,7 @@
 
     async function ensureFeedbackInviteSent(){
       try{
-        if (localStorage.getItem(fbInviteKey())==='yes') return;
+        if (localStorage.getItem(fbInviteKey())==='yes') return; // já enviou
         const body={type:'feedback-send', employeeId: employeeData.id};
         const r=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});
         const out=await r.json();
