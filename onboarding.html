@@ -109,7 +109,7 @@
         <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
       </section>
 
-      <!-- Etapas (igual ao seu) -->
+      <!-- Etapas -->
       <section class="step-section">
         <div class="step-header" onclick="toggleStep('step1')">
           <i class="fas fa-user-tie"></i><h3>1º Passo - Gerente.</h3>
@@ -298,7 +298,36 @@
       overlaySub.textContent = sub || '';
       overlayEl.style.display = show ? 'flex' : 'none';
       overlayEl.setAttribute('aria-hidden', show ? 'false' : 'true');
+      // bloqueia cliques durante a espera
       document.body.style.pointerEvents = show ? 'none' : 'auto';
+    }
+
+    // Poll no GAS até a próxima etapa estar realmente liberada
+    async function waitForNextCheckpoint(previousCheckpoint, {timeoutMs=15000, intervalMs=900} = {}) {
+      const start = Date.now();
+      while (Date.now() - start < timeoutMs) {
+        try {
+          const r = await fetch(`${GAS_WEB_APP_URL}?type=onboarding-load&id=${encodeURIComponent(employeeData.id)}`, {cache:'no-store'});
+          const out = await r.json();
+          if (out?.ok && out.record) {
+            // Rehidrata UI
+            ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
+            (out.record.completedTasks || []).forEach(id => markTaskUI(id,true));
+            lockedIndex = (typeof out.record.lockedIndex === 'number')
+              ? out.record.lockedIndex
+              : computeContiguousCompletedIndex();
+
+            applySequentialLocking();
+            updateStepStatuses();
+            updateProgressBar();
+
+            const cp = checkpointStepIndex();
+            if (cp > previousCheckpoint) return true; // liberou!
+          }
+        } catch(_) {}
+        await new Promise(r => setTimeout(r, intervalMs));
+      }
+      return false; // estourou tempo
     }
 
     /* ====== Boot ====== */
@@ -446,7 +475,7 @@
 
     /* ====== SAVE / REPORT / FEEDBACK ====== */
     async function onSaveClick(){
-      // Mostra overlay durante todo o fluxo de salvar/enviar/liberar
+      // Mantém overlay durante todo o fluxo
       setOverlay(true,'Salvando progresso…','Sincronizando com a planilha');
       const beforeCheckpoint = checkpointStepIndex();
       const reportText=buildTxtReport();
@@ -464,7 +493,7 @@
           lastStepNumber:stepInfo.stepNumber,lastStepTitle:stepInfo.stepTitle
         },reportText};
 
-        // 1) Salvar Onboarding + e-mail do relatório
+        // 1) Salvar Onboarding (dispara e-mail do relatório no GAS)
         const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
         const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha ao salvar');
 
@@ -475,7 +504,6 @@
 
         // 3) Atualiza checkpoints locais e UI
         lockedIndex=newLockedIndex;
-        lastSavedCheckpoint=checkpointStepIndex();
         applySequentialLocking();updateStepStatuses();updateProgressBar();
 
         // 4) Se concluiu 100%, dispara convite de feedback
@@ -484,22 +512,15 @@
           await ensureFeedbackInviteSent();
         }
 
-        // 5) Espera curta para garantir UX + liberação da próxima etapa
-        const afterCheckpoint = lastSavedCheckpoint;
-        if (afterCheckpoint <= beforeCheckpoint){
-          // Se por algum motivo o próximo passo ainda não liberou, dá um respiro e re-hidrata
-          setOverlay(true,'Liberando próxima etapa…','Validando informações');
-          await new Promise(r=>setTimeout(r,600));
-          await hydrateFromBackend();
-          applySequentialLocking();updateStepStatuses();updateProgressBar();
-          lastSavedCheckpoint=checkpointStepIndex();
-        }
+        // 5) Espera liberação REAL da próxima etapa (poll no GAS)
+        setOverlay(true,'Liberando próxima etapa…','Validando informações no servidor');
+        const unlocked = await waitForNextCheckpoint(beforeCheckpoint, {timeoutMs: 15000, intervalMs: 900});
 
         // feedback visual do botão
         const btn=document.getElementById('saveBtn');const txt=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
         setTimeout(()=>btn.innerHTML=txt,1500);
 
-        showToast('Progresso salvo e próxima etapa liberada.');
+        showToast(unlocked ? 'Progresso salvo e próxima etapa liberada.' : 'Progresso salvo. A liberação pode levar alguns instantes.');
       }catch(err){
         console.error(err);
         showToast('Falha ao contatar o Web App.');
