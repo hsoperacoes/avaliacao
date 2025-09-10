@@ -226,7 +226,7 @@
 
           <div class="actions">
             <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i> Enviar feedback</button>
-            <!-- Botão Home removido a pedido -->
+            <!-- Botão Home removido -->
           </div>
         </form>
       </section>
@@ -253,8 +253,8 @@
     }
 
     function toggleConditional(groupName, textareaName) {
-      const radios = document.querySelectorAll(\`input[name="\${groupName}"]\`);
-      const ta = document.querySelector(\`textarea[name="\${textareaName}"]\`);
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      const ta = document.querySelector(`textarea[name="${textareaName}"]`);
       if (!radios.length || !ta) return;
       const update = () => {
         const val = Array.from(radios).find(r => r.checked)?.value;
@@ -273,6 +273,7 @@
       finally{ clearTimeout(t); }
     }
 
+    // PREFILL correto (passa q exatamente como veio no link do e-mail)
     async function prefill(attempt=1){
       const q=qs('q'), token=qs('token'); // token é ignorado pelo backend, mantido por compat
       if(!q || !token){
@@ -285,7 +286,8 @@
       }
       setLoadingUI(true);
       try{
-        const url = \`\${GAS}?view=feedback&q=\${encodeURIComponent(q)}&token=\${encodeURIComponent(token)}\`;
+        // q já é JSON stringificado vindo no link do e-mail
+        const url = `${GAS}?view=feedback&q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`;
         const r = await fetchWithTimeout(url, 12000);
         if(!r.ok) throw new Error('HTTP '+r.status);
         const out = await r.json();
@@ -323,8 +325,14 @@
       }
     }
 
+    // Envio do formulário
     document.getElementById('fbForm').addEventListener('submit', async (ev)=>{
       ev.preventDefault();
+      // overlay rápido durante o envio
+      overlay.querySelector('h4').textContent = 'Enviando seu feedback…';
+      overlay.querySelector('small').textContent = 'Aguarde a confirmação.';
+      setLoadingUI(true);
+
       const fd = new FormData(ev.target);
       const payload = {
         type:'feedback-submit',
@@ -349,6 +357,11 @@
         }
       }catch(_){
         document.getElementById('err').style.display='block';
+      }finally{
+        // volta o overlay para o texto padrão e esconde
+        overlay.querySelector('h4').textContent = 'Carregando dados do colaborador…';
+        overlay.querySelector('small').textContent = 'Buscando informações na planilha. Pode levar alguns segundos.';
+        setLoadingUI(false);
       }
     });
 
