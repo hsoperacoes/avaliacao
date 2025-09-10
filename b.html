@@ -22,7 +22,6 @@
     .main{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:28px}
     .card{background:#3a3a3a;border-radius:12px;padding:22px;margin-bottom:22px;box-shadow:0 4px 15px rgba(0,0,0,.2)}
     .card h3{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:#fff}
-    .badge{padding:4px 10px;border-radius:999px;font-size:.78rem;background:#424242;color:#e0e0e0}
 
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
     .col-12{grid-column:span 12}
@@ -56,7 +55,7 @@
     .ok{display:none;background:#2e7d32;color:#fff;border-radius:10px;padding:14px;text-align:center;margin-bottom:14px}
     .err{display:none;background:#b71c1c;color:#fff;border-radius:10px;padding:14px;text-align:center;margin-bottom:14px}
 
-    /* Overlay de carregamento (estilo onboarding) */
+    /* Overlay de carregamento (sem botões) */
     .overlay{
       position:fixed;inset:0;display:none;align-items:center;justify-content:center;
       background:rgba(0,0,0,.65);backdrop-filter:blur(2px);z-index:9999
@@ -73,7 +72,6 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader h4{margin:0;color:#fff}
     .loader small{color:#cfcfcf}
-    .loader .actions{border:0;margin:0;padding:0}
 
     /* Esqueleto rápido para os campos read-only enquanto carrega */
     .skeleton{position:relative;overflow:hidden;background:#4a4a4a}
@@ -93,16 +91,8 @@
   <div id="overlay" class="overlay" aria-hidden="true">
     <div class="loader" role="status" aria-live="polite">
       <div class="spinner" aria-label="Carregando"></div>
-      <h4>Carregando dados do colaborador…</h4>
-      <small>Buscando informações na planilha. Pode levar alguns segundos.</small>
-      <div class="actions">
-        <button id="btnRetry" class="btn btn-secondary" type="button">
-          <i class="fas fa-rotate-right"></i> Tentar novamente
-        </button>
-        <button id="btnContinuarSemPrefill" class="btn btn-primary" type="button">
-          <i class="fas fa-forward"></i> Continuar sem preencher
-        </button>
-      </div>
+      <h4 id="ovl-title">Carregando dados do colaborador…</h4>
+      <small id="ovl-sub">Buscando informações na planilha. Pode levar alguns segundos.</small>
     </div>
   </div>
 
@@ -121,7 +111,7 @@
 
       <!-- Dados do colaborador -->
       <section class="card" id="secDados">
-        <h3><i class="fas fa-id-badge"></i> Seus dados <span class="badge">preenchidos automaticamente</span></h3>
+        <h3><i class="fas fa-id-badge"></i> Seus dados</h3>
         <div class="grid">
           <div class="col-6">
             <label>Nome</label>
@@ -226,7 +216,6 @@
 
           <div class="actions">
             <button class="btn btn-primary" type="submit"><i class="fas fa-paper-plane"></i> Enviar feedback</button>
-            <!-- Botão Home removido -->
           </div>
         </form>
       </section>
@@ -238,12 +227,12 @@
 
     const $ = (s,all=false)=> all?document.querySelectorAll(s):document.querySelector(s);
     function qs(k){ return new URLSearchParams(location.search).get(k) || ''; }
-    function setVal(id,v){ const el=document.getElementById(id); if(el){ el.value=v||''; el.classList.remove('skeleton'); } }
+    function setVal(id,v){ const el=document.getElementById(id); if(el){ el.value=(v??''); el.classList.remove('skeleton'); } }
 
     const overlay = document.getElementById('overlay');
-    const btnRetry = document.getElementById('btnRetry');
-    const btnSkip  = document.getElementById('btnContinuarSemPrefill');
-    const form = document.getElementById('fbForm');
+    const ovlTitle = document.getElementById('ovl-title');
+    const ovlSub   = document.getElementById('ovl-sub');
+    const form     = document.getElementById('fbForm');
 
     function setLoadingUI(loading){
       overlay.classList.toggle('show', loading);
@@ -265,6 +254,16 @@
       update();
     }
 
+    // formatar datas "feias" do GAS em dd/mm/aaaa
+    function formatBRDate(val){
+      if(!val) return '';
+      // Se já vier como dd/mm/aaaa, mantém
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(String(val))) return val;
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return String(val);
+      return d.toLocaleDateString('pt-BR');
+    }
+
     // fetch com timeout
     async function fetchWithTimeout(url, ms=12000){
       const ctrl = new AbortController();
@@ -273,9 +272,9 @@
       finally{ clearTimeout(t); }
     }
 
-    // PREFILL correto (passa q exatamente como veio no link do e-mail)
-    async function prefill(attempt=1){
-      const q=qs('q'), token=qs('token'); // token é ignorado pelo backend, mantido por compat
+    // PREFILL (usa o q recebido no link do e-mail)
+    async function prefill(){
+      const q=qs('q'), token=qs('token'); // token ignorado pelo backend, mantido por compat
       if(!q || !token){
         // sem parâmetros → libera o formulário sem prefill
         setLoadingUI(false);
@@ -286,7 +285,6 @@
       }
       setLoadingUI(true);
       try{
-        // q já é JSON stringificado vindo no link do e-mail
         const url = `${GAS}?view=feedback&q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`;
         const r = await fetchWithTimeout(url, 12000);
         if(!r.ok) throw new Error('HTTP '+r.status);
@@ -298,27 +296,16 @@
           setVal('employeeName', d.name);
           setVal('email', d.email);
           setVal('position', d.position);
-          setVal('startDate', d.startDate);
+          setVal('startDate', formatBRDate(d.startDate));
           setVal('manager', d.manager);
-          setLoadingUI(false);
-          return;
-        }
-
-        // ok=false ou record=null → libera uso sem prefill, mas mostra alerta
-        document.getElementById('err').style.display='block';
-        setLoadingUI(false);
-      }catch(e){
-        // erro/timeout → se 1ª ou 2ª tentativa, deixa overlay com botão "Tentar novamente"
-        if(attempt < 2){
-          overlay.classList.add('show');
-          btnRetry.onclick = () => prefill(attempt+1);
-          btnSkip.onclick  = () => { setLoadingUI(false); };
         }else{
           document.getElementById('err').style.display='block';
-          setLoadingUI(false);
         }
+      }catch(e){
+        document.getElementById('err').style.display='block';
       }finally{
-        // remove skeletons visuais, mesmo se falhar
+        setLoadingUI(false);
+        // remove skeletons visuais
         ['employeeName','email','position','startDate','manager'].forEach(id=>{
           const el=document.getElementById(id); if(el) el.classList.remove('skeleton');
         });
@@ -328,9 +315,8 @@
     // Envio do formulário
     document.getElementById('fbForm').addEventListener('submit', async (ev)=>{
       ev.preventDefault();
-      // overlay rápido durante o envio
-      overlay.querySelector('h4').textContent = 'Enviando seu feedback…';
-      overlay.querySelector('small').textContent = 'Aguarde a confirmação.';
+      ovlTitle.textContent = 'Enviando seu feedback…';
+      ovlSub.textContent   = 'Aguarde a confirmação.';
       setLoadingUI(true);
 
       const fd = new FormData(ev.target);
@@ -358,20 +344,16 @@
       }catch(_){
         document.getElementById('err').style.display='block';
       }finally{
-        // volta o overlay para o texto padrão e esconde
-        overlay.querySelector('h4').textContent = 'Carregando dados do colaborador…';
-        overlay.querySelector('small').textContent = 'Buscando informações na planilha. Pode levar alguns segundos.';
+        ovlTitle.textContent = 'Carregando dados do colaborador…';
+        ovlSub.textContent   = 'Buscando informações na planilha. Pode levar alguns segundos.';
         setLoadingUI(false);
       }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Inicial
       setLoadingUI(true);
-      // Campos condicionais
       toggleConditional('q6', 'q6_just');
       toggleConditional('q11', 'q11_obs');
-      // Prefill
       prefill();
     });
   </script>
