@@ -2,12 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <!-- Mantém proporção do desktop, sem zoom forçado -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Gestão de RH - Home</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     html, body { height: 100%; }
-    body { overflow-x: hidden; }
+    body {
+      overflow-x: auto; /* permite rolagem horizontal no celular */
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -20,12 +23,16 @@
       padding: 20px 0;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .container {
+      min-width: 1200px;  /* força largura de desktop */
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
     .header {
       background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
       color: #fff;
-      padding: clamp(30px, 6vw, 60px) 20px;
+      padding: 60px 30px;
       text-align: center;
       border-radius: 15px;
       box-shadow: 0 4px 20px rgba(0,0,0,.3);
@@ -46,24 +53,22 @@
     @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     .header-content { position: relative; z-index: 1; }
-    .header-icon { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 20px; color: #4CAF50; }
-    .header h1 { font-size: clamp(1.6rem, 3.5vw, 2.8rem); font-weight: 700; margin-bottom: 15px; }
-    .header h2 { font-size: clamp(1rem, 2.2vw, 1.6rem); font-weight: 400; margin-bottom: 20px; color: #ecf0f1; }
-    .header p { font-size: clamp(0.9rem, 1.5vw, 1.2rem); opacity: .9; max-width: 700px; margin: 0 auto; }
+    .header-icon { font-size: 4em; margin-bottom: 20px; color: #4CAF50; }
+    .header h1 { font-size: 2.8em; font-weight: 700; margin-bottom: 15px; }
+    .header h2 { font-size: 1.6em; font-weight: 400; margin-bottom: 20px; color: #ecf0f1; }
+    .header p { font-size: 1.2em; opacity: .9; max-width: 700px; margin: 0 auto; }
 
-    /* === GRID ADAPTÁVEL (sempre 3 cards lado a lado) === */
     .navigation-grid {
-      display: flex;
-      gap: clamp(10px, 2vw, 30px);
-      justify-content: space-between;
-      flex-wrap: nowrap; /* nunca quebra */
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* sempre 3 colunas */
+      gap: 30px;
+      margin-bottom: 40px;
     }
+
     .nav-card {
-      flex: 1 1 0;
-      min-width: 0;
       background: #2a2a2a;
       border-radius: 15px;
-      padding: clamp(18px, 3vw, 40px);
+      padding: 40px 30px;
       text-align: center;
       box-shadow: 0 8px 25px rgba(0,0,0,.3);
       transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -100,28 +105,28 @@
     .nav-card.onboarding { border-left: 4px solid #2196F3; }
     .nav-card.employees  { border-left: 4px solid #FF9800; }
 
-    .card-icon { font-size: clamp(2rem, 4vw, 3.5rem); margin-bottom: 20px; position: relative; z-index: 1; }
+    .card-icon { font-size: 3.5em; margin-bottom: 20px; position: relative; z-index: 1; }
     .nav-card.evaluation .card-icon { color: #4CAF50; }
     .nav-card.onboarding .card-icon { color: #2196F3; }
     .nav-card.employees  .card-icon { color: #FF9800; }
 
-    .card-title { font-size: clamp(1rem, 2vw, 1.8rem); font-weight: 700; margin-bottom: 15px; color: #fff; position: relative; z-index: 1; }
-    .card-description { font-size: clamp(0.85rem, 1.5vw, 1.1rem); color: #bbb; line-height: 1.6; position: relative; z-index: 1; }
-    .card-features { list-style: none; margin-top: 20px; text-align: left; position: relative; z-index: 1; font-size: clamp(0.8rem, 1.2vw, 1rem); }
+    .card-title { font-size: 1.8em; font-weight: 700; margin-bottom: 15px; color: #fff; position: relative; z-index: 1; }
+    .card-description { font-size: 1.1em; color: #bbb; line-height: 1.6; position: relative; z-index: 1; }
+    .card-features { list-style: none; margin-top: 20px; text-align: left; position: relative; z-index: 1; }
     .card-features li { color: #ddd; margin-bottom: 8px; padding-left: 20px; position: relative; }
     .card-features li::before { content: '✓'; position: absolute; left: 0; color: #4CAF50; font-weight: bold; }
 
     .stats-section {
       background: #2a2a2a;
       border-radius: 15px;
-      padding: clamp(20px, 3vw, 40px);
-      margin: 40px 0;
+      padding: 40px 30px;
+      margin-bottom: 40px;
       box-shadow: 0 8px 25px rgba(0,0,0,.3);
     }
     .stats-title {
       text-align: center;
       color: #fff;
-      font-size: clamp(1.2rem, 2.5vw, 2rem);
+      font-size: 2em;
       margin-bottom: 30px;
       display: flex;
       align-items: center;
@@ -129,21 +134,19 @@
       gap: 15px;
     }
     .stats-grid {
-      display: flex;
-      gap: clamp(10px, 2vw, 25px);
-      justify-content: space-between;
-      flex-wrap: nowrap;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
     }
     .stat-item {
-      flex: 1 1 0;
       background: #3a3a3a;
-      padding: clamp(15px, 2vw, 25px);
+      padding: 25px 20px;
       border-radius: 10px;
       text-align: center;
       border-left: 4px solid #4CAF50;
     }
-    .stat-number { font-size: clamp(1.4rem, 3vw, 2.5rem); font-weight: 700; color: #4CAF50; margin-bottom: 10px; }
-    .stat-label  { color: #ddd; font-size: clamp(0.8rem, 1.5vw, 1.1rem); }
+    .stat-number { font-size: 2.5em; font-weight: 700; color: #4CAF50; margin-bottom: 10px; }
+    .stat-label  { color: #ddd; font-size: 1.1em; }
 
     .footer {
       text-align: center;
@@ -157,7 +160,6 @@
       justify-content: center;
       gap: 30px;
       margin-top: 20px;
-      flex-wrap: wrap;
     }
     .footer-links a { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
     .footer-links a:hover { color: #45a049; }
