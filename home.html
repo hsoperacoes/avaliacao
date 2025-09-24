@@ -166,8 +166,8 @@
     </style>
 </head>
 <body>
-  <!-- ===== WRAPPER DESKTOP-FIT ===== -->
-  <div id="desktop-fit" class="desktop-fit">
+  <!-- WRAPPER DESKTOP-FIT REMOVIDO -->
+  <div>
     <div class="container">
         <!-- Header -->
         <header class="header fade-in">
@@ -260,24 +260,8 @@
   </div><!-- /desktop-fit -->
 
   <script>
-    // ====== Desktop-fit scale (aplica em cada página) ======
-    (function(){
-      const BASE_WIDTH = 1200;
-      const root = document.getElementById('desktop-fit');
-      function applyScale(){
-        if(!root) return;
-        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        const scale = Math.min(1, vw / BASE_WIDTH);
-        root.style.transform = 'scale(' + scale + ')';
-        // altura visual ajustada p/ evitar corte do final da página
-        root.style.height = (1/scale * (window.innerHeight || 0)) + 'px';
-      }
-      let raf; const schedule=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(applyScale);};
-      window.addEventListener('resize', schedule, {passive:true});
-      window.addEventListener('orientationchange', schedule, {passive:true});
-      document.addEventListener('DOMContentLoaded', schedule);
-      schedule();
-    })();
+    // ====== Desktop-fit scale (REMOVIDO) ======
+    // O script de escalonamento foi removido para implementar um design responsivo nativo.
 
     // ====== Sua lógica original (stats) ======
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
@@ -332,3 +316,37 @@
   </script>
 </body>
 </html>
+
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 768px) {
+            .navigation-grid {
+                grid-template-columns: 1fr;
+            }
+            .container { padding: 0 15px; }
+            .header { padding: 40px 20px; margin-bottom: 30px; }
+            .header h1 { font-size: 2em; }
+            .header h2 { font-size: 1.2em; }
+            .header p { font-size: 1em; }
+            .nav-card { padding: 30px 20px; }
+            .card-title { font-size: 1.5em; }
+            .card-description { font-size: 1em; }
+            .stats-section { padding: 30px 20px; }
+            .stats-title { font-size: 1.5em; }
+            .stats-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .stat-number { font-size: 2em; }
+            .stat-label { font-size: 0.9em; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 30px 15px; }
+            .header h1 { font-size: 1.8em; }
+            .header h2 { font-size: 1em; }
+            .header-icon { font-size: 3em; }
+            .nav-card { padding: 25px 15px; }
+            .card-icon { font-size: 3em; }
+            .card-title { font-size: 1.3em; }
+            .stats-title { font-size: 1.3em; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+
