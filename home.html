@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <!-- Força o layout de desktop no celular -->
-  <meta name="viewport" content="width=1200, initial-scale=0.3, user-scalable=yes">
+  <!-- viewport básico, será atualizado via JS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" id="viewport">
   <title>Sistema de Gestão de RH - Home</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -233,6 +233,15 @@
     </footer>
   </div>
   <script>
+    // Escala dinâmica
+    (function(){
+      const layoutWidth = 1200; // largura fixa do layout desktop
+      const scale = window.innerWidth / layoutWidth;
+      const viewport = document.getElementById("viewport");
+      viewport.setAttribute("content", 
+        `width=${layoutWidth}, initial-scale=${scale}, maximum-scale=${scale}, minimum-scale=${scale}`);
+    })();
+
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
     async function loadStatistics() {
       try {
@@ -248,7 +257,7 @@
         }
       } catch (e) { console.warn('Falha stats GAS, usando localStorage.', e); }
       const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
-      const employees   = JSON.parse(localStorage.getItem('employees')   || '[]');
+      const employees   = JSON.parse(localStorage.getItem('employees') || '[]');
       const totalCandidates      = evaluations.length;
       const approvedCandidates   = evaluations.filter(e => String(e.apto_vaga || e.aptoVaga || '').toLowerCase() === 'sim').length;
       const activeEmployees      = employees.length;
