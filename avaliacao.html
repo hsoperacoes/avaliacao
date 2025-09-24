@@ -510,10 +510,11 @@
         if(!root) return;
         const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-        const scale = Math.min(1, vw / BASE_WIDTH); // escala para caber na largura
+
+        // FORÇA ENCAIXE UNIVERSAL NA LARGURA (igual sua 2ª foto)
+        const scale = vw / BASE_WIDTH;
         root.style.transform = 'scale(' + scale + ')';
         root.style.width = BASE_WIDTH + 'px';
-        // altura proporcional para evitar corte de conteúdo ao escalar:
         root.style.height = (vh / scale) + 'px';
       }
 
