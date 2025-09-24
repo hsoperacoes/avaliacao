@@ -1,665 +1,566 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <!-- CORREÇÃO 1: Meta tag viewport para responsividade e zoom de pinça -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5"/>
-  <title>Sistema de Onboarding - Novo Funcionário</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{margin:0;padding:0;background:#1a1a1a;color:#eaeaea;font-family:
-      'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;overflow-x:hidden}
-    body{min-height:100vh;padding:20px 0}
+  <meta charset="UTF-8">
+  <!-- Pinch habilitado; nada de zoom forçado -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
+  <title>Lista de Funcionários - Sistema de RH</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    /* CORREÇÃO 2: Adicionado #page e #wrapper para controle de escala no mobile */
+  <style>
+    /* Base */
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#1a1a1a;color:#333;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6}
+    body{overflow-x:hidden} /* impede scroll lateral no mobile */
+    /* container que segura o wrapper escalado e dá altura correta à página */
     #page{position:relative;width:100%;min-height:100vh;overflow-x:hidden}
+
+    /* wrapper é o layout desktop de 1280p que será escalado no mobile */
     #wrapper{width:1280px;margin:0 auto;transform-origin:top left}
 
-    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    .container{max-width:1400px;margin:0 auto;padding:0 20px}
 
     /* Header */
     .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
-    .header::before{content:
-      '';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
+    .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
     @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
     .header-content{position:relative;z-index:1}
-    .header-icon{font-size:3em;margin-bottom:20px;color:#4CAF50}
+    .header-icon{font-size:3em;margin-bottom:20px;color:#FF9800}
     .header h1{font-size:2.2em;font-weight:700;margin-bottom:10px}
     .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
-    .header p{font-size:1.05em;opacity:.9;max-width:700px;margin:0 auto}
+    .header p{font-size:1.1em;opacity:.9;max-width:600px;margin:0 auto}
 
+    /* Main */
     .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
-    .card{background:#3a3a3a;border-radius:12px;padding:25px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.2)}
-    .card h3{display:flex;align-items:center;gap:10px;margin-bottom:15px}
+    .action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px}
+    .search-container{display:flex;gap:15px;align-items:center;flex:1;max-width:500px}
+    .search-input{flex:1;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
+    .search-input:focus{outline:none;border-color:#FF9800;box-shadow:0 0 0 3px rgba(255,152,0,.2)}
+    .filter-select{background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em;min-width:150px}
 
-    .employee-info{border-left:4px solid #4CAF50}
-    .employee-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;color:#e0e0e0}
-    .employee-details div{background:#4a4a4a;padding:10px 15px;border-radius:8px}
-    .employee-details strong{color:#4CAF50}
-
-    .progress-overview{background:#3a3a3a;border-radius:12px;padding:25px;margin-bottom:30px;border-left:4px solid #2196F3;box-shadow:0 4px 15px rgba(0,0,0,.2)}
-    .progress-overview h3{color:#2196F3;margin-bottom:15px;display:flex;align-items:center;gap:10px}
-    .progress-bar-container{background:#4a4a4a;border-radius:10px;height:20px;overflow:hidden;margin-bottom:10px}
-    .progress-bar{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:width .5s ease;border-radius:10px}
-    .progress-text{color:#e0e0e0;text-align:center;font-weight:600}
-
-    /* Steps */
-    .step-section{background:#3a3a3a;border-radius:12px;margin-bottom:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);border-left:4px solid #FF9800;overflow:hidden}
-    .step-header{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:#fff;padding:20px 25px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all .3s ease}
-    .step-header:hover{background:linear-gradient(135deg,#F57C00 0%,#E65100 100%)}
-    .step-header i{font-size:1.5em}
-    .step-header h3{font-size:1.1em;font-weight:700;margin:0;flex:1}
-    .step-toggle{font-size:1.2em;transition:transform .3s ease}
-    .step-content{padding:22px;display:none}
-    .step-content.active{display:block}
-    .step-badge{font-size:.78rem;font-weight:800;padding:4px 10px;border-radius:999px;line-height:1;background:#666;color:#fff;opacity:.95}
-    .step-header.done .step-badge{background:#2e7d32}
-    .step-header.done{background:linear-gradient(135deg,#2e7d32 0%,#1b5e20 100%) !important}
-
-    .checklist-item{background:#4a4a4a;border:2px solid #555;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;transition:all .25s ease}
-    .checklist-item:hover{border-color:#4CAF50;background:#525252}
-    .checklist-item.completed{background:#2e5233;border-color:#4CAF50}
-    .checklist-item.completed .item-text{text-decoration:line-through;opacity:.85}
-    .checklist-item.disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.25)}
-    .checkbox-custom{width:22px;height:22px;border:2px solid #777;border-radius:6px;position:relative;flex-shrink:0;margin-top:2px}
-    .checklist-item.completed .checkbox-custom{background:#4CAF50;border-color:#4CAF50}
-    .checklist-item.completed .checkbox-custom::after{content:
-      '✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:800;font-size:15px}
-    .item-text{color:#e0e0e0;font-size:1rem;flex:1}
-    .item-note{font-size:.92rem;color:#cfcfcf;margin-top:6px;font-style:italic}
-
-    .action-buttons{display:flex;gap:14px;justify-content:center;margin-top:26px;padding-top:18px;border-top:2px solid #555;flex-wrap:wrap}
-    .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s ease}
+    .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;transition:all .3s ease;text-decoration:none}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
-    .btn-secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
+    .btn-secondary{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:#fff;box-shadow:0 4px 15px rgba(255,152,0,.3)}
+    .btn-info{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
     .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
+
+    .employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-bottom:30px}
+    .employee-card{background:#3a3a3a;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:all .3s ease;border-left:4px solid #FF9800;position:relative;overflow:hidden}
+    .employee-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
+    .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+    .employee-info h3{color:#fff;font-size:1.3em;margin-bottom:5px}
+    .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
+    .employee-info .start-date{color:#bbb;font-size:.9em}
+
+    .status-badge{padding:4px 10px;border-radius:16px;font-size:.75em;font-weight:800;text-transform:uppercase;background:#666;color:#fff;opacity:.95}
+    .status-badge.pending{background:#FFF3E0;color:#F57C00}
+    .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
+    .status-badge.completed{background:#E8F5E8;color:#388E3C}
+
+    .manager-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;font-size:.78em;font-weight:700;background:#424242;color:#e0e0e0;white-space:nowrap}
+    .manager-chip i{font-size:.9em;color:#FFB300}
+
+    .progress-section{margin-bottom:20px}
+    .progress-label{color:#ddd;font-size:.9em;margin-bottom:8px;display:flex;justify-content:space-between}
+    .progress-bar-container{background:#4a4a4a;border-radius:10px;height:8px;overflow:hidden}
+    .progress-bar{height:100%;border-radius:10px;transition:width .5s ease}
+    .progress-bar.pending{background:linear-gradient(90deg,#FF9800,#F57C00)}
+    .progress-bar.in-progress{background:linear-gradient(90deg,#2196F3,#1976D2)}
+    .progress-bar.completed{background:linear-gradient(90deg,#4CAF50,#45a049)}
+
+    .employee-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn-small{padding:8px 15px;font-size:.9em;border-radius:6px}
+
+    .empty-state{text-align:center;padding:60px 20px;color:#888}
+    .empty-state i{font-size:4em;margin-bottom:20px;color:#555}
+    .empty-state h3{font-size:1.5em;margin-bottom:10px}
+    .empty-state p{font-size:1.1em;margin-bottom:25px}
+
+    .fade-in{animation:fadeIn .6s ease-in}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
     .toast.show{opacity:1}
 
-    .fade-in{animation:fadeIn .5s ease-in}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;justify-content:center;align-items:center}
+    .modal-content{background:#2a2a2a;border-radius:15px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555}
+    .close-modal{background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px}
+    .pin-input{width:100%;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
 
-    /* Avaliação (restaurado) */
-    .evaluation-container{display:none;margin-top:15px;padding:15px;background:#444;border-radius:10px;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-    .evaluation-container h4{margin-bottom:12px;color:#fff;font-weight:700}
-    .stars{display:flex;gap:10px;margin-bottom:8px}
-    .star{
-      width:36px;height:36px;border:2px solid #888;border-radius:10px;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:#ccc;transition:.2s;background:#3a3a3a
-    }
-    .star:hover{transform:translateY(-1px)}
-    .star.selected{background:#4CAF50;border-color:#4CAF50;color:#fff}
-    .eval-note{margin-top:2px;font-size:.9rem;color:#ddd;opacity:.85}
-
-    /* Overlay loading (boot + salvar/espera liberação) */
-    .overlay{position:fixed; inset:0; background:rgba(0,0,0,.72); display:none; align-items:center; justify-content:center; z-index:2000}
-    .overlay .box{background:#2a2a2a; border:1px solid #555; border-radius:12px; padding:22px 26px; color:#e0e0e0; box-shadow:0 12px 28px rgba(0,0,0,.45); text-align:center; min-width:300px}
-    .overlay .spinner{font-size:22px;margin-right:10px}
-    .overlay .sub{display:block;margin-top:8px;color:#cfcfcf;font-size:.95rem}
+    /* Loader overlay */
+    .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(1px)}
+    .loader-box{background:#2a2a2a;border:1px solid #444;border-radius:14px;padding:26px 28px;min-width:280px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+    .spinner{width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader-title{color:#fff;font-weight:700;margin-bottom:4px}
+    .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
   </style>
 </head>
 <body>
-  <!-- CORREÇÃO 3: Adicionado #page e #wrapper para controle de escala no mobile -->
   <div id="page">
     <div id="wrapper">
       <div class="container">
         <header class="header">
           <div class="header-content">
-            <i class="fas fa-route header-icon"></i>
-            <h1>SISTEMA DE ONBOARDING</h1>
-            <h2>Jornada do Novo Funcionário</h2>
-            <p>Acompanhe o progresso e marque as etapas concluídas. Para avançar, conclua as tarefas, avalie a etapa e <b>salve o progresso</b>.</p>
+            <i class="fas fa-users header-icon"></i>
+            <h1>LISTA DE FUNCIONÁRIOS</h1>
+            <h2>Gestão de Onboarding</h2>
+            <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
           </div>
         </header>
 
         <div class="main-container">
-          <!-- Dados do funcionário -->
-          <section class="card employee-info">
-            <h3><i class="fas fa-user"></i> Informações do Funcionário</h3>
-            <div class="employee-details">
-              <div><strong>Nome:</strong> <span id="employeeName">—</span></div>
-              <div><strong>Cargo:</strong> <span id="employeePosition">—</span></div>
-              <div><strong>Data de Início:</strong> <span id="startDate">—</span></div>
-              <div><strong>Gerente:</strong> <span id="managerName">—</span></div>
+          <div class="action-bar">
+            <div class="search-container">
+              <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
+              <select class="filter-select" id="statusFilter">
+                <option value="">Todos os status</option>
+                <option value="pending">Pendente</option>
+                <option value="in-progress">Em andamento</option>
+                <option value="completed">Concluído</option>
+              </select>
             </div>
-          </section>
+            <div style="display:flex;gap:15px;flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
+              <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
+              <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
+            </div>
+          </div>
 
-          <!-- Progresso -->
-          <section class="card progress-overview">
-            <h3><i class="fas fa-chart-line"></i> Progresso Geral</h3>
-            <div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>
-            <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
-          </section>
+          <div class="employees-grid" id="employeesGrid"></div>
 
-          <!-- Etapas -->
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step1\')">
-              <i class="fas fa-user-tie"></i><h3>1º Passo - Gerente.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle1" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step1" class="step-content">
-              <div class="checklist-item" data-task-id="1.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.1 - Anúncio de vaga</div></div></div>
-              <div class="checklist-item" data-task-id="1.2" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.2 - Recebimento de currículo</div></div></div>
-              <div class="checklist-item" data-task-id="1.3" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.3 - Compartilhar com Amanda e buscar (Informações)</div></div></div>
-              <div class="checklist-item" data-task-id="1.4" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.4 - Marcar entrevista</div></div></div>
-              <div class="checklist-item" data-task-id="1.5" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.5 - Compartilhar com Silvana para tirar mais uma opinião sobre contratação.</div></div></div>
-              <div class="checklist-item" data-task-id="1.6" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.6 - Validar com Jose Eduardo</div></div></div>
-              <div class="checklist-item" data-task-id="1.7" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.7 - Acionar Amanda para processo. (Registro + Linx + OTO + Academia Hering.)</div></div></div>
-              <div class="evaluation-container" id="eval-step1">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step2\')">
-              <i class="fas fa-calendar-day"></i><h3>2º Passo - Primeiro dia de Trabalho.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle2" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step2" class="step-content">
-              <div class="checklist-item" data-task-id="2.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.1 - Fazer integração na empresa</div></div></div>
-              <div class="checklist-item" data-task-id="2.2" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.2 - Apresentar todas Ferramentas</div></div></div>
-              <div class="checklist-item" data-task-id="2.3" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.3 - Apresentar todo estoque</div></div></div>
-              <div class="checklist-item" data-task-id="2.4" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.4 - Apresentar chão de loja.</div></div></div>
-              <div class="evaluation-container" id="eval-step2">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step3\')">
-              <i class="fas fa-graduation-cap"></i><h3>3º Passo - Segundo Dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle3" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step3" class="step-content">
-              <div class="checklist-item" data-task-id="3.1" onclick="onTaskClick(event,this)">
-                <div class="checkbox-custom"></div>
-                <div>
-                  <div class="item-text">3.1 - Prática com ferramentas e Loja. (Academia Hering, Indeva e Oto)</div>
-                  <div class="item-note">Somente avançar desse passo após completar no Academia Hering as agendas de Boa Vindas, Atendimento 360 e Produto.</div>
-                </div>
-              </div>
-              <div class="evaluation-container" id="eval-step3">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step4\')">
-              <i class="fas fa-layer-group"></i><h3>4º Passo - Terceiro dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle4" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step4" class="step-content">
-              <div class="checklist-item" data-task-id="4.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">4.1 - Conhecer Estoque, conhecer ranking de produtos e sua importância no portifólio das vendas</div></div></div>
-              <div class="evaluation-container" id="eval-step4">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step5\')">
-              <i class="fas fa-calendar-week"></i><h3>5º Passo - Quarto, Quinto e Sexto dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle5" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step5" class="step-content">
-              <div class="checklist-item" data-task-id="5.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">5.1 - Iniciar atendimento com acompanhamento 100% da gerente.</div></div></div>
-              <div class="evaluation-container" id="eval-step5">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep(\'step6\')">
-              <i class="fas fa-check-circle"></i><h3>6º Passo - Sétimo dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle6" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step6" class="step-content">
-              <div class="checklist-item" data-task-id="6.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">6.1 - Validação da semana pelo gerente e repassada</div></div></div>
-              <div class="evaluation-container" id="eval-step6">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Ações (RODAPÉ) -->
-          <div class="action-buttons">
-            <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
-            <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
-            <a href="home.html" class="btn btn-secondary"><i class="fas fa-home"></i> Home</a>
-            <a href="funcionarios.html" class="btn btn-primary"><i class="fas fa-users"></i> Lista</a>
+          <div class="empty-state" id="emptyState" style="display:none;">
+            <i class="fas fa-users-slash"></i>
+            <h3>Nenhum funcionário encontrado</h3>
+            <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
+            <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Overlay (boot + salvar) -->
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="box" role="status" aria-live="polite">
-      <span class="spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
-      <span id="overlayMsg">Carregando progresso, aguarde…</span>
-      <span id="overlaySub" class="sub"></span>
+  <!-- Loader -->
+  <div id="loader" class="loader-overlay" aria-hidden="true">
+    <div class="loader-box">
+      <div class="spinner"></div>
+      <div class="loader-title">Carregando funcionários…</div>
+      <div class="loader-sub">Aguarde enquanto buscamos os dados</div>
+    </div>
+  </div>
+
+  <!-- Modal: adicionar funcionário -->
+  <div class="modal" id="addEmployeeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.5em"><i class="fas fa-user-plus"></i> Adicionar Funcionário</h3>
+        <button class="close-modal" onclick="closeAddEmployeeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="addEmployeeForm">
+        <div class="form-group">
+          <label for="employeeName" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Nome Completo *</label>
+          <input type="text" id="employeeName" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeePosition" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Cargo *</label>
+          <input type="text" id="employeePosition" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeStartDate" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Data de Início *</label>
+          <input type="date" id="employeeStartDate" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeManager" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Gerente Responsável *</label>
+          <input type="text" id="employeeManager" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeEmail" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">E-mail</label>
+          <input type="email" id="employeeEmail" class="pin-input">
+        </div>
+        <div style="display:flex;gap:15px;justify-content:flex-end;margin-top:25px;">
+          <button type="button" class="btn" style="background:#666" onclick="closeAddEmployeeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Funcionário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: PIN -->
+  <div class="modal" id="pinModal">
+    <div class="modal-content" style="max-width:420px">
+      <div class="modal-header">
+        <h3 style="color:#fff;font-size:1.3em"><i class="fas fa-key"></i> Confirme com PIN</h3>
+        <button class="close-modal" onclick="closePinModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div>
+        <p id="pinModalText" style="color:#ddd;margin-bottom:12px">Para prosseguir, digite seu PIN.</p>
+        <input id="pinInput" type="password" class="pin-input" placeholder="Digite seu PIN" autocomplete="new-password">
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:18px">
+          <button class="btn" style="background:#666" onclick="closePinModal()">Cancelar</button>
+          <button id="pinConfirmBtn" class="btn btn-primary"><i class="fas fa-check"></i> Confirmar</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="toast" class="toast">Mensagem</div>
 
   <script>
-    /* ====== CONFIG ====== */
-    const GAS_WEB_APP_URL=\'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec\';
-    const FEEDBACK_AUTO_SEND_ON_COMPLETE = true; // envia link do feedback quando atingir 100%
+    /* ===== CONFIG ===== */
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+    const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
 
-    const STEPS=[
-      {id:1,title:\'1º Passo - Gerente.\',tasks:[\'1.1\',\'1.2\',\'1.3\',\'1.4\',\'1.5\',\'1.6\',\'1.7\']},
-      {id:2,title:\'2º Passo - Primeiro dia de Trabalho.\',tasks:[\'2.1\',\'2.2\',\'2.3\',\'2.4\']},
-      {id:3,title:\'3º Passo - Segundo Dia.\',tasks:[\'3.1\']},
-      {id:4,title:\'4º Passo - Terceiro dia.\',tasks:[\'4.1\']},
-      {id:5,title:\'5º Passo - Quarto, Quinto e Sexto dia.\',tasks:[\'5.1\']},
-      {id:6,title:\'6º Passo - Sétimo dia.\',tasks:[\'6.1\']}
-    ];
-    const ORDERED_TASK_IDS=STEPS.flatMap(s=>s.tasks);
-    const DEFAULT_LOCKED_IDS=new Set([\'1.1\',\'1.2\']);
+    let employees=[];
+    let pinContext = { action:null, employeeId:null, managerName:'' };
 
-    let employeeData={id:null,name:\'—\',position:\'—\',startDate:\'—\',manager:\'—\',email:\'\'};
-    let lockedIndex=-1;
-    let bootPrefilled=false;
-    let ratingsLoaded=false;
-    let lastSavedCheckpoint=0;
-
-    /* ====== Helpers ====== */
-    function ratingsKey(){return\'ratings:\'+(employeeData.id||\'sem_id\')}
-    function fbInviteKey(){return \'fbInviteSent:\'+(employeeData.id||\'sem_id\')}
-    function getRatings(){try{return JSON.parse(localStorage.getItem(ratingsKey())||\'{}\')}catch{return{}}}
-    function setRatings(o){localStorage.setItem(ratingsKey(),JSON.stringify(o||{}))}
-    function hasRating(stepId){const r=getRatings();return!!r[String(stepId)]}
-    function computeContiguousCompletedIndex(){let idx=-1;for(let i=0;i<ORDERED_TASK_IDS.length;i++){if(isTaskCompleted(ORDERED_TASK_IDS[i]))idx=i;else break}return idx}
-    function showToast(msg){const t=document.getElementById(\'toast\');t.textContent=msg;t.classList.add(\'show\');setTimeout(()=>t.classList.remove(\'show\'),2400)}
-    function markTaskUI(taskId,completed){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);if(el)el.classList.toggle(\'completed\',!!completed)}
-    function isTaskCompleted(taskId){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);return!!el&&el.classList.contains(\'completed\')}
-    function getTaskPosition(taskId){const idx=ORDERED_TASK_IDS.indexOf(taskId);let acc=0,stepIndex=0,localIndex=idx;for(let i=0;i<STEPS.length;i++){if(idx<acc+STEPS[i].tasks.length){stepIndex=i;localIndex=idx-acc;break}acc+=STEPS[i].tasks.length}return{stepIndex,localIndex}}
-    function stepIndexOfTask(taskId){return getTaskPosition(taskId).stepIndex}
-    function getCompletedTaskIds(){return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id))}
-    function lastCompletedStep(){let last={stepNumber:null,stepTitle:null};for(const s of STEPS){if(isStepDone(s))last={stepNumber:s.id,stepTitle:s.title};else break}return last}
-    function checkpointStepIndex(){
-      if(lockedIndex<0)return 0;
-      const s=stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
-      let firstIdx=0;for(let i=0;i<s;i++)firstIdx+=STEPS[i].tasks.length;
-      const lastIdxInStep=firstIdx+STEPS[s].tasks.length-1;
-      if(lockedIndex>=lastIdxInStep)return Math.min(s+1,STEPS.length-1);
-      return s;
+    /* ===== Loader helpers ===== */
+    const loaderEl = document.getElementById('loader');
+    function showLoader(msg='Carregando funcionários…', sub='Aguarde enquanto buscamos os dados'){
+      loaderEl.querySelector('.loader-title').textContent = msg;
+      loaderEl.querySelector('.loader-sub').textContent = sub;
+      loaderEl.style.display='flex';
+      loaderEl.setAttribute('aria-hidden','false');
     }
-    function isStepDone(s){return s.tasks.every(t=>isTaskCompleted(t))&&hasRating(s.id)}
-
-    /* ====== OVERLAY control ====== */
-    const overlayEl = document.getElementById(\'overlay\');
-    const overlayMsg = document.getElementById(\'overlayMsg\');
-    const overlaySub = document.getElementById(\'overlaySub\');
-
-    function setOverlay(show, msg=\'Processando…\', sub=\'\'){
-      overlayMsg.textContent = msg;
-      overlaySub.textContent = sub || \'\';
-      overlayEl.style.display = show ? \'flex\' : \'none\';
-      overlayEl.setAttribute(\'aria-hidden\', show ? \'false\' : \'true\');
-      document.body.style.pointerEvents = show ? \'none\' : \'auto\';
+    function hideLoader(){
+      loaderEl.style.display='none';
+      loaderEl.setAttribute('aria-hidden','true');
     }
 
-    // Poll no GAS até a próxima etapa estar realmente liberada
-    async function waitForNextCheckpoint(previousCheckpoint, {timeoutMs=15000, intervalMs=900} = {}) {
-      const start = Date.now();
-      while (Date.now() - start < timeoutMs) {
-        try {
-          const r = await fetch(`${GAS_WEB_APP_URL}?type=onboarding-load&id=${encodeURIComponent(employeeData.id)}`, {cache:\'no-store\'});
-          const out = await r.json();
-          if (out?.ok && out.record) {
-            // Rehidrata UI
-            ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
-            (out.record.completedTasks || []).forEach(id => markTaskUI(id,true));
-            lockedIndex = (typeof out.record.lockedIndex === \'number\')
-              ? out.record.lockedIndex
-              : computeContiguousCompletedIndex();
+    /* ===== Utilitários ===== */
+    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    function escapeJs(s){return String(s||'').replace(/['"\\]/g,'\\$&')}
+    function formatDate(d){if(!d)return'—';const dt=new Date(d);return isNaN(dt)?String(d):dt.toLocaleDateString('pt-BR')}
+    function getStatusText(s){const map={'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído'};return map[s]||s||'Pendente'}
+    function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-            applySequentialLocking();
-            updateStepStatuses();
-            updateProgressBar();
+    /* ===== Denylist local ===== */
+    function getRemovedSet(){const raw=localStorage.getItem('employees_removed');try{return new Set(JSON.parse(raw||'[]'))}catch(_){return new Set()}}
+    function markRemoved(id){const s=getRemovedSet();s.add(String(id));localStorage.setItem('employees_removed',JSON.stringify([...s]))}
+    function clearLocalCaches(){localStorage.removeItem('employees');localStorage.removeItem('employees_sync');localStorage.removeItem('currentEmployee')}
 
-            const cp = checkpointStepIndex();
-            if (cp > previousCheckpoint) {
-              // >>> ATUALIZA checkpoint local quando liberar <<<
-              lastSavedCheckpoint = cp;
-              return true; // liberou!
-            }
-          }
-        } catch(_) {}
-        await new Promise(r => setTimeout(r, intervalMs));
-      }
-      return false; // estourou tempo
+    /* ===== Normalização ===== */
+    function derivePct(rec){
+      const fromBackend=Math.max(Number(rec.progressPct||0), Number(rec.progress||0));
+      if(fromBackend>0) return fromBackend;
+      const st=String(rec.status||'').toLowerCase();
+      return (st===''||st==='pending')?SEEDED_PCT:0;
+    }
+    function computeStatus(p, rec){
+      const locked = String(rec?.locked || 'yes') !== 'no';
+      if (locked) return 'pending';
+      if (p>=100) return 'completed';
+      if (p>0) return 'in-progress';
+      return 'pending';
+    }
+    function normalizeEmployee(rec){
+      const id=rec.employeeId||rec.id||String(Date.now());
+      const pct=derivePct(rec);
+      return {
+        id, employeeId:id,
+        name:rec.name||'', position:rec.position||'', startDate:rec.startDate||'',
+        manager:rec.manager||'', email:rec.email||'',
+        progressPct:pct, progress:pct,
+        locked:String(rec.locked||'yes'),
+        validatedBy:Array.isArray(rec.validatedBy)?rec.validatedBy:[]
+      };
+    }
+    function saveEmployeesLocal(arr){
+      localStorage.setItem('employees_sync', JSON.stringify(arr));
+      const legacy=arr.map(e=>({...e, progress:e.progressPct}));
+      localStorage.setItem('employees', JSON.stringify(legacy));
     }
 
-    /* ====== Boot ====== */
-    document.addEventListener(\'DOMContentLoaded\',()=>{
-      setOverlay(true,\'Carregando progresso, aguarde…\');
-      loadCurrentEmployee(); renderEmployeeInfo();
-      prefillIfNew();
-      fetchEmployeeFull();
-      hydrateFromBackend().finally(()=>{
-        applySequentialLocking();updateProgressBar();updateStepStatuses();updateEvaluations();restoreRatingsUI();
-        toggleStep(\'step1\');
-        document.querySelectorAll(\'.step-section\').forEach((s,i)=>{s.style.animationDelay=(i*0.06)+\'s\';s.classList.add(\'fade-in\')});
-        lastSavedCheckpoint=checkpointStepIndex();
-        setOverlay(false);
-        scheduleScale(); // CORREÇÃO 4: Chama a função de escala no carregamento
+    /* ===== Backend ===== */
+    async function fetchEmployeesFromBackend(){
+      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
+      const res = await fetch(url, { cache:'no-store' });
+      if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
+      const data = await res.json();
+      const rows = Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
+      return rows;
+    }
+
+    /* ===== Render ===== */
+    function renderEmployees(filtered=null){
+      const grid=document.getElementById('employeesGrid');
+      const emptyState=document.getElementById('emptyState');
+      const list=(filtered||employees);
+
+      if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; scheduleScale(); return; }
+      grid.style.display='grid'; emptyState.style.display='none';
+
+      grid.innerHTML=list.map(emp=>{
+        const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
+        const stt=computeStatus(pct, emp);
+        const isLocked=String(emp.locked||'yes')!=='no';
+        const vBy=(emp.validatedBy||[]).join(', ');
+        const id = (emp.employeeId||emp.id);
+        const concludeBtn = (pct>=100)
+          ? `<button class="btn btn-small" style="background:#2e7d32;color:#fff" onclick="concludeEmployeeSecured('${id}')"><i class="fas fa-check-double"></i> Concluir</button>`
+          : '';
+        return `
+          <div class="employee-card fade-in">
+            <div class="employee-header">
+              <div class="employee-info">
+                <h3>${escapeHtml(emp.name)}</h3>
+                <div class="position">${escapeHtml(emp.position||'')}</div>
+                <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
+                ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+                <span class="manager-chip" title="Gerente que cadastrou"><i class="fas fa-user-tie"></i> Gerente: ${escapeHtml(emp.manager || '—')}</span>
+                ${isLocked
+                  ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
+                  : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
+                }
+                <div class="status-badge ${stt}">${getStatusText(stt)}</div>
+              </div>
+            </div>
+            <div class="progress-section">
+              <div class="progress-label"><span>Progresso do Onboarding</span><span>${pct}%</span></div>
+              <div class="progress-bar-container"><div class="progress-bar ${stt}" style="width:${pct}%"></div></div>
+            </div>
+            <div class="employee-actions">
+              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-play"></i> Onboarding</button>
+              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${id}')"><i class="fas fa-eye"></i> Detalhes</button>
+              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
+              <button class="btn btn-small" style="background:#f44336;color:#fff" onclick="removeEmployeeSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
+              ${concludeBtn}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      scheduleScale(); /* reescala após montar a grid */
+    }
+
+    /* ===== Eventos UI ===== */
+    function setupEventListeners(){
+      document.getElementById('searchInput').addEventListener('input', filterEmployees);
+      document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+      document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
+      document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
+
+      document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
+      document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
+      document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
+
+      window.addEventListener('resize', scheduleScale, {passive:true});
+      window.addEventListener('orientationchange', scheduleScale, {passive:true});
+    }
+
+    function filterEmployees(){
+      const term=document.getElementById('searchInput').value.toLowerCase();
+      const status=document.getElementById('statusFilter').value;
+      const filtered=employees.filter(e=>{
+        const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
+        const pct=derivePct(e); const stt=computeStatus(pct, e);
+        const matchesStatus=!status || stt===status;
+        return matchesSearch && matchesStatus;
       });
-    });
-
-    function prefillIfNew(){
-      markTaskUI(\'1.1\',true);
-      markTaskUI(\'1.2\',true);
-      bootPrefilled=true;
-      lockedIndex=Math.max(lockedIndex,ORDERED_TASK_IDS.indexOf(\'1.2\'));
+      renderEmployees(filtered);
     }
 
-    async function fetchEmployeeFull(){
-      if(!employeeData.id) return;
+    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
+    function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
+
+    async function handleAddEmployee(e){
+      e.preventDefault();
+      const record={
+        id:'emp-'+Date.now(),
+        name:document.getElementById('employeeName').value.trim(),
+        position:document.getElementById('employeePosition').value.trim(),
+        startDate:document.getElementById('employeeStartDate').value,
+        manager:document.getElementById('employeeManager').value.trim(),
+        email:document.getElementById('employeeEmail').value.trim(),
+        status:'pending', progress:0, locked:'yes'
+      };
       try{
-        const r=await fetch(`${GAS_WEB_APP_URL}?type=employees-get&id=${encodeURIComponent(employeeData.id)}`,{cache:\'no-store\'});
-        const out=await r.json();
-        if(out?.ok && out.record){
-          employeeData.email = out.record.email || \'\';
-        }
-      }catch(_){}
-    }
-
-    async function hydrateFromBackend(){
-      if(!employeeData.id) return;
-      try{
-        const r=await fetch(GAS_WEB_APP_URL+\'?type=onboarding-load&id=\'+encodeURIComponent(employeeData.id),{cache:\'no-store\'});
-        const out=await r.json(); if(out?.ok&&out.record){
-          bootPrefilled=false;ORDERED_TASK_IDS.forEach(id=>markTaskUI(id,false));
-          (out.record.completedTasks||[]).forEach(id=>markTaskUI(id,true));
-          lockedIndex=(typeof out.record.lockedIndex===\'number\')?out.record.lockedIndex:computeContiguousCompletedIndex();
-        }
-      }catch(e){console.warn(\'onboarding-load falhou:\',e)}
-      try{
-        const r=await fetch(GAS_WEB_APP_URL+\'?type=ratings-load&id=\'+encodeURIComponent(employeeData.id),{cache:\'no-store\'});
-        const out=await r.json(); if(out?.ok&&out.ratings){setRatings(out.ratings);ratingsLoaded=true}
-      }catch(e){console.warn(\'ratings-load falhou:\',e)}
-    }
-
-    /* ====== UI ====== */
-    function toggleStep(stepDomId){
-      const content=document.getElementById(stepDomId);
-      const toggle=document.getElementById(\'toggle\'+stepDomId.slice(-1));
-      const stepNum=parseInt(stepDomId.replace(\'step\',\'\'),10);
-      const nextAllowed=lastSavedCheckpoint+1;
-      if(stepNum>nextAllowed){showToast(\'Para abrir esta etapa, conclua as anteriores, avalie e clique em "Salvar Progresso".\');return}
-      document.querySelectorAll(\'.step-content\').forEach(s=>{if(s.id!==stepDomId)s.classList.remove(\'active\')});
-      document.querySelectorAll(\'.step-toggle\').forEach(i=>{if(i.id!==\'toggle\'+stepDomId.slice(-1))i.style.transform=\'rotate(0)\'});
-      content.classList.toggle(\'active\');toggle.style.transform=content.classList.contains(\'active\')?\'rotate(180deg)\':\'rotate(0)\'};
-
-    function onTaskClick(ev,el){
-      if(el.classList.contains(\'disabled\')){showToast(\'Conclua as etapas anteriores primeiro.\');return}
-      const id=el.dataset.taskId;const idx=ORDERED_TASK_IDS.indexOf(id);const next=nextAvailableTaskId();const isDone=el.classList.contains(\'completed\');
-      if((DEFAULT_LOCKED_IDS.has(id)&&bootPrefilled)||(isDone&&idx<=lockedIndex)){showToast(DEFAULT_LOCKED_IDS.has(id)?\'Essa tarefa é padrão do processo e não pode ser desmarcada.\':\'Essa etapa já foi confirmada anteriormente.\');return}
-      if(!isDone&&id!==next){showToast(\'Você só pode concluir a próxima tarefa disponível.\');return}
-      el.classList.toggle(\'completed\');
-      applySequentialLocking();updateProgressBar();maybeOpenNextStep(id);updateStepStatuses();updateEvaluations();
-    }
-
-    function maybeOpenNextStep(taskId){
-      const {stepIndex}=getTaskPosition(taskId);const step=STEPS[stepIndex];
-      if(!step.tasks.every(t=>isTaskCompleted(t)))return;
-      if(!hasRating(step.id)){const c=document.getElementById(\'eval-step\'+step.id);if(c)c.style.display=\'block\';showToast(\'Avalie esta etapa para liberar a próxima.\');return}
-      if(checkpointStepIndex()===stepIndex){showToast(\'Clique em "Salvar Progresso" para liberar a próxima etapa.\');return}
-      if(stepIndex<STEPS.length-1)toggleStep(\'step\'+STEPS[stepIndex+1].id);
-    }
-
-    function nextAvailableTaskId(){
-      for(const step of STEPS){
-        for(const id of step.tasks){if(!isTaskCompleted(id))return id}
-        if(!hasRating(step.id))return null
-      }
-      return null;
-    }
-
-    function applySequentialLocking(){
-      const next=nextAvailableTaskId();
-      document.querySelectorAll(\'.checklist-item\').forEach(el=>{
-        const id=el.dataset.taskId;if(!id)return;
-        const idx=ORDERED_TASK_IDS.indexOf(id);
-        const mustLock=(idx<=lockedIndex)||(DEFAULT_LOCKED_IDS.has(id)&&bootPrefilled);
-        if(mustLock){el.classList.add(\'disabled\');return}
-        if(isTaskCompleted(id)||(next&&id===next)){el.classList.remove(\'disabled\')}else{el.classList.add(\'disabled\')}
-      });
-    }
-
-    function updateProgressBar(){
-      const all=ORDERED_TASK_IDS.length;
-      const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;
-      const pct=all?Math.round((done/all)*100):0;
-      document.getElementById(\'progressBar\').style.width=pct+\'%\';
-      document.getElementById(\'progressText\').textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
-    }
-
-    function updateStepStatuses(){
-      STEPS.forEach(step=>{
-        const header=document.querySelector(`#step${step.id}`).previousElementSibling;if(!header)return;
-        let badge=header.querySelector(\'.step-badge\');
-        if(!badge){
-          badge=document.createElement(\'span\');badge.className=\'step-badge\';
-          const chev=header.querySelector(\'.step-toggle\');header.insertBefore(badge,chev)
-        }
-        header.classList.toggle(\'done\',isStepDone(step));
-        badge.textContent=isStepDone(step)?\'Concluído\':\'Em andamento\';
-      });
-    }
-
-    function updateEvaluations(){STEPS.forEach(s=>{const c=document.getElementById(\'eval-step\'+s.id);if(c)c.style.display=s.tasks.every(t=>isTaskCompleted(t))?\'block\':\'none\'})}
-
-    document.addEventListener(\'click\',async e=>{
-      if(!e.target.classList.contains(\'star\'))return;
-      const val=parseInt(e.target.dataset.value,10);
-      const container=e.target.closest(\'.evaluation-container\');
-      const stepId=parseInt(container.id.replace(\'eval-step\',\'\'),10);
-      const parent=container.querySelector(\'.stars\');
-      parent.querySelectorAll(\'.star\').forEach(st=>{st.classList.toggle(\'selected\',parseInt(st.dataset.value,10)<=val)});
-      const r=getRatings();r[String(stepId)]=val;setRatings(r);
-      try{
-        await fetch(GAS_WEB_APP_URL,{method:\'POST\',headers:{\'Content-Type\':\'text/plain\'},body:JSON.stringify({type:\'ratings-save\',employeeId:employeeData.id,ratings:r})});
-      }catch(err){console.warn(\'ratings-save falhou\',err)}
-      applySequentialLocking();updateStepStatuses();
-      // >>> Atualiza checkpoint local após avaliar a etapa <<<
-      lastSavedCheckpoint = checkpointStepIndex();
-    });
-
-    function restoreRatingsUI(){
-      const ratings=getRatings();
-      Object.keys(ratings).forEach(stepId=>{
-        const val=ratings[stepId];
-        document.querySelectorAll(\'#eval-step\'+stepId+\' .star\').forEach(st=>st.classList.toggle(\'selected\',parseInt(st.dataset.value,10)<=val))
-      })
-    }
-
-    /* ====== SAVE / REPORT / FEEDBACK ====== */
-    async function onSaveClick(){
-      // Mantém overlay durante todo o fluxo
-      setOverlay(true,\'Salvando progresso…\',\'Sincronizando com a planilha\');
-      const beforeCheckpoint = checkpointStepIndex();
-      const reportText=buildTxtReport();
-
-      try{
-        const completed=getCompletedTaskIds();
-        const pct=ORDERED_TASK_IDS.length?Math.round((completed.length/ORDERED_TASK_IDS.length)*100):0;
-        const stepInfo=lastCompletedStep();
-        const newLockedIndex=computeContiguousCompletedIndex();
-
-        const payload={type:\'onboarding-save\',notify:true,record:{
-          id:employeeData.id,name:employeeData.name,position:employeeData.position,startDate:employeeData.startDate,manager:employeeData.manager,
-          onboardingData:{completedTasks:completed,lockedIndex:newLockedIndex},
-          progress:pct,status:pct===0?\'pending\':(pct===100?\'completed\':\'in-progress\'),
-          lastStepNumber:stepInfo.stepNumber,lastStepTitle:stepInfo.stepTitle
-        },reportText};
-
-        // 1) Salvar Onboarding (dispara e-mail do relatório no GAS)
-        const res=await fetch(GAS_WEB_APP_URL,{method:\'POST\',headers:{\'Content-Type\':\'text/plain\'},body:JSON.stringify(payload)});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||\'Falha ao salvar\');
-
-        // 2) Salvar Ratings
-        setOverlay(true,\'Enviando avaliação…\',\'Atualizando notas da etapa\');
-        const r=getRatings();
-        await fetch(GAS_WEB_APP_URL,{method:\'POST\',headers:{\'Content-Type\':\'text/plain\'},body:JSON.stringify({type:\'ratings-save\',employeeId:employeeData.id,ratings:r})});
-
-        // 3) Atualiza checkpoints locais e UI
-        lockedIndex=newLockedIndex;
-        applySequentialLocking();updateStepStatuses();updateProgressBar();
-        // >>> Garante abertura local da próxima etapa
-        lastSavedCheckpoint = checkpointStepIndex();
-
-        // 4) Se concluiu 100%, dispara convite de feedback
-        if (FEEDBACK_AUTO_SEND_ON_COMPLETE && pct===100){
-          setOverlay(true,\'Enviando convite de feedback…\',\'Aguarde enquanto preparamos o e-mail\');
-          await ensureFeedbackInviteSent();
-        }
-
-        // 5) Espera liberação REAL da próxima etapa (poll no GAS) com timeout
-        setOverlay(true,\'Liberando próxima etapa…\',\'Validando informações no servidor\');
-        const unlocked = await waitForNextCheckpoint(beforeCheckpoint, {timeoutMs: 15000, intervalMs: 900});
-
-        // feedback visual do botão
-        const btn=document.getElementById(\'saveBtn\');const txt=btn.innerHTML;btn.innerHTML=\'<i class="fas fa-check"></i> Salvo!\';
-        setTimeout(()=>btn.innerHTML=txt,1500);
-
-        showToast(unlocked ? \'Progresso salvo e próxima etapa liberada.\' : \'Progresso salvo. A liberação pode levar alguns instantes.\');
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
+        const newEmp=normalizeEmployee({ ...record, employeeId: out.employeeId || record.id });
+        employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
+        toast('Funcionário salvo (Sheets) e sincronizado.');
       }catch(err){
-        console.error(err);
-        showToast(\'Falha ao contatar o Web App.\');
-      }finally{
-        setOverlay(false);
+        const newEmp=normalizeEmployee(record); employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
+        toast('Sem backend. Salvo apenas neste dispositivo.');
       }
     }
 
-    async function ensureFeedbackInviteSent(){
+    /* ===== Fluxos com PIN ===== */
+    function viewDetailsSecured(id){
+      pinContext = { action:'details', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    async function validateEmployee(id){
+      const pin=prompt('PIN do validador (para desbloquear):');
+      if(!pin) return;
       try{
-        if (localStorage.getItem(fbInviteKey())===\'yes\') return; // já enviou
-        const body={type:\'feedback-send\', employeeId: employeeData.id};
-        const r=await fetch(GAS_WEB_APP_URL,{method:\'POST\',headers:{\'Content-Type\':\'text/plain\'},body:JSON.stringify(body)});
-        const out=await r.json();
-        if(out?.ok){
-          localStorage.setItem(fbInviteKey(),\'yes\');
-          showToast(\'Convite de feedback enviado por e-mail.\');
-        }else{
-          console.warn(\'feedback-send falhou\',out);
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employee-validate',id,pin})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha na validação');
+        const idx=employees.findIndex(e=>(e.employeeId||e.id)===id);
+        if(idx>=0){ employees[idx].locked='no'; employees[idx].validatedBy=out.validators||[]; saveEmployeesLocal(employees); renderEmployees(); }
+        toast(`Validado por ${out.validator}`);
+      }catch(err){ toast(String(err.message||err)); }
+    }
+    function startOnboardingSecured(id, managerName){
+      const emp=employees.find(e=>(e.employeeId||e.id)===id);
+      if(!emp) return;
+      if(String(emp.locked||'yes')!=='no'){ toast('Este candidato ainda não foi validado por um gestor.'); return; }
+      pinContext = { action:'start', employeeId:id, managerName:managerName||'' };
+      document.getElementById('pinModalText').textContent = 'Digite o PIN do gerente para iniciar o onboarding.';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    function removeEmployeeSecured(id, managerName){
+      pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
+      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN (master ou do gerente).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    function concludeEmployeeSecured(id){
+      pinContext = { action:'conclude', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+
+    function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
+    function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
+
+    async function confirmPinAction(){
+      const pin = document.getElementById('pinInput').value.trim();
+      if(!pin){ toast('Informe o PIN.'); return; }
+
+      try{
+        if(pinContext.action==='details'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
+          closePinModal();
+          const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
+          const pct=derivePct(e); const stt=computeStatus(pct, e);
+          alert(`Detalhes do Funcionário:\n\nNome: ${e.name}\nCargo: ${e.position}\nData de Início: ${formatDate(e.startDate)}\nGerente: ${e.manager}\nE-mail: ${e.email || 'Não informado'}\nStatus: ${getStatusText(stt)}\nProgresso: ${pct}%\n\n(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
         }
-      }catch(e){
-        console.warn(\'feedback-send erro\',e);
+
+        if(pinContext.action==='start'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
+          closePinModal();
+          const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId); if(!emp) return;
+          const pct=derivePct(emp);
+          const payload={ id:pinContext.employeeId, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
+          localStorage.setItem('currentEmployee', JSON.stringify(payload));
+          window.location.href='onboarding.html';
+        }
+
+        if(pinContext.action==='remove'){
+          let ok=false;
+          try{ const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})}); const out = await r.json(); ok = !!out.ok; }catch(_){}
+          if(!ok){
+            const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
+            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
+            const out2 = await r2.json(); ok = !!out2.ok;
+          }
+          if(!ok) throw new Error('PIN inválido para esta ação.');
+
+          const delRes = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})});
+          const delOut = await delRes.json(); if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
+
+          markRemoved(pinContext.employeeId);
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          clearLocalCaches();
+          renderEmployees();
+          closePinModal();
+          toast('Candidato removido (arquivado na planilha).');
+          await reloadFromBackend();
+        }
+
+        if(pinContext.action==='conclude'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
+
+          const res = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete',id:pinContext.employeeId,mode:'soft',reason:'concluded',pin,role:'master'})});
+          const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
+
+          markRemoved(pinContext.employeeId);
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          renderEmployees();
+          closePinModal();
+          toast('Onboarding concluído e arquivado.');
+          await reloadFromBackend();
+        }
+
+      }catch(err){ toast(String(err.message||err)); }
+    }
+
+    /* ===== Fluxo principal ===== */
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      setupEventListeners();
+      const today=new Date().toISOString().split('T')[0];
+      const startDateInput=document.getElementById('employeeStartDate'); if(startDateInput) startDateInput.value=today;
+      await loadEmployees();
+      scheduleScale(); /* garante escala inicial no mobile */
+    });
+
+    async function loadEmployees(){
+      showLoader();
+      try{
+        let items=await fetchEmployeesFromBackend();
+        items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
+        const removed = getRemovedSet();
+        employees = items.map(normalizeEmployee).filter(e => !removed.has(String(e.employeeId||e.id)));
+        saveEmployeesLocal(employees);
+        renderEmployees();
+      }catch(err){
+        const saved=localStorage.getItem('employees_sync')||localStorage.getItem('employees');
+        const removed = getRemovedSet();
+        employees = saved?JSON.parse(saved):[];
+        employees = employees.filter(e => {
+          const st = String(e.status||'').toLowerCase();
+          const id = String(e.employeeId||e.id);
+          return st !== 'archived' && !removed.has(id);
+        });
+        renderEmployees();
+        toast('Sem conexão com o backend. Carregado do dispositivo.');
+      } finally {
+        hideLoader();
       }
     }
 
-    function buildTxtReport(){
-      const completed=getCompletedTaskIds();
-      const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
-      const all=ORDERED_TASK_IDS.length,done=completed.length,pct=all?Math.round((done/all)*100):0;
-      const today=new Date().toLocaleDateString(\'pt-BR\',{timeZone:\'America/Sao_Paulo\'});const ratings=getRatings();
-      const lines=[
-        \'RELATÓRIO DE ONBOARDING\',\'\',
-        `Funcionário: ${employeeData.name}`,
-        `Cargo: ${employeeData.position}`,
-        `Data de Início: ${employeeData.startDate}`,
-        `Gerente: ${employeeData.manager}`,
-        `Data do Relatório: ${today}`,
-        \'\',
-        \'PROGRESSO GERAL\',
-        `Total de tarefas: ${all}`,
-        `Tarefas concluídas: ${done}`,
-        `Percentual: ${pct}%`,
-        \'\',
-        \'TAREFAS CONCLUÍDAS:\',
-        ...completed.map(id=>\'✓ \'+getTaskTextById(id)),
-        \'\',
-        \'TAREFAS PENDENTES:\',
-        ...pending.map(id=>\'○ \'+getTaskTextById(id)),
-        \'\',
-        \'AVALIAÇÕES POR ETAPA (1–5):\',
-        ...STEPS.map(s=>`- ${s.title}: ${ratings[String(s.id)]?ratings[String(s.id)]+\'/5\':\'sem avaliação\'}`)
-      ];
-      return lines.join(\'\\n\');
+    async function reloadFromBackend(){
+      showLoader('Sincronizando…','Atualizando dados com o servidor');
+      try{
+        employees=[]; renderEmployees();
+        await loadEmployees();
+      }catch(_){ hideLoader(); }
     }
 
-    function generateReportTXT(){
-      const content=buildTxtReport();
-      const blob=new Blob([content],{type:\'text/plain;charset=utf-8\'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement(\'a\');
-      const safe=(employeeData.name||\'Funcionario\').replace(/\\s+/g,\'_\');
-      const iso=new Date().toISOString().slice(0,10);
-      a.href=url;a.download=`relatorio_onboarding_${safe}_${iso}.txt`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-    }
-
-    function loadCurrentEmployee(){
-      const s=localStorage.getItem(\'currentEmployee\');
-      if(s){
-        const e=JSON.parse(s);
-        employeeData={id:e.id,name:e.name,position:e.position,startDate:formatDate(e.startDate),manager:e.manager,email:e.email||\'\'}
-      }
-      renderEmployeeInfo()
-    }
-    function renderEmployeeInfo(){
-      document.getElementById(\'employeeName\').textContent=employeeData.name;
-      document.getElementById(\'employeePosition\').textContent=employeeData.position;
-      document.getElementById(\'startDate\').textContent=employeeData.startDate;
-      document.getElementById(\'managerName\').textContent=employeeData.manager;
-    }
-    function formatDate(s){const d=new Date(s);return isNaN(d)?String(s):d.toLocaleDateString(\'pt-BR\')}
-    function getTaskTextById(id){const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`);return el?el.textContent.trim():id}
-
-    // CORREÇÃO 5: Adiciona as funções de escala para mobile
+    /* ===== Escala automática para mobile (sem afetar desktop) ===== */
     let scaleRaf=null;
     function scheduleScale(){ cancelAnimationFrame(scaleRaf); scaleRaf=requestAnimationFrame(applyScale); }
     function applyScale(){
       const base=1280;
-      const wrapper=document.getElementById(\'wrapper\');
-      const page=document.getElementById(\'page\');
+      const wrapper=document.getElementById('wrapper');
+      const page=document.getElementById('page');
       if(!wrapper||!page) return;
 
       const vw = Math.max(document.documentElement.clientWidth, window.innerWidth||0);
       const scale = Math.min(1, vw / base);  // desktop => 1; mobile => <1
 
-      wrapper.style.transform = (scale<1) ? `scale(${scale})` : \'none\';
-      wrapper.style.marginLeft = (scale<1) ? \'0\' : \'auto\';
-      wrapper.style.marginRight = (scale<1) ? \'0\' : \'auto\';
+      wrapper.style.transform = (scale<1) ? `scale(${scale})` : 'none';
+      wrapper.style.marginLeft = (scale<1) ? '0' : 'auto';
+      wrapper.style.marginRight = (scale<1) ? '0' : 'auto';
 
       // ajusta altura visual do container para o conteúdo escalado
       // (offsetHeight é a altura "não escalada")
       const scaledH = wrapper.offsetHeight * (scale<1 ? scale : 1);
-      page.style.height = scaledH + \'px\';
+      page.style.height = scaledH + 'px';
     }
-    window.addEventListener(\'resize\', scheduleScale);
   </script>
 </body>
 </html>
-
-
