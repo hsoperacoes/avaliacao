@@ -2,17 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- viewport correto p/ mobile + notch -->
-    <meta name="viewport" content="width=1200, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Sistema de Gestão de RH - Home</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* ====== Desktop-fit (fixa a largura como no PC e escala no celular) ====== */
-        .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
         html,body{ height:100%; }
-        /* body{ overflow-x:hidden; } */
-
-        /* Reset e configurações básicas */
+        body{ overflow-x:hidden; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,8 +18,6 @@
             padding: 20px 0;
         }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-
-        /* Header */
         .header {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: #fff;
@@ -52,8 +45,6 @@
         .header h1 { font-size: 2.8em; font-weight: 700; margin-bottom: 15px; }
         .header h2 { font-size: 1.6em; font-weight: 400; margin-bottom: 20px; color: #ecf0f1; }
         .header p { font-size: 1.2em; opacity: .9; max-width: 700px; margin: 0 auto; }
-
-        /* Cards de navegação */
         .navigation-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -108,8 +99,6 @@
         .card-features { list-style: none; margin-top: 20px; text-align: left; position: relative; z-index: 1; }
         .card-features li { color: #ddd; margin-bottom: 8px; padding-left: 20px; position: relative; }
         .card-features li::before { content: '✓'; position: absolute; left: 0; color: #4CAF50; font-weight: bold; }
-
-        /* Estatísticas */
         .stats-section {
             background: #2a2a2a;
             border-radius: 15px;
@@ -141,8 +130,6 @@
         }
         .stat-number { font-size: 2.5em; font-weight: 700; color: #4CAF50; margin-bottom: 10px; }
         .stat-label { color: #ddd; font-size: 1.1em; }
-
-        /* Footer */
         .footer {
             text-align: center;
             color: #888;
@@ -158,18 +145,13 @@
         }
         .footer-links a { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
         .footer-links a:hover { color: #45a049; }
-
-        /* Animações */
         .fade-in { animation: fadeIn 0.8s ease-in; }
         @keyframes fadeIn { from {opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);} }
         @keyframes slideInUp { to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-  <!-- ===== WRAPPER DESKTOP-FIT ===== -->
-  <div id="desktop-fit" class="desktop-fit">
     <div class="container">
-        <!-- Header -->
         <header class="header fade-in">
             <div class="header-content">
                 <i class="fas fa-users-cog header-icon"></i>
@@ -178,8 +160,6 @@
                 <p>Gerencie todo o processo desde a avaliação de candidatos até o onboarding completo dos novos funcionários</p>
             </div>
         </header>
-
-        <!-- Navegação Principal -->
         <div class="navigation-grid">
             <a href="avaliacao.html" class="nav-card evaluation">
                 <i class="fas fa-user-check card-icon"></i>
@@ -193,7 +173,6 @@
                     <li>Envio automático por email</li>
                 </ul>
             </a>
-
             <a href="funcionarios.html" class="nav-card employees">
                 <i class="fas fa-users card-icon"></i>
                 <h3 class="card-title">Lista de Funcionários</h3>
@@ -206,7 +185,6 @@
                     <li>Gestão centralizada</li>
                 </ul>
             </a>
-
             <a href="onboarding.html" class="nav-card onboarding">
                 <i class="fas fa-route card-icon"></i>
                 <h3 class="card-title">Sistema de Onboarding</h3>
@@ -220,8 +198,6 @@
                 </ul>
             </a>
         </div>
-
-        <!-- Estatísticas -->
         <div class="stats-section fade-in">
             <h3 class="stats-title">
                 <i class="fas fa-chart-bar"></i>
@@ -246,8 +222,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Footer -->
         <footer class="footer">
             <p>&copy; 2025 Sistema de Gestão de RH. Desenvolvido para otimizar processos de recursos humanos.</p>
             <div class="footer-links">
@@ -257,31 +231,8 @@
             </div>
         </footer>
     </div>
-  </div><!-- /desktop-fit -->
-
   <script>
-    // ====== Desktop-fit scale (aplica em cada página) ======
-    (function(){
-      const BASE_WIDTH = 1200;
-      const root = document.getElementById("desktop-fit");
-      function applyScale(){
-        if(!root) return;
-        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        const scale = Math.min(1, vw / BASE_WIDTH);
-        root.style.transform = 'scale(' + scale + ')';
-        // altura visual ajustada p/ evitar corte do final da página
-        root.style.height = (1/scale * (window.innerHeight || 0)) + 'px';
-      }
-      let raf; const schedule=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(applyScale);};
-      window.addEventListener('resize', schedule, {passive:true});
-      window.addEventListener('orientationchange', schedule, {passive:true});
-      document.addEventListener('DOMContentLoaded', schedule);
-      schedule();
-    })();
-
-    // ====== Sua lógica original (stats) ======
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
-
     async function loadStatistics() {
       try {
         const res = await fetch(GAS_URL + '?type=stats', { cache: 'no-store' });
@@ -295,14 +246,12 @@
           return;
         }
       } catch (e) { console.warn('Falha stats GAS, usando localStorage.', e); }
-
       const evaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
       const employees   = JSON.parse(localStorage.getItem('employees')   || '[]');
       const totalCandidates      = evaluations.length;
       const approvedCandidates   = evaluations.filter(e => String(e.apto_vaga || e.aptoVaga || '').toLowerCase() === 'sim').length;
       const activeEmployees      = employees.length;
       const completedOnboarding  = employees.filter(e => e.onboardingComplete || String(e.status).toLowerCase()==='completed').length;
-
       animateNumber('totalCandidates', totalCandidates);
       animateNumber('approvedCandidates', approvedCandidates);
       animateNumber('activeEmployees', activeEmployees);
@@ -332,4 +281,42 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+        @media (max-width: 768px) {
+            .navigation-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 { font-size: 2em; }
+            .header h2 { font-size: 1.2em; }
+            .header p { font-size: 1em; }
+            .card-title { font-size: 1.5em; }
+            .card-description { font-size: 0.9em; }
+            .stat-number { font-size: 2em; }
+            .stat-label { font-size: 0.9em; }
+        }
+
+        @media (max-width: 480px) {
+            .header { padding: 40px 20px; }
+            .header-icon { font-size: 3em; }
+            .header h1 { font-size: 1.8em; }
+            .header h2 { font-size: 1em; }
+            .header p { font-size: 0.9em; }
+            .nav-card { padding: 30px 20px; }
+            .card-icon { font-size: 2.5em; }
+            .card-title { font-size: 1.3em; }
+            .card-features li { font-size: 0.9em; }
+            .stats-title { font-size: 1.5em; }
+            .stat-item { padding: 20px 15px; }
+            .stat-number { font-size: 1.8em; }
+            .stat-label { font-size: 0.8em; }
+        }
+
 
