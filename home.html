@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1200, initial-scale=0.25, maximum-scale=1.0, minimum-scale=0.3">
+  <meta name="viewport" content="width=1200, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.3">
   <title>Sistema de Gestão de RH - Home</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -50,6 +50,7 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 30px;
       margin-bottom: 40px;
+      align-items: stretch; /* força alinhamento vertical dos cards */
     }
     .nav-card {
       background: #2a2a2a;
@@ -274,6 +275,17 @@
         card.addEventListener('mouseleave', function(){ this.style.transform = 'translateY(0) scale(1)'; });
       });
     });
+
+    // Força recalcular o grid após o carregamento
+    window.addEventListener('load', () => {
+      const grid = document.querySelector('.navigation-grid');
+      if (grid) {
+        grid.style.display = 'block';
+        void grid.offsetHeight; // força repaint
+        grid.style.display = 'grid';
+      }
+    });
+
     (function ensureLocalKeys(){
       if (!localStorage.getItem('evaluations')) localStorage.setItem('evaluations', JSON.stringify([]));
       if (!localStorage.getItem('employees'))   localStorage.setItem('employees', JSON.stringify([]));
