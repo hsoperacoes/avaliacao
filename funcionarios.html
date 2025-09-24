@@ -10,13 +10,13 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden;
+      overflow-x: hidden; /* impede rolagem lateral */
+      overflow-y: auto;   /* mantém rolagem vertical */
       background: #1a1a1a;
     }
     #wrapper {
       width: 1280px; /* largura fixa do layout desktop */
       transform-origin: top left;
-      margin: 0 auto;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -99,7 +99,7 @@
     .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
   </style>
 </head>
-  <body>
+<body>
   <div id="wrapper">
     <div class="container">
       <header class="header">
@@ -205,6 +205,7 @@
   </div>
 
   <div id="toast" class="toast">Mensagem</div>
+
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
     const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
@@ -245,7 +246,7 @@
       const today=new Date().toISOString().split('T')[0];
       document.getElementById('employeeStartDate').value=today;
       await loadEmployees();
-      applyScale();
+      setTimeout(applyScale, 200); // força ajuste inicial
       window.addEventListener('resize', applyScale);
       window.addEventListener('orientationchange', applyScale);
     });
@@ -579,19 +580,12 @@
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
     function escapeJs(s){ return String(s||'').replace(/['"\\]/g,'\\$&'); }
 
-    // ===== Escala automática para mobile =====
+    // ===== Escala Responsiva =====
     function applyScale(){
-      const wrapper = document.getElementById('wrapper');
-      if(!wrapper) return;
-      const ww = window.innerWidth;
-      const base = 1280; // largura de referência do layout desktop
-      const scale = ww / base;
-      wrapper.style.transform = `scale(${scale})`;
-      wrapper.style.transformOrigin = 'top left';
-      wrapper.style.width = base + 'px';
-      wrapper.style.height = 'auto';
+      const wrap=document.getElementById('wrapper');
+      const scale=Math.min(window.innerWidth/1280, window.innerHeight/wrap.scrollHeight);
+      wrap.style.transform=`scale(${scale})`;
     }
   </script>
 </body>
 </html>
-
