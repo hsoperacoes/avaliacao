@@ -2,13 +2,27 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <!-- força layout desktop também no celular -->
-  <meta name="viewport" content="width=1280, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lista de Funcionários - Sistema de RH</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6;color:#333;background:#1a1a1a;min-height:100vh;padding:20px 0}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+    #wrapper {
+      width: 1280px; /* largura fixa do layout desktop */
+      transform-origin: top left;
+      margin: 0 auto;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
     .container{max-width:1400px;margin:0 auto;padding:0 20px}
 
     .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
@@ -21,12 +35,12 @@
     .header p{font-size:1.1em;opacity:.9;max-width:600px;margin:0 auto}
 
     .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
-
     .action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px}
     .search-container{display:flex;gap:15px;align-items:center;flex:1;max-width:500px}
     .search-input{flex:1;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
     .search-input:focus{outline:none;border-color:#FF9800;box-shadow:0 0 0 3px rgba(255,152,0,.2)}
     .filter-select{background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em;min-width:150px}
+
     .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;transition:all .3s ease;text-decoration:none}
     .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
     .btn-secondary{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:#fff;box-shadow:0 4px 15px rgba(255,152,0,.3)}
@@ -65,8 +79,6 @@
     .empty-state h3{font-size:1.5em;margin-bottom:10px}
     .empty-state p{font-size:1.1em;margin-bottom:25px}
 
-    /* (REMOVIDO o @media mobile para manter o layout de desktop em telas pequenas) */
-
     .fade-in{animation:fadeIn .6s ease-in}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
@@ -79,61 +91,52 @@
     .close-modal{background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px}
     .pin-input{width:100%;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
 
-    /* ===== Loader Overlay (igual vibe do onboarding) ===== */
-    .loader-overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.85);
-      display:none; align-items:center; justify-content:center; z-index:2000;
-      backdrop-filter: blur(1px);
-    }
-    .loader-box{
-      background:#2a2a2a; border:1px solid #444; border-radius:14px;
-      padding:26px 28px; min-width:280px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.45)
-    }
-    .spinner{
-      width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;
-      margin:0 auto 14px; animation:spin 1s linear infinite
-    }
+    .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(1px)}
+    .loader-box{background:#2a2a2a;border:1px solid #444;border-radius:14px;padding:26px 28px;min-width:280px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+    .spinner{width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader-title{color:#fff;font-weight:700;margin-bottom:4px}
     .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
   </style>
 </head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="header-content">
-        <i class="fas fa-users header-icon"></i>
-        <h1>LISTA DE FUNCIONÁRIOS</h1>
-        <h2>Gestão de Onboarding</h2>
-        <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
-      </div>
-    </header>
-
-    <div class="main-container">
-      <div class="action-bar">
-        <div class="search-container">
-          <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
-          <select class="filter-select" id="statusFilter">
-            <option value="">Todos os status</option>
-            <option value="pending">Pendente</option>
-            <option value="in-progress">Em andamento</option>
-            <option value="completed">Concluído</option>
-          </select>
+  <body>
+  <div id="wrapper">
+    <div class="container">
+      <header class="header">
+        <div class="header-content">
+          <i class="fas fa-users header-icon"></i>
+          <h1>LISTA DE FUNCIONÁRIOS</h1>
+          <h2>Gestão de Onboarding</h2>
+          <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
         </div>
-        <div style="display:flex;gap:15px;flex-wrap:wrap;">
-          <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
-          <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
-          <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
+      </header>
+
+      <div class="main-container">
+        <div class="action-bar">
+          <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
+            <select class="filter-select" id="statusFilter">
+              <option value="">Todos os status</option>
+              <option value="pending">Pendente</option>
+              <option value="in-progress">Em andamento</option>
+              <option value="completed">Concluído</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:15px;flex-wrap:wrap;">
+            <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
+            <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
+            <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
+          </div>
         </div>
-      </div>
 
-      <div class="employees-grid" id="employeesGrid"></div>
+        <div class="employees-grid" id="employeesGrid"></div>
 
-      <div class="empty-state" id="emptyState" style="display:none;">
-        <i class="fas fa-users-slash"></i>
-        <h3>Nenhum funcionário encontrado</h3>
-        <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
-        <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <i class="fas fa-users-slash"></i>
+          <h3>Nenhum funcionário encontrado</h3>
+          <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
+          <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
+        </div>
       </div>
     </div>
   </div>
@@ -155,11 +158,26 @@
         <button class="close-modal" onclick="closeAddEmployeeModal()"><i class="fas fa-times"></i></button>
       </div>
       <form id="addEmployeeForm">
-        <div class="form-group"><label for="employeeName" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Nome Completo *</label><input type="text" id="employeeName" required class="pin-input"></div>
-        <div class="form-group"><label for="employeePosition" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Cargo *</label><input type="text" id="employeePosition" required class="pin-input"></div>
-        <div class="form-group"><label for="employeeStartDate" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Data de Início *</label><input type="date" id="employeeStartDate" required class="pin-input"></div>
-        <div class="form-group"><label for="employeeManager" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Gerente Responsável *</label><input type="text" id="employeeManager" required class="pin-input"></div>
-        <div class="form-group"><label for="employeeEmail" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">E-mail</label><input type="email" id="employeeEmail" class="pin-input"></div>
+        <div class="form-group">
+          <label for="employeeName" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Nome Completo *</label>
+          <input type="text" id="employeeName" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeePosition" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Cargo *</label>
+          <input type="text" id="employeePosition" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeStartDate" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Data de Início *</label>
+          <input type="date" id="employeeStartDate" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeManager" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Gerente Responsável *</label>
+          <input type="text" id="employeeManager" required class="pin-input">
+        </div>
+        <div class="form-group">
+          <label for="employeeEmail" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">E-mail</label>
+          <input type="email" id="employeeEmail" class="pin-input">
+        </div>
         <div style="display:flex;gap:15px;justify-content:flex-end;margin-top:25px;">
           <button type="button" class="btn" style="background:#666" onclick="closeAddEmployeeModal()">Cancelar</button>
           <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Funcionário</button>
@@ -187,7 +205,6 @@
   </div>
 
   <div id="toast" class="toast">Mensagem</div>
-
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
     const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
@@ -228,6 +245,9 @@
       const today=new Date().toISOString().split('T')[0];
       document.getElementById('employeeStartDate').value=today;
       await loadEmployees();
+      applyScale();
+      window.addEventListener('resize', applyScale);
+      window.addEventListener('orientationchange', applyScale);
     });
 
     async function fetchEmployeesFromBackend(){
@@ -304,7 +324,7 @@
       showLoader('Sincronizando…','Atualizando dados com o servidor');
       try{
         employees=[]; renderEmployees();
-        await loadEmployees(); // o finally do load fecha o loader
+        await loadEmployees();
       }catch(_){
         hideLoader();
       }
@@ -422,7 +442,7 @@
       }
     }
 
-    // ===== Fluxos com PIN (inclui concluir/arquivar)
+    // ===== Fluxos com PIN =====
     function viewDetailsSecured(id){
       pinContext = { action:'details', employeeId:id, managerName:'' };
       document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
@@ -479,17 +499,7 @@
           closePinModal();
           const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
           const pct=derivePct(e); const stt=computeStatus(pct, e);
-          alert(`Detalhes do Funcionário:
-
-Nome: ${e.name}
-Cargo: ${e.position}
-Data de Início: ${formatDate(e.startDate)}
-Gerente: ${e.manager}
-E-mail: ${e.email || 'Não informado'}
-Status: ${getStatusText(stt)}
-Progresso: ${pct}%
-
-(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
+          alert(`Detalhes do Funcionário:\n\nNome: ${e.name}\nCargo: ${e.position}\nData de Início: ${formatDate(e.startDate)}\nGerente: ${e.manager}\nE-mail: ${e.email || 'Não informado'}\nStatus: ${getStatusText(stt)}\nProgresso: ${pct}%\n\n(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
         }
 
         if(pinContext.action==='start'){
@@ -543,14 +553,7 @@ Progresso: ${pct}%
           const res = await fetch(GAS_WEB_APP_URL,{
             method:'POST',
             headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({
-              type:'employees-delete',
-              id:pinContext.employeeId,
-              mode:'soft',
-              reason:'concluded',
-              pin,
-              role:'master'
-            })
+            body:JSON.stringify({type:'employees-delete',id:pinContext.employeeId,mode:'soft',reason:'concluded',pin,role:'master'})
           });
           const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
 
@@ -575,6 +578,20 @@ Progresso: ${pct}%
     function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
     function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
     function escapeJs(s){ return String(s||'').replace(/['"\\]/g,'\\$&'); }
+
+    // ===== Escala automática para mobile =====
+    function applyScale(){
+      const wrapper = document.getElementById('wrapper');
+      if(!wrapper) return;
+      const ww = window.innerWidth;
+      const base = 1280; // largura de referência do layout desktop
+      const scale = ww / base;
+      wrapper.style.transform = `scale(${scale})`;
+      wrapper.style.transformOrigin = 'top left';
+      wrapper.style.width = base + 'px';
+      wrapper.style.height = 'auto';
+    }
   </script>
 </body>
 </html>
+
