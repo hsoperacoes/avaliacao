@@ -2,28 +2,25 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <!-- permite pinch-to-zoom -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Pinch habilitado; nada de zoom forçado -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
   <title>Lista de Funcionários - Sistema de RH</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #1a1a1a;
-    }
-    #wrapper {
-      width: 1280px; /* largura fixa do layout desktop */
-      margin: 0 auto;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
+    /* Base */
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#1a1a1a;color:#333;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6}
+    body{overflow-x:hidden} /* impede scroll lateral no mobile */
+    /* container que segura o wrapper escalado e dá altura correta à página */
+    #page{position:relative;width:100%;min-height:100vh;overflow-x:hidden}
+
+    /* wrapper é o layout desktop de 1280p que será escalado no mobile */
+    #wrapper{width:1280px;margin:0 auto;transform-origin:top left}
+
     .container{max-width:1400px;margin:0 auto;padding:0 20px}
 
+    /* Header */
     .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
     .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
     @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -33,6 +30,7 @@
     .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
     .header p{font-size:1.1em;opacity:.9;max-width:600px;margin:0 auto}
 
+    /* Main */
     .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
     .action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px}
     .search-container{display:flex;gap:15px;align-items:center;flex:1;max-width:500px}
@@ -49,7 +47,7 @@
     .employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-bottom:30px}
     .employee-card{background:#3a3a3a;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:all .3s ease;border-left:4px solid #FF9800;position:relative;overflow:hidden}
     .employee-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-        .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+    .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
     .employee-info h3{color:#fff;font-size:1.3em;margin-bottom:5px}
     .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
     .employee-info .start-date{color:#bbb;font-size:.9em}
@@ -90,6 +88,7 @@
     .close-modal{background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px}
     .pin-input{width:100%;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
 
+    /* Loader overlay */
     .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(1px)}
     .loader-box{background:#2a2a2a;border:1px solid #444;border-radius:14px;padding:26px 28px;min-width:280px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
     .spinner{width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
@@ -99,46 +98,49 @@
   </style>
 </head>
 <body>
-  <div id="wrapper">
-    <div class="container">
-      <header class="header">
-        <div class="header-content">
-          <i class="fas fa-users header-icon"></i>
-          <h1>LISTA DE FUNCIONÁRIOS</h1>
-          <h2>Gestão de Onboarding</h2>
-          <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
-        </div>
-      </header>
-
-      <div class="main-container">
-        <div class="action-bar">
-          <div class="search-container">
-            <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
-            <select class="filter-select" id="statusFilter">
-              <option value="">Todos os status</option>
-              <option value="pending">Pendente</option>
-              <option value="in-progress">Em andamento</option>
-              <option value="completed">Concluído</option>
-            </select>
+  <div id="page">
+    <div id="wrapper">
+      <div class="container">
+        <header class="header">
+          <div class="header-content">
+            <i class="fas fa-users header-icon"></i>
+            <h1>LISTA DE FUNCIONÁRIOS</h1>
+            <h2>Gestão de Onboarding</h2>
+            <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
           </div>
-          <div style="display:flex;gap:15px;flex-wrap:wrap;">
-            <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
-            <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
-            <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
+        </header>
+
+        <div class="main-container">
+          <div class="action-bar">
+            <div class="search-container">
+              <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
+              <select class="filter-select" id="statusFilter">
+                <option value="">Todos os status</option>
+                <option value="pending">Pendente</option>
+                <option value="in-progress">Em andamento</option>
+                <option value="completed">Concluído</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:15px;flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
+              <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
+              <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
+            </div>
           </div>
-        </div>
 
-        <div class="employees-grid" id="employeesGrid"></div>
+          <div class="employees-grid" id="employeesGrid"></div>
 
-        <div class="empty-state" id="emptyState" style="display:none;">
-          <i class="fas fa-users-slash"></i>
-          <h3>Nenhum funcionário encontrado</h3>
-          <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
-          <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
+          <div class="empty-state" id="emptyState" style="display:none;">
+            <i class="fas fa-users-slash"></i>
+            <h3>Nenhum funcionário encontrado</h3>
+            <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
+            <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
   <!-- Loader -->
   <div id="loader" class="loader-overlay" aria-hidden="true">
     <div class="loader-box">
@@ -203,14 +205,16 @@
   </div>
 
   <div id="toast" class="toast">Mensagem</div>
+
   <script>
+    /* ===== CONFIG ===== */
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
     const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
 
     let employees=[];
     let pinContext = { action:null, employeeId:null, managerName:'' };
 
-    // ===== Loader helpers
+    /* ===== Loader helpers ===== */
     const loaderEl = document.getElementById('loader');
     function showLoader(msg='Carregando funcionários…', sub='Aguarde enquanto buscamos os dados'){
       loaderEl.querySelector('.loader-title').textContent = msg;
@@ -223,40 +227,19 @@
       loaderEl.setAttribute('aria-hidden','true');
     }
 
-    // ===== Denylist local
-    function getRemovedSet(){
-      const raw = localStorage.getItem('employees_removed');
-      try{ return new Set(JSON.parse(raw || '[]')); } catch(_){ return new Set(); }
-    }
-    function markRemoved(id){
-      const s = getRemovedSet(); s.add(String(id));
-      localStorage.setItem('employees_removed', JSON.stringify(Array.from(s)));
-    }
-    function clearLocalCaches(){
-      localStorage.removeItem('employees');
-      localStorage.removeItem('employees_sync');
-      localStorage.removeItem('currentEmployee');
-    }
+    /* ===== Utilitários ===== */
+    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+    function escapeJs(s){return String(s||'').replace(/['"\\]/g,'\\$&')}
+    function formatDate(d){if(!d)return'—';const dt=new Date(d);return isNaN(dt)?String(d):dt.toLocaleDateString('pt-BR')}
+    function getStatusText(s){const map={'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído'};return map[s]||s||'Pendente'}
+    function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-    document.addEventListener('DOMContentLoaded', async ()=>{
-      setupEventListeners();
-      const today=new Date().toISOString().split('T')[0];
-      document.getElementById('employeeStartDate').value=today;
-      await loadEmployees();
-      applyScale();
-      window.addEventListener('resize', applyScale);
-      window.addEventListener('orientationchange', applyScale);
-    });
-    async function fetchEmployeesFromBackend(){
-      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
-      const res = await fetch(url, { cache:'no-store' });
-      if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
-      const data = await res.json();
-      if(data.ok===false) throw new Error(data.error||'Erro backend');
-      const rows = Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
-      return rows;
-    }
+    /* ===== Denylist local ===== */
+    function getRemovedSet(){const raw=localStorage.getItem('employees_removed');try{return new Set(JSON.parse(raw||'[]'))}catch(_){return new Set()}}
+    function markRemoved(id){const s=getRemovedSet();s.add(String(id));localStorage.setItem('employees_removed',JSON.stringify([...s]))}
+    function clearLocalCaches(){localStorage.removeItem('employees');localStorage.removeItem('employees_sync');localStorage.removeItem('currentEmployee')}
 
+    /* ===== Normalização ===== */
     function derivePct(rec){
       const fromBackend=Math.max(Number(rec.progressPct||0), Number(rec.progress||0));
       if(fromBackend>0) return fromBackend;
@@ -279,7 +262,7 @@
         manager:rec.manager||'', email:rec.email||'',
         progressPct:pct, progress:pct,
         locked:String(rec.locked||'yes'),
-        validatedBy: Array.isArray(rec.validatedBy)?rec.validatedBy:[]
+        validatedBy:Array.isArray(rec.validatedBy)?rec.validatedBy:[]
       };
     }
     function saveEmployeesLocal(arr){
@@ -288,17 +271,249 @@
       localStorage.setItem('employees', JSON.stringify(legacy));
     }
 
+    /* ===== Backend ===== */
+    async function fetchEmployeesFromBackend(){
+      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
+      const res = await fetch(url, { cache:'no-store' });
+      if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
+      const data = await res.json();
+      const rows = Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
+      return rows;
+    }
+
+    /* ===== Render ===== */
+    function renderEmployees(filtered=null){
+      const grid=document.getElementById('employeesGrid');
+      const emptyState=document.getElementById('emptyState');
+      const list=(filtered||employees);
+
+      if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; scheduleScale(); return; }
+      grid.style.display='grid'; emptyState.style.display='none';
+
+      grid.innerHTML=list.map(emp=>{
+        const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
+        const stt=computeStatus(pct, emp);
+        const isLocked=String(emp.locked||'yes')!=='no';
+        const vBy=(emp.validatedBy||[]).join(', ');
+        const id = (emp.employeeId||emp.id);
+        const concludeBtn = (pct>=100)
+          ? `<button class="btn btn-small" style="background:#2e7d32;color:#fff" onclick="concludeEmployeeSecured('${id}')"><i class="fas fa-check-double"></i> Concluir</button>`
+          : '';
+        return `
+          <div class="employee-card fade-in">
+            <div class="employee-header">
+              <div class="employee-info">
+                <h3>${escapeHtml(emp.name)}</h3>
+                <div class="position">${escapeHtml(emp.position||'')}</div>
+                <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
+                ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+                <span class="manager-chip" title="Gerente que cadastrou"><i class="fas fa-user-tie"></i> Gerente: ${escapeHtml(emp.manager || '—')}</span>
+                ${isLocked
+                  ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
+                  : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
+                }
+                <div class="status-badge ${stt}">${getStatusText(stt)}</div>
+              </div>
+            </div>
+            <div class="progress-section">
+              <div class="progress-label"><span>Progresso do Onboarding</span><span>${pct}%</span></div>
+              <div class="progress-bar-container"><div class="progress-bar ${stt}" style="width:${pct}%"></div></div>
+            </div>
+            <div class="employee-actions">
+              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-play"></i> Onboarding</button>
+              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${id}')"><i class="fas fa-eye"></i> Detalhes</button>
+              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
+              <button class="btn btn-small" style="background:#f44336;color:#fff" onclick="removeEmployeeSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
+              ${concludeBtn}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      scheduleScale(); /* reescala após montar a grid */
+    }
+
+    /* ===== Eventos UI ===== */
+    function setupEventListeners(){
+      document.getElementById('searchInput').addEventListener('input', filterEmployees);
+      document.getElementById('statusFilter').addEventListener('change', filterEmployees);
+      document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
+      document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
+
+      document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
+      document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
+      document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
+
+      window.addEventListener('resize', scheduleScale, {passive:true});
+      window.addEventListener('orientationchange', scheduleScale, {passive:true});
+    }
+
+    function filterEmployees(){
+      const term=document.getElementById('searchInput').value.toLowerCase();
+      const status=document.getElementById('statusFilter').value;
+      const filtered=employees.filter(e=>{
+        const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
+        const pct=derivePct(e); const stt=computeStatus(pct, e);
+        const matchesStatus=!status || stt===status;
+        return matchesSearch && matchesStatus;
+      });
+      renderEmployees(filtered);
+    }
+
+    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
+    function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
+
+    async function handleAddEmployee(e){
+      e.preventDefault();
+      const record={
+        id:'emp-'+Date.now(),
+        name:document.getElementById('employeeName').value.trim(),
+        position:document.getElementById('employeePosition').value.trim(),
+        startDate:document.getElementById('employeeStartDate').value,
+        manager:document.getElementById('employeeManager').value.trim(),
+        email:document.getElementById('employeeEmail').value.trim(),
+        status:'pending', progress:0, locked:'yes'
+      };
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
+        const newEmp=normalizeEmployee({ ...record, employeeId: out.employeeId || record.id });
+        employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
+        toast('Funcionário salvo (Sheets) e sincronizado.');
+      }catch(err){
+        const newEmp=normalizeEmployee(record); employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
+        toast('Sem backend. Salvo apenas neste dispositivo.');
+      }
+    }
+
+    /* ===== Fluxos com PIN ===== */
+    function viewDetailsSecured(id){
+      pinContext = { action:'details', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    async function validateEmployee(id){
+      const pin=prompt('PIN do validador (para desbloquear):');
+      if(!pin) return;
+      try{
+        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employee-validate',id,pin})});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha na validação');
+        const idx=employees.findIndex(e=>(e.employeeId||e.id)===id);
+        if(idx>=0){ employees[idx].locked='no'; employees[idx].validatedBy=out.validators||[]; saveEmployeesLocal(employees); renderEmployees(); }
+        toast(`Validado por ${out.validator}`);
+      }catch(err){ toast(String(err.message||err)); }
+    }
+    function startOnboardingSecured(id, managerName){
+      const emp=employees.find(e=>(e.employeeId||e.id)===id);
+      if(!emp) return;
+      if(String(emp.locked||'yes')!=='no'){ toast('Este candidato ainda não foi validado por um gestor.'); return; }
+      pinContext = { action:'start', employeeId:id, managerName:managerName||'' };
+      document.getElementById('pinModalText').textContent = 'Digite o PIN do gerente para iniciar o onboarding.';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    function removeEmployeeSecured(id, managerName){
+      pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
+      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN (master ou do gerente).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+    function concludeEmployeeSecured(id){
+      pinContext = { action:'conclude', employeeId:id, managerName:'' };
+      document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
+      document.getElementById('pinInput').value='';
+      openPinModal();
+    }
+
+    function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
+    function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
+
+    async function confirmPinAction(){
+      const pin = document.getElementById('pinInput').value.trim();
+      if(!pin){ toast('Informe o PIN.'); return; }
+
+      try{
+        if(pinContext.action==='details'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
+          closePinModal();
+          const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
+          const pct=derivePct(e); const stt=computeStatus(pct, e);
+          alert(`Detalhes do Funcionário:\n\nNome: ${e.name}\nCargo: ${e.position}\nData de Início: ${formatDate(e.startDate)}\nGerente: ${e.manager}\nE-mail: ${e.email || 'Não informado'}\nStatus: ${getStatusText(stt)}\nProgresso: ${pct}%\n\n(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
+        }
+
+        if(pinContext.action==='start'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
+          closePinModal();
+          const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId); if(!emp) return;
+          const pct=derivePct(emp);
+          const payload={ id:pinContext.employeeId, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
+          localStorage.setItem('currentEmployee', JSON.stringify(payload));
+          window.location.href='onboarding.html';
+        }
+
+        if(pinContext.action==='remove'){
+          let ok=false;
+          try{ const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})}); const out = await r.json(); ok = !!out.ok; }catch(_){}
+          if(!ok){
+            const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
+            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
+            const out2 = await r2.json(); ok = !!out2.ok;
+          }
+          if(!ok) throw new Error('PIN inválido para esta ação.');
+
+          const delRes = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})});
+          const delOut = await delRes.json(); if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
+
+          markRemoved(pinContext.employeeId);
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          clearLocalCaches();
+          renderEmployees();
+          closePinModal();
+          toast('Candidato removido (arquivado na planilha).');
+          await reloadFromBackend();
+        }
+
+        if(pinContext.action==='conclude'){
+          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
+          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
+
+          const res = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete',id:pinContext.employeeId,mode:'soft',reason:'concluded',pin,role:'master'})});
+          const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
+
+          markRemoved(pinContext.employeeId);
+          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
+          saveEmployeesLocal(employees);
+          renderEmployees();
+          closePinModal();
+          toast('Onboarding concluído e arquivado.');
+          await reloadFromBackend();
+        }
+
+      }catch(err){ toast(String(err.message||err)); }
+    }
+
+    /* ===== Fluxo principal ===== */
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      setupEventListeners();
+      const today=new Date().toISOString().split('T')[0];
+      const startDateInput=document.getElementById('employeeStartDate'); if(startDateInput) startDateInput.value=today;
+      await loadEmployees();
+      scheduleScale(); /* garante escala inicial no mobile */
+    });
+
     async function loadEmployees(){
       showLoader();
       try{
         let items=await fetchEmployeesFromBackend();
         items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
-
         const removed = getRemovedSet();
-        employees = items
-          .map(normalizeEmployee)
-          .filter(e => !removed.has(String(e.employeeId||e.id)));
-
+        employees = items.map(normalizeEmployee).filter(e => !removed.has(String(e.employeeId||e.id)));
         saveEmployeesLocal(employees);
         renderEmployees();
       }catch(err){
@@ -322,91 +537,30 @@
       try{
         employees=[]; renderEmployees();
         await loadEmployees();
-      }catch(_){
-        hideLoader();
-      }
+      }catch(_){ hideLoader(); }
     }
 
-    function renderEmployees(filtered=null){
-      const grid=document.getElementById('employeesGrid');
-      const emptyState=document.getElementById('emptyState');
-      const list=(filtered||employees);
-
-      if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; return; }
-      grid.style.display='grid'; emptyState.style.display='none';
-
-      grid.innerHTML=list.map(emp=>{
-        const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
-        const stt=computeStatus(pct, emp);
-        const isLocked=String(emp.locked||'yes')!=='no';
-        const vBy=(emp.validatedBy||[]).join(', ');
-        const id = (emp.employeeId||emp.id);
-
-        const concludeBtn = (pct>=100)
-          ? `<button class="btn btn-small" style="background:#2e7d32;color:#fff" onclick="concludeEmployeeSecured('${id}')">
-               <i class="fas fa-check-double"></i> Concluir
-             </button>`
-          : '';
-
-        return `
-          <div class="employee-card fade-in">
-            <div class="employee-header">
-              <div class="employee-info">
-                <h3>${escapeHtml(emp.name)}</h3>
-                <div class="position">${escapeHtml(emp.position||'')}</div>
-                <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
-                ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
-              </div>
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
-                <span class="manager-chip" title="Gerente que cadastrou">
-                  <i class="fas fa-user-tie"></i> Gerente: ${escapeHtml(emp.manager || '—')}
-                </span>
-                ${isLocked
-                  ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
-                  : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
-                }
-                <div class="status-badge ${stt}">${getStatusText(stt)}</div>
-              </div>
-            </div>
-
-            <div class="progress-section">
-              <div class="progress-label"><span>Progresso do Onboarding</span><span>${pct}%</span></div>
-              <div class="progress-bar-container"><div class="progress-bar ${stt}" style="width:${pct}%"></div></div>
-            </div>
-
-            <div class="employee-actions">
-              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${id}', '${escapeJs(emp.manager||'')}')">
-                <i class="fas fa-play"></i> Onboarding
-              </button>
-              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${id}')">
-                <i class="fas fa-eye"></i> Detalhes
-              </button>
-              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
-              <button class="btn btn-small" style="background:#f44336;color:#fff" onclick="removeEmployeeSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
-              ${concludeBtn}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // ===== Funções auxiliares, PIN e utilitários já estão inclusos no bloco anterior =====
-
-    // ===== Escala automática para mobile =====
+    /* ===== Escala automática para mobile (sem afetar desktop) ===== */
+    let scaleRaf=null;
+    function scheduleScale(){ cancelAnimationFrame(scaleRaf); scaleRaf=requestAnimationFrame(applyScale); }
     function applyScale(){
-      const wrapper = document.getElementById('wrapper');
-      if(!wrapper) return;
-      const ww = window.innerWidth;
-      const base = 1280; // largura de referência do layout desktop
-      let scale = ww / base;
+      const base=1280;
+      const wrapper=document.getElementById('wrapper');
+      const page=document.getElementById('page');
+      if(!wrapper||!page) return;
 
-      // Mantém proporção no mobile, mas permite pinch-to-zoom
-      wrapper.style.transform = `scale(${scale})`;
-      wrapper.style.transformOrigin = 'top left';
-      wrapper.style.width = base + 'px';
-      wrapper.style.height = 'auto';
+      const vw = Math.max(document.documentElement.clientWidth, window.innerWidth||0);
+      const scale = Math.min(1, vw / base);  // desktop => 1; mobile => <1
+
+      wrapper.style.transform = (scale<1) ? `scale(${scale})` : 'none';
+      wrapper.style.marginLeft = (scale<1) ? '0' : 'auto';
+      wrapper.style.marginRight = (scale<1) ? '0' : 'auto';
+
+      // ajusta altura visual do container para o conteúdo escalado
+      // (offsetHeight é a altura "não escalada")
+      const scaledH = wrapper.offsetHeight * (scale<1 ? scale : 1);
+      page.style.height = scaledH + 'px';
     }
   </script>
 </body>
 </html>
-
