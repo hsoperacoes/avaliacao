@@ -2,22 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Força layout desktop já ajustado na tela do celular -->
-  <meta name="viewport" content="width=1200, initial-scale=0.3, maximum-scale=1.0, minimum-scale=0.3, viewport-fit=cover"/>
+  <!-- Mantém a base como device-width; o ajuste de escala é feito via JS para reproduzir o desktop sem pinçar -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
   <style>
-    /* ===== Desktop-fit ===== */
+    /* ===== Desktop-fit (mantém layout desktop e escala no mobile) ===== */
     .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
-    html,body{height:100%} body{overflow-x:hidden}
+    html,body{height:100%}
+    body{overflow-x:hidden; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
 
     /* ===== Reset & base ===== */
     * { margin:0; padding:0; box-sizing:border-box }
-    body{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height:1.6; color:#eaeaea; background:#1a1a1a; min-height:100vh; padding:20px 0;
-    }
     .container{ max-width:1200px; margin:0 auto; padding:0 20px }
 
     /* ===== Header ===== */
@@ -34,8 +31,9 @@
     @keyframes rotate{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
     .header-content{ position:relative; z-index:1 }
     .header-icon{ font-size:3em; margin-bottom:16px; color:#4CAF50 }
-    .form-header h1{ font-size:2.2em; font-weight:700; margin-bottom:6px }
-    .form-header h2{ font-size:1.2em; font-weight:500; opacity:.9 }
+    .form-header h1{ font-size:2.2em; font-weight:700; margin-bottom:6px; white-space:normal }
+    .form-header h2{ font-size:1.2em; font-weight:500; opacity:.9; white-space:normal }
+    .form-header p{ white-space:normal }
 
     /* ===== Card/blocks ===== */
     .form-container{
@@ -43,14 +41,14 @@
     }
     .form-block{
       background:#3a3a3a; border-radius:12px; margin-bottom:22px; box-shadow:0 4px 15px rgba(0,0,0,.2);
-      border-left:4px solid #4CAF50;
+      border-left:4px solid #4CAF50; padding-bottom:10px
     }
     .block-header{
       background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);
       color:#fff; padding:16px 22px; border-radius:8px 8px 0 0; display:flex; align-items:center; gap:12px
     }
     .block-header i{ font-size:1.2em }
-    .block-header h3{ font-size:1.12em; font-weight:700; margin:0 }
+    .block-header h3{ font-size:1.12em; font-weight:700; margin:0; white-space:normal }
     .block-content{ padding:22px }
 
     /* ===== Grid ===== */
@@ -58,7 +56,7 @@
     .col-12{ grid-column: span 12 } .col-6{ grid-column: span 6 } .col-4{ grid-column: span 4 } .col-3{ grid-column: span 3 }
 
     /* ===== Inputs ===== */
-    label{ color:#e6e6e6; font-weight:600; margin-bottom:6px; display:block }
+    label{ color:#e6e6e6; font-weight:600; margin-bottom:6px; display:block; white-space:normal }
     input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="number"], textarea, select{
       width:100%; background:#4a4a4a; border:2px solid #555; border-radius:10px; padding:12px 14px; color:#eaeaea;
       font-size:1rem; transition:.2s ease; display:block
@@ -73,7 +71,7 @@
     .radio-row{ display:flex; gap:12px; flex-wrap:wrap; margin-top:10px }
     .pill{
       display:inline-flex; align-items:center; gap:10px; cursor:pointer; user-select:none;
-      padding:10px 14px; border-radius:10px; background:#4a4a4a; border:2px solid #555; color:#eaeaea; font-weight:600
+      padding:10px 14px; border-radius:10px; background:#4a4a4a; border:2px solid #555; color:#eaeaea; font-weight:600; white-space:nowrap
     }
     .pill input{ display:none }
     .dot{ width:18px; height:18px; border:2px solid #888; border-radius:50%; position:relative; flex-shrink:0 }
@@ -82,20 +80,21 @@
 
     /* Perguntas */
     .q-block{ background:#444; border:2px solid #555; border-radius:12px; padding:16px; margin-bottom:14px }
-    .q-title{ font-weight:700; color:#a5e8b1; margin-bottom:10px }
+    .q-title{ font-weight:700; color:#a5e8b1; margin-bottom:10px; white-space:normal }
     .q-inline{ display:grid; grid-template-columns:140px 1fr; gap:12px; align-items:start }
     .help{ font-size:.92rem; opacity:.85; margin-top:8px; color:#d8d8d8 }
 
     /* Ações */
-    .actions{ display:flex; gap:14px; justify-content:center; margin-top:26px; padding-top:22px; border-top:2px solid #555 }
-    .btn{ display:inline-flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-radius:10px; font-size:1rem; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:.5px }
+    .actions{ display:flex; gap:14px; justify-content:center; margin-top:26px; padding-top:22px; border-top:2px solid #555; flex-wrap:wrap }
+    .btn{ display:inline-flex; align-items:center; gap:10px; padding:13px 22px; border:none; border-radius:10px; font-size:1rem; font-weight:800; cursor:pointer; text-transform:uppercase; letter-spacing:.5px; text-decoration:none }
     .btn-primary{ background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%); color:#fff }
     .btn-danger{ background:linear-gradient(135deg,#f44336 0%,#d32f2f 100%); color:#fff }
-    .btn-link{ background:transparent; color:#90caf9; border:2px solid #90caf9; }
+    .btn-link{ background:transparent; color:#90caf9; border:2px solid #90caf9 }
 
     .success{ display:none; background:#2e7d32; color:#fff; border-radius:10px; padding:16px; text-align:center; margin-bottom:18px }
     .loading{ display:none; color:#4CAF50; text-align:center; margin-bottom:12px }
 
+    /* Apenas para telas menores que 800px (não muda layout, só evita apertos em linhas específicas) */
     @media(max-width:800px){
       .q-inline{ grid-template-columns:1fr }
       .col-6{ grid-column: span 12 } .col-4{ grid-column: span 12 } .col-3{ grid-column: span 6 }
@@ -103,7 +102,7 @@
   </style>
 </head>
 <body>
-  <!-- WRAPPER -->
+  <!-- WRAPPER ESCALADO -->
   <div id="desktop-fit" class="desktop-fit">
     <div class="container">
       <header class="form-header">
@@ -150,11 +149,10 @@
             </div>
           </section>
 
-          <!-- 2. Passo — Competências -->
+          <!-- 2. Passo — Avaliando as Competências -->
           <section class="form-block">
             <div class="block-header"><i class="fas fa-clipboard-check"></i><h3>2º Passo — Avaliando as Competências</h3></div>
             <div class="block-content">
-
               <!-- Foco em Resultado -->
               <div class="q-block">
                 <div class="q-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
@@ -246,7 +244,6 @@
                   <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
                 </div>
               </div>
-
             </div>
           </section>
 
@@ -504,24 +501,82 @@
   </div><!-- /desktop-fit -->
 
   <script>
-    // Desktop-fit scale
+    // ===== Desktop-fit scale: mantém layout desktop e ajusta escala no mobile =====
     (function(){
-      const BASE_WIDTH = 1200, root = document.getElementById('desktop-fit');
+      const BASE_WIDTH = 1200;
+      const root = document.getElementById('desktop-fit');
+
       function applyScale(){
         if(!root) return;
         const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        const scale = Math.min(1, vw / BASE_WIDTH);
+        const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        const scale = Math.min(1, vw / BASE_WIDTH); // escala para caber na largura
         root.style.transform = 'scale(' + scale + ')';
-        root.style.height = (1/scale * (window.innerHeight || 0)) + 'px';
+        root.style.width = BASE_WIDTH + 'px';
+        // altura proporcional para evitar corte de conteúdo ao escalar:
+        root.style.height = (vh / scale) + 'px';
       }
-      let raf; const schedule=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(applyScale);};
+
+      let raf;
+      const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(applyScale); };
+
+      // Recalcula em mudanças de viewport
       window.addEventListener('resize', schedule, {passive:true});
       window.addEventListener('orientationchange', schedule, {passive:true});
-      document.addEventListener('DOMContentLoaded', schedule); schedule();
+      document.addEventListener('DOMContentLoaded', schedule);
+      // Força reflow após carregar tudo (evita desalinhamento no 1º paint)
+      window.addEventListener('load', () => {
+        schedule();
+        // nudge de reflow
+        root.style.display = 'block';
+        void root.offsetHeight;
+        root.style.display = '';
+      });
     })();
 
     /* === CONFIG GAS === */
     const EVAL_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+
+    // Helpers
+    function formToJSON(form){ const fd = new FormData(form); const data = {}; for (const [k,v] of fd.entries()){ data[k] = v && v.trim ? v.trim() : v; } return data; }
+    async function sendToGAS(payload){
+      if (!EVAL_GAS_WEB_APP_URL){ throw new Error('URL do GAS não configurada (EVAL_GAS_WEB_APP_URL).'); }
+      const res = await fetch(EVAL_GAS_WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+      if (!res.ok){ throw new Error('Falha HTTP ao enviar para o GAS'); }
+      return res.json();
+    }
+    async function upsertEmployeeToSheet(data){
+      const employee = {
+        id: 'emp_' + Date.now(),
+        name: data.nome,
+        position: data.funcao_prevista || 'A definir',
+        startDate: new Date().toISOString().slice(0,10),
+        manager: data.nome_avaliador || '',
+        email: data.email || '',
+        source: 'avaliacao.html'
+      };
+      await sendToGAS({ type:'employees-upsert', employee });
+      localStorage.setItem('currentEmployee', JSON.stringify({
+        id: employee.id, name: employee.name, position: employee.position, startDate: employee.startDate, manager: employee.manager
+      }));
+      return employee;
+    }
+    function saveApprovedToLocal(data){
+      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+      const id = 'emp_' + Date.now();
+      const rec = {
+        id, name: data.nome, position: data.funcao_prevista || 'A definir',
+        startDate: new Date().toISOString().slice(0,10), manager: data.nome_avaliador || '',
+        email: data.email || '', status: 'pending', progress: 0,
+        onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() }, evaluationData: data
+      };
+      employees.push(rec);
+      localStorage.setItem('employees', JSON.stringify(employees));
+      localStorage.setItem('currentEmployee', JSON.stringify({
+        id: rec.id, name: rec.name, position: rec.position, startDate: rec.startDate, manager: rec.manager
+      }));
+      return rec;
+    }
 
     // Data padrão + toggles
     document.addEventListener('DOMContentLoaded', () => {
@@ -543,62 +598,7 @@
       });
     });
 
-    function formToJSON(form){
-      const fd = new FormData(form);
-      const data = {};
-      for (const [k,v] of fd.entries()){
-        data[k] = v && v.trim ? v.trim() : v;
-      }
-      return data;
-    }
-
-    async function sendToGAS(payload){
-      if (!EVAL_GAS_WEB_APP_URL){
-        throw new Error('URL do GAS não configurada (EVAL_GAS_WEB_APP_URL).');
-      }
-      const res = await fetch(EVAL_GAS_WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok){ throw new Error('Falha HTTP ao enviar para o GAS'); }
-      return res.json();
-    }
-
-    async function upsertEmployeeToSheet(data){
-      const employee = {
-        id: 'emp_' + Date.now(),
-        name: data.nome,
-        position: data.funcao_prevista || 'A definir',
-        startDate: new Date().toISOString().slice(0,10),
-        manager: data.nome_avaliador || '',
-        email: data.email || '',
-        source: 'avaliacao.html'
-      };
-      await sendToGAS({ type:'employees-upsert', employee });
-      localStorage.setItem('currentEmployee', JSON.stringify({
-        id: employee.id, name: employee.name, position: employee.position, startDate: employee.startDate, manager: employee.manager
-      }));
-      return employee;
-    }
-
-    function saveApprovedToLocal(data){
-      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-      const id = 'emp_' + Date.now();
-      const rec = {
-        id, name: data.nome, position: data.funcao_prevista || 'A definir',
-        startDate: new Date().toISOString().slice(0,10), manager: data.nome_avaliador || '',
-        email: data.email || '', status: 'pending', progress: 0,
-        onboardingData: { completedTasks: [], lastUpdate: new Date().toISOString() }, evaluationData: data
-      };
-      employees.push(rec);
-      localStorage.setItem('employees', JSON.stringify(employees));
-      localStorage.setItem('currentEmployee', JSON.stringify({
-        id: rec.id, name: rec.name, position: rec.position, startDate: rec.startDate, manager: rec.manager
-      }));
-      return rec;
-    }
-
+    // Submit handler
     const form = document.getElementById('candidateForm');
     const loading = document.getElementById('loading');
     const ok = document.getElementById('okMsg');
