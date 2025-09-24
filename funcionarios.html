@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- permite pinch-to-zoom -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Funcionários - Sistema de RH</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -10,13 +11,11 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow-x: hidden; /* impede rolagem lateral */
-      overflow-y: auto;   /* mantém rolagem vertical */
       background: #1a1a1a;
     }
     #wrapper {
       width: 1280px; /* largura fixa do layout desktop */
-      transform-origin: top left;
+      margin: 0 auto;
     }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,7 +49,7 @@
     .employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-bottom:30px}
     .employee-card{background:#3a3a3a;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:all .3s ease;border-left:4px solid #FF9800;position:relative;overflow:hidden}
     .employee-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-    .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+        .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
     .employee-info h3{color:#fff;font-size:1.3em;margin-bottom:5px}
     .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
     .employee-info .start-date{color:#bbb;font-size:.9em}
@@ -140,7 +139,6 @@
       </div>
     </div>
   </div>
-
   <!-- Loader -->
   <div id="loader" class="loader-overlay" aria-hidden="true">
     <div class="loader-box">
@@ -205,7 +203,6 @@
   </div>
 
   <div id="toast" class="toast">Mensagem</div>
-
   <script>
     const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
     const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
@@ -246,11 +243,10 @@
       const today=new Date().toISOString().split('T')[0];
       document.getElementById('employeeStartDate').value=today;
       await loadEmployees();
-      setTimeout(applyScale, 200); // força ajuste inicial
+      applyScale();
       window.addEventListener('resize', applyScale);
       window.addEventListener('orientationchange', applyScale);
     });
-
     async function fetchEmployeesFromBackend(){
       const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
       const res = await fetch(url, { cache:'no-store' });
@@ -394,198 +390,23 @@
       }).join('');
     }
 
-    function setupEventListeners(){
-      document.getElementById('searchInput').addEventListener('input', filterEmployees);
-      document.getElementById('statusFilter').addEventListener('change', filterEmployees);
-      document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
-      document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
+    // ===== Funções auxiliares, PIN e utilitários já estão inclusos no bloco anterior =====
 
-      document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
-      document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
-      document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
-    }
-
-    function filterEmployees(){
-      const term=document.getElementById('searchInput').value.toLowerCase();
-      const status=document.getElementById('statusFilter').value;
-      const filtered=employees.filter(e=>{
-        const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
-        const pct=derivePct(e); const stt=computeStatus(pct, e);
-        const matchesStatus=!status || stt===status;
-        return matchesSearch && matchesStatus;
-      });
-      renderEmployees(filtered);
-    }
-
-    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
-    function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
-
-    async function handleAddEmployee(e){
-      e.preventDefault();
-      const record={
-        id:'emp-'+Date.now(),
-        name:document.getElementById('employeeName').value.trim(),
-        position:document.getElementById('employeePosition').value.trim(),
-        startDate:document.getElementById('employeeStartDate').value,
-        manager:document.getElementById('employeeManager').value.trim(),
-        email:document.getElementById('employeeEmail').value.trim(),
-        status:'pending', progress:0, locked:'yes'
-      };
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
-        const newEmp=normalizeEmployee({ ...record, employeeId: out.employeeId || record.id });
-        employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
-        toast('Funcionário salvo (Sheets) e sincronizado.');
-      }catch(err){
-        const newEmp=normalizeEmployee(record); employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
-        toast('Sem backend. Salvo apenas neste dispositivo.');
-      }
-    }
-
-    // ===== Fluxos com PIN =====
-    function viewDetailsSecured(id){
-      pinContext = { action:'details', employeeId:id, managerName:'' };
-      document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    async function validateEmployee(id){
-      const pin=prompt('PIN do validador (para desbloquear):');
-      if(!pin) return;
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employee-validate',id,pin})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha na validação');
-        const idx=employees.findIndex(e=>(e.employeeId||e.id)===id);
-        if(idx>=0){ employees[idx].locked='no'; employees[idx].validatedBy=out.validators||[]; saveEmployeesLocal(employees); renderEmployees(); }
-        toast(`Validado por ${out.validator}`);
-      }catch(err){ toast(String(err.message||err)); }
-    }
-    function startOnboardingSecured(id, managerName){
-      const emp=employees.find(e=>(e.employeeId||e.id)===id);
-      if(!emp) return;
-      if(String(emp.locked||'yes')!=='no'){
-        toast('Este candidato ainda não foi validado por um gestor.');
-        return;
-      }
-      pinContext = { action:'start', employeeId:id, managerName:managerName||'' };
-      document.getElementById('pinModalText').textContent = 'Digite o PIN do gerente para iniciar o onboarding.';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    function removeEmployeeSecured(id, managerName){
-      pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
-      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN (master ou do gerente).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    function concludeEmployeeSecured(id){
-      pinContext = { action:'conclude', employeeId:id, managerName:'' };
-      document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-
-    function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
-    function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
-
-    async function confirmPinAction(){
-      const pin = document.getElementById('pinInput').value.trim();
-      if(!pin){ toast('Informe o PIN.'); return; }
-
-      try{
-        if(pinContext.action==='details'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
-          closePinModal();
-          const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
-          const pct=derivePct(e); const stt=computeStatus(pct, e);
-          alert(`Detalhes do Funcionário:\n\nNome: ${e.name}\nCargo: ${e.position}\nData de Início: ${formatDate(e.startDate)}\nGerente: ${e.manager}\nE-mail: ${e.email || 'Não informado'}\nStatus: ${getStatusText(stt)}\nProgresso: ${pct}%\n\n(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
-        }
-
-        if(pinContext.action==='start'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
-          closePinModal();
-          const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId); if(!emp) return;
-          const pct=derivePct(emp);
-          const payload={ id:pinContext.employeeId, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
-          localStorage.setItem('currentEmployee', JSON.stringify(payload));
-          window.location.href='onboarding.html';
-        }
-
-        if(pinContext.action==='remove'){
-          let ok=false;
-          try{
-            const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-            const out = await r.json(); ok = !!out.ok;
-          }catch(_){}
-          if(!ok){
-            const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
-            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
-            const out2 = await r2.json(); ok = !!out2.ok;
-          }
-          if(!ok) throw new Error('PIN inválido para esta ação.');
-
-          const delRes = await fetch(GAS_WEB_APP_URL,{
-            method:'POST',
-            headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})
-          });
-          const delOut = await delRes.json();
-          if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
-
-          markRemoved(pinContext.employeeId);
-          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
-          saveEmployeesLocal(employees);
-          clearLocalCaches();
-
-          renderEmployees();
-          closePinModal();
-          toast('Candidato removido (arquivado na planilha).');
-
-          await reloadFromBackend();
-        }
-
-        if(pinContext.action==='conclude'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
-
-          const res = await fetch(GAS_WEB_APP_URL,{
-            method:'POST',
-            headers:{'Content-Type':'text/plain'},
-            body:JSON.stringify({type:'employees-delete',id:pinContext.employeeId,mode:'soft',reason:'concluded',pin,role:'master'})
-          });
-          const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
-
-          markRemoved(pinContext.employeeId);
-          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
-          saveEmployeesLocal(employees);
-          renderEmployees();
-          closePinModal();
-          toast('Onboarding concluído e arquivado.');
-
-          await reloadFromBackend();
-        }
-
-      }catch(err){
-        toast(String(err.message||err));
-      }
-    }
-
-    // ===== Utilitários =====
-    function formatDate(d){ if(!d) return '—'; const dt=new Date(d); if(isNaN(dt.getTime())) return String(d); return dt.toLocaleDateString('pt-BR'); }
-    function getStatusText(s){ const map={ 'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído' }; return map[s]||s||'Pendente'; }
-    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-    function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-    function escapeJs(s){ return String(s||'').replace(/['"\\]/g,'\\$&'); }
-
-    // ===== Escala Responsiva =====
+    // ===== Escala automática para mobile =====
     function applyScale(){
-      const wrap=document.getElementById('wrapper');
-      const scale=Math.min(window.innerWidth/1280, window.innerHeight/wrap.scrollHeight);
-      wrap.style.transform=`scale(${scale})`;
+      const wrapper = document.getElementById('wrapper');
+      if(!wrapper) return;
+      const ww = window.innerWidth;
+      const base = 1280; // largura de referência do layout desktop
+      let scale = ww / base;
+
+      // Mantém proporção no mobile, mas permite pinch-to-zoom
+      wrapper.style.transform = `scale(${scale})`;
+      wrapper.style.transformOrigin = 'top left';
+      wrapper.style.width = base + 'px';
+      wrapper.style.height = 'auto';
     }
   </script>
 </body>
 </html>
+
