@@ -2,19 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Mantém a base como device-width; o ajuste de escala é feito via JS para reproduzir o desktop sem pinçar -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <!-- Meta viewport que permite zoom manual mas inicia com layout completo visível -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
   <style>
-    /* ===== Desktop-fit (mantém layout desktop e escala no mobile) ===== */
-    .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
-    html,body{height:100%}
-    body{overflow-x:hidden; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
-
     /* ===== Reset & base ===== */
     * { margin:0; padding:0; box-sizing:border-box }
+    html,body{height:100%}
+    body{overflow-x:auto; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
     .container{ max-width:1200px; margin:0 auto; padding:0 20px }
 
     /* ===== Header ===== */
@@ -96,9 +93,8 @@
   </style>
 </head>
 <body>
-  <!-- WRAPPER ESCALADO -->
-  <div id="desktop-fit" class="desktop-fit">
-    <div class="container">
+  <!-- WRAPPER PRINCIPAL -->
+  <div class="container">
       <header class="form-header">
         <div class="header-content">
           <i class="fas fa-user-tie header-icon"></i>
@@ -500,43 +496,9 @@
         </form>
       </div>
     </div>
-  </div><!-- /desktop-fit -->
+  </div><!-- /container -->
 
   <script>
-    // ===== Desktop-fit scale: mantém layout desktop e ajusta escala no mobile =====
-    (function(){
-      const BASE_WIDTH = 1200;
-      const root = document.getElementById('desktop-fit');
-
-      function applyScale(){
-        if(!root) return;
-        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-
-        // FORÇA ENCAIXE UNIVERSAL NA LARGURA (igual sua 2ª foto)
-        const scale = vw / BASE_WIDTH;
-        root.style.transform = 'scale(' + scale + ')';
-        root.style.width = BASE_WIDTH + 'px';
-        root.style.height = (vh / scale) + 'px';
-      }
-
-      let raf;
-      const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(applyScale); };
-
-      // Recalcula em mudanças de viewport
-      window.addEventListener('resize', schedule, {passive:true});
-      window.addEventListener('orientationchange', schedule, {passive:true});
-      document.addEventListener('DOMContentLoaded', schedule);
-      // Força reflow após carregar tudo (evita desalinhamento no 1º paint)
-      window.addEventListener('load', () => {
-        schedule();
-        // nudge de reflow
-        root.style.display = 'block';
-        void root.offsetHeight;
-        root.style.display = '';
-      });
-    })();
-
     /* === CONFIG GAS === */
     const EVAL_GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
 
