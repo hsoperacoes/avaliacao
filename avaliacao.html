@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Viewport ajustado para permitir escalonamento sem zoom inicial -->
-  <meta name="viewport" content="width=1200, initial-scale=1.0, user-scalable=yes"/>
+  <!-- Ajuste na meta viewport para evitar zoom inicial mas manter escalonamento -->
+  <meta name="viewport" content="width=device-width, initial-scale=0.3, viewport-fit=cover"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
@@ -367,41 +367,27 @@
         const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
         const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-        // Calcula escala baseada na largura da viewport
-        const scale = Math.min(vw / BASE_WIDTH, 1); // Não permite escala maior que 1
+        // FORÇA ENCAIXE UNIVERSAL NA LARGURA (igual sua 2ª foto)
+        const scale = vw / BASE_WIDTH;
         root.style.transform = 'scale(' + scale + ')';
         root.style.width = BASE_WIDTH + 'px';
-        
-        // Ajusta altura do body para evitar scroll desnecessário
-        document.body.style.height = (root.scrollHeight * scale) + 'px';
+        root.style.height = (vh / scale) + 'px';
       }
 
       let raf;
-      const schedule = () => { 
-        cancelAnimationFrame(raf); 
-        raf = requestAnimationFrame(applyScale); 
-      };
-
-      // Aplica escala inicial sem delay
-      applyScale();
+      const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(applyScale); };
 
       // Recalcula em mudanças de viewport
       window.addEventListener('resize', schedule, {passive:true});
-      window.addEventListener('orientationchange', () => {
-        setTimeout(schedule, 100); // Pequeno delay para orientationchange
-      }, {passive:true});
-      
+      window.addEventListener('orientationchange', schedule, {passive:true});
       document.addEventListener('DOMContentLoaded', schedule);
-      
-      // Força reflow após carregar tudo
+      // Força reflow após carregar tudo (evita desalinhamento no 1º paint)
       window.addEventListener('load', () => {
-        setTimeout(() => {
-          schedule();
-          // Força reflow
-          root.style.display = 'block';
-          void root.offsetHeight;
-          root.style.display = '';
-        }, 50);
+        schedule();
+        // nudge de reflow
+        root.style.display = 'block';
+        void root.offsetHeight;
+        root.style.display = '';
       });
     })();
 
