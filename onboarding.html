@@ -361,6 +361,14 @@
       return false; // estourou tempo
     }
 
+    /* ====== NOVO: helper para timeout com AbortController ====== */
+    function withTimeout(makePromise, ms=12000){
+      const ctrl = new AbortController();
+      const timer = setTimeout(()=>ctrl.abort(), ms);
+      return makePromise(ctrl.signal)
+        .finally(()=>clearTimeout(timer));
+    }
+
     /* ====== Boot ====== */
     document.addEventListener('DOMContentLoaded',()=>{ // Removido 'async' pois não é necessário aqui
       setOverlay(true,'Carregando progresso, aguarde…');
@@ -387,18 +395,18 @@
     async function fetchEmployeeFull(){
       if(!employeeData.id) return;
       try{
-        const r=await fetch(`${GAS_WEB_APP_URL}?type=employees-get&id=${encodeURIComponent(employeeData.id)}`,{cache:'no-store'});
+        const r=await withTimeout(sig => fetch(`${GAS_WEB_APP_URL}?type=employees-get&id=${encodeURIComponent(employeeData.id)}`,{cache:'no-store',signal:sig}));
         const out=await r.json();
         if(out?.ok && out.record){
           employeeData.email = out.record.email || '';
         }
-      }catch(_){}
+      }catch(e){console.warn('employees-get falhou:',e)}
     }
 
     async function hydrateFromBackend(){
       if(!employeeData.id) return;
       try{
-        const r=await fetch(GAS_WEB_APP_URL+'?type=onboarding-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store'});
+        const r=await withTimeout(sig => fetch(GAS_WEB_APP_URL+'?type=onboarding-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store',signal:sig}));
         const out=await r.json(); if(out?.ok&&out.record){
           bootPrefilled=false;ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
           (out.record.completedTasks||[]).forEach(id => markTaskUI(id,true));
@@ -406,7 +414,7 @@
         }
       }catch(e){console.warn('onboarding-load falhou:',e)}
       try{
-        const r=await fetch(GAS_WEB_APP_URL+'?type=ratings-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store'});
+        const r=await withTimeout(sig => fetch(GAS_WEB_APP_URL+'?type=ratings-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store',signal:sig}));
         const out=await r.json(); if(out?.ok&&out.ratings){setRatings(out.ratings);ratingsLoaded=true}
       }catch(e){console.warn('ratings-load falhou:',e)}
     }
@@ -663,5 +671,3 @@
   </script>
 </body>
 </html>
-
-
