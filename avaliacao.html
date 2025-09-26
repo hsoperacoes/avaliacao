@@ -2,18 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Meta viewport que permite zoom manual e se adapta à largura da tela -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
+  <!-- Meta viewport que permite zoom manual mas inicia com layout completo visível -->
+  <meta name="viewport" content="width=1200, initial-scale=0.3, user-scalable=yes"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
   <style>
+    /* ===== Desktop-fit (mantém layout desktop e escala no mobile) ===== */
+    .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
+    html,body{height:100%}
+    body{overflow-x:auto; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
+
     /* ===== Reset & base ===== */
     * { margin:0; padding:0; box-sizing:border-box }
-    html,body{height:100%}
-    body{overflow-x:hidden; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
-
-    /* ===== Container responsivo ===== */
     .container{ max-width:1200px; margin:0 auto; padding:0 20px }
 
     /* ===== Header ===== */
@@ -92,439 +93,414 @@
 
     .success{ display:none; background:#2e7d32; color:#fff; border-radius:10px; padding:16px; text-align:center; margin-bottom:18px }
     .loading{ display:none; color:#4CAF50; text-align:center; margin-bottom:12px }
-
-    /* ===== Responsividade para mobile ===== */
-    @media(max-width:800px){
-      .container{ padding:0 15px }
-      .form-header{ padding:30px 20px }
-      .form-header h1{ font-size:1.8em }
-      .form-header h2{ font-size:1em }
-      .header-icon{ font-size:2.5em }
-      .form-container{ padding:20px }
-      .block-content{ padding:16px }
-      .q-inline{ grid-template-columns:1fr }
-      .col-6{ grid-column: span 12 } .col-4{ grid-column: span 12 } .col-3{ grid-column: span 6 }
-      .radio-row{ gap:8px }
-      .pill{ padding:8px 12px; font-size:0.9rem }
-      .actions{ flex-direction:column; align-items:center }
-      .btn{ width:100%; max-width:300px; justify-content:center }
-    }
-
-    @media(max-width:480px){
-      .container{ padding:0 10px }
-      .form-header{ padding:20px 15px }
-      .form-header h1{ font-size:1.5em }
-      .form-container{ padding:15px }
-      .block-content{ padding:12px }
-      .form-grid{ gap:12px }
-      .pill{ padding:6px 10px; font-size:0.85rem }
-      .col-3{ grid-column: span 12 }
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header class="form-header">
-      <div class="header-content">
-        <i class="fas fa-user-tie header-icon"></i>
-        <h1>AVALIAÇÃO DE CANDIDATO</h1>
-        <h2>Sistema de Gestão de Recursos Humanos</h2>
-        <p>Preencha as informações do candidato para análise e processo seletivo</p>
-      </div>
-    </header>
-
-    <div class="form-container">
-      <div id="okMsg" class="success"><i class="fas fa-check-circle"></i> Avaliação enviada!</div>
-      <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Enviando...</div>
-
-      <!-- === FORM COMPLETO === -->
-      <form id="candidateForm">
-        <!-- 1. Dados pessoais -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-user"></i><h3>Dados Pessoais do Candidato</h3></div>
-          <div class="block-content">
-            <div class="form-grid">
-              <div class="col-12">
-                <label for="nome">Nome Completo *</label>
-                <input id="nome" name="nome" type="text" required/>
-              </div>
-              <div class="col-3">
-                <label for="idade">Idade</label>
-                <input id="idade" name="idade" type="number" min="14" max="90" placeholder="ex.: 28"/>
-              </div>
-              <div class="col-3">
-                <label for="telefone">Telefone</label>
-                <input id="telefone" name="telefone" type="tel" placeholder="(xx) xxxxx-xxxx"/>
-              </div>
-              <div class="col-3">
-                <label for="email">E-mail</label>
-                <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
-              </div>
-              <div class="col-3">
-                <label for="funcao_prevista">Função pretendida *</label>
-                <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 2. Passo — Avaliando as Competências -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-clipboard-check"></i><h3>2º Passo — Avaliando as Competências</h3></div>
-          <div class="block-content">
-            <!-- Foco em Resultado -->
-            <div class="q-block">
-              <div class="q-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="foco_resultado_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill">
-                  <input type="checkbox" data-toggle="#obs_foco_resultado"><span class="dot"></span>Adicionar observação
-                </label>
-              </div>
-              <div class="q-inline" id="obs_foco_resultado" style="display:none; margin-top:10px">
-                <label>Observação</label>
-                <textarea name="foco_resultado_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-
-            <!-- Atitude -->
-            <div class="q-block">
-              <div class="q-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="atitude_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="atitude_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="atitude_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill">
-                  <input type="checkbox" data-toggle="#obs_atitude"><span class="dot"></span>Adicionar observação
-                </label>
-              </div>
-              <div class="q-inline" id="obs_atitude" style="display:none; margin-top:10px">
-                <label>Observação</label>
-                <textarea name="atitude_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-
-            <!-- Comunicação -->
-            <div class="q-block">
-              <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill">
-                  <input type="checkbox" data-toggle="#obs_comunicacao"><span class="dot"></span>Adicionar observação
-                </label>
-              </div>
-              <div class="q-inline" id="obs_comunicacao" style="display:none; margin-top:10px">
-                <label>Observação</label>
-                <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-
-            <!-- Relacionamento (movido para mais ao final) -->
-            <div class="q-block">
-              <div class="q-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="relacionamento_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill">
-                  <input type="checkbox" data-toggle="#obs_relacionamento"><span class="dot"></span>Adicionar observação
-                </label>
-              </div>
-              <div class="q-inline" id="obs_relacionamento" style="display:none; margin-top:10px">
-                <label>Observação</label>
-                <textarea name="relacionamento_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3. Competências Específicas -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-layer-group"></i><h3>Competências Específicas</h3></div>
-          <div class="block-content">
-            <!-- Domínio Técnico -->
-            <div class="q-block">
-              <div class="q-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill"><input type="checkbox" data-toggle="#obs_dominio_tecnico"><span class="dot"></span>Adicionar observação</label>
-              </div>
-              <div class="q-inline" id="obs_dominio_tecnico" style="display:none; margin-top:10px">
-                <label>Observação</label><textarea name="dominio_tecnico_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-
-            <!-- Trabalho em Equipe -->
-            <div class="q-block">
-              <div class="q-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill"><input type="checkbox" data-toggle="#obs_trabalho_equipe"><span class="dot"></span>Adicionar observação</label>
-              </div>
-              <div class="q-inline" id="obs_trabalho_equipe" style="display:none; margin-top:10px">
-                <label>Observação</label><textarea name="trabalho_equipe_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-
-            <!-- Solução de Problemas -->
-            <div class="q-block">
-              <div class="q-title">SOLUÇÃO DE PROBLEMAS — Situação em que teve que resolver um problema complexo.</div>
-              <div class="q-inline" style="margin-top:10px">
-                <label>Evidenciou a competência?</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:10px">
-                <label></label>
-                <label class="pill"><input type="checkbox" data-toggle="#obs_solucao_problemas"><span class="dot"></span>Adicionar observação</label>
-              </div>
-              <div class="q-inline" id="obs_solucao_problemas" style="display:none; margin-top:10px">
-                <label>Observação</label><textarea name="solucao_problemas_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 4. Pontos & considerações -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-comment-dots"></i><h3>Pontos & Considerações</h3></div>
-          <div class="block-content">
-            <div class="form-grid">
-              <div class="col-6">
-                <label for="pontos_fortes">Pontos Fortes</label>
-                <textarea id="pontos_fortes" name="pontos_fortes" placeholder="Destaques positivos do candidato..."></textarea>
-              </div>
-              <div class="col-6">
-                <label for="pontos_desenvolver">Pontos a Desenvolver</label>
-                <textarea id="pontos_desenvolver" name="pontos_desenvolver" placeholder="Aspectos que precisam evoluir..."></textarea>
-              </div>
-              <div class="col-12">
-                <label for="consideracoes">Considerações</label>
-                <textarea id="consideracoes" name="consideracoes" placeholder="Observações adicionais..."></textarea>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 5. Escolaridade -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-user-graduate"></i><h3>3º Passo — Escolaridade</h3></div>
-          <div class="block-content">
-            <div class="q-block">
-              <div class="q-title">Grau de Instrução</div>
-              <div class="radio-row">
-                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Fundamental"><span class="dot"></span>Ensino Fundamental</label>
-                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio"><span class="dot"></span>Ensino Médio</label>
-                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio Cursando ou Incompleto"><span class="dot"></span>Ensino Médio Cursando/Incompleto</label>
-                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior"><span class="dot"></span>Ensino Superior</label>
-                <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior Cursando ou Incompleto"><span class="dot"></span>Superior Cursando/Incompleto</label>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <div class="col-12">
-                <label>Em caso de cursos que está estudando, o candidato:</label>
-                <div class="radio-row" style="margin-top:8px">
-                  <label class="pill"><input type="radio" name="curso_estado" value="Já está realizando"><span class="dot"></span>Já está realizando</label>
-                  <label class="pill"><input type="radio" name="curso_estado" value="Ainda irá realizar"><span class="dot"></span>Ainda irá realizar</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <label for="curso_escolhido">Em caso de curso superior: Curso escolhido</label>
-                <input id="curso_escolhido" name="curso_escolhido" type="text" />
-              </div>
-              <div class="col-6">
-                <label for="curso_motivo">Por que escolheu o curso?</label>
-                <input id="curso_motivo" name="curso_motivo" type="text" />
-              </div>
-              <div class="col-12">
-                <label>Pretende seguir carreira na área?</label>
-                <div class="radio-row" style="margin-top:8px">
-                  <label class="pill"><input type="radio" name="carreira_area" value="Sim"><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="carreira_area" value="Não"><span class="dot"></span>Não</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 6. Aspectos pessoais e familiares -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-people-roof"></i><h3>4º Passo — Aspectos Pessoais e Familiares</h3></div>
-          <div class="block-content">
-            <div class="form-grid">
-              <div class="col-12">
-                <label>Mora com:</label>
-                <div class="radio-row" style="margin-top:8px">
-                  <label class="pill"><input type="radio" name="mora_com" value="Pais"><span class="dot"></span>Pais</label>
-                  <label class="pill"><input type="radio" name="mora_com" value="Marido/Esposa"><span class="dot"></span>Marido/Esposa</label>
-                  <label class="pill"><input type="radio" name="mora_com" value="Sozinho"><span class="dot"></span>Sozinho</label>
-                  <label class="pill"><input type="radio" name="mora_com" value="Outros"><span class="dot"></span>Outros</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <label for="profissao_pais">Profissão dos pais</label>
-                <input id="profissao_pais" name="profissao_pais" type="text"/>
-              </div>
-              <div class="col-6">
-                <label for="profissao_conjuge">Do marido/esposa</label>
-                <input id="profissao_conjuge" name="profissao_conjuge" type="text"/>
-              </div>
-
-              <div class="col-12">
-                <label>O imóvel onde mora é:</label>
-                <div class="radio-row" style="margin-top:8px">
-                  <label class="pill"><input type="radio" name="imovel" value="Próprio"><span class="dot"></span>Próprio</label>
-                  <label class="pill"><input type="radio" name="imovel" value="Alugado"><span class="dot"></span>Alugado</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <label for="valor_aluguel">Se alugado, valor (R$)</label>
-                <input id="valor_aluguel" name="valor_aluguel" type="text" placeholder="ex.: 750,00"/>
-              </div>
-
-              <div class="col-12">
-                <label>Contribui financeiramente em casa?</label>
-                <div class="radio-row" style="margin-top:8px">
-                  <label class="pill"><input type="radio" name="contribui_casa" value="Não"><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="contribui_casa" value="Sim"><span class="dot"></span>Sim</label>
-                </div>
-              </div>
-              <div class="col-6">
-                <label for="quanto_contribui">Se sim, em quanto?</label>
-                <input id="quanto_contribui" name="quanto_contribui" type="text" placeholder="ex.: 400,00"/>
-              </div>
-
-              <div class="col-4">
-                <label for="maior_sonho">Qual seu maior sonho?</label>
-                <input id="maior_sonho" name="maior_sonho" type="text"/>
-              </div>
-              <div class="col-4">
-                <label for="como_se_define">Como você se define?</label>
-                <input id="como_se_define" name="como_se_define" type="text"/>
-              </div>
-              <div class="col-4">
-                <label for="espera_hering">O que espera com a Hering?</label>
-                <input id="espera_hering" name="espera_hering" type="text"/>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 7. Avaliação Geral -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-star"></i><h3>Avaliação Geral</h3></div>
-          <div class="block-content">
-            <div class="q-block">
-              <div class="q-inline">
-                <label>O candidato está apto para a vaga? *</label>
-                <div class="radio-row">
-                  <label class="pill"><input type="radio" name="apto_vaga" value="Sim" required><span class="dot"></span>Sim</label>
-                  <label class="pill"><input type="radio" name="apto_vaga" value="Não" required><span class="dot"></span>Não</label>
-                  <label class="pill"><input type="radio" name="apto_vaga" value="Em parte" required><span class="dot"></span>Em parte</label>
-                </div>
-              </div>
-              <div class="q-inline" style="margin-top:12px">
-                <label>Observações gerais</label>
-                <textarea name="observacoes_gerais" placeholder="Anotações importantes sobre o candidato..."></textarea>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 8. Dados do Avaliador -->
-        <section class="form-block">
-          <div class="block-header"><i class="fas fa-user-check"></i><h3>Dados do Avaliador</h3></div>
-          <div class="block-content">
-            <div class="form-grid">
-              <div class="col-6">
-                <label for="nome_avaliador">Nome do Avaliador *</label>
-                <select id="nome_avaliador" name="nome_avaliador" required>
-                  <option value="" hidden>Selecione...</option>
-                  <option>Bruno</option>
-                  <option>Dayane</option>
-                  <option>Lucilene</option>
-                  <option>Meire</option>
-                  <option>Sônia</option>
-                </select>
-              </div>
-              <div class="col-6">
-                <label for="cargo_avaliador">Cargo</label>
-                <input id="cargo_avaliador" name="cargo_avaliador" type="text" value="Gerente" readonly/>
-              </div>
-              <div class="col-6">
-                <label for="data_avaliacao">Data da Avaliação *</label>
-                <input id="data_avaliacao" name="data_avaliacao" type="date" required/>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Ações -->
-        <div class="actions">
-          <button id="submitBtn" type="submit" class="btn btn-primary">
-            <i class="fas fa-paper-plane"></i> Enviar Avaliação
-          </button>
-          <button type="reset" class="btn btn-danger">
-            <i class="fas fa-eraser"></i> Limpar
-          </button>
-          <a class="btn btn-link" href="/avaliacao/home.html">
-            <i class="fas fa-home"></i> Home
-          </a>
-          <a class="btn btn-link" href="/avaliacao/funcionarios.html">
-            <i class="fas fa-users"></i> Lista de Funcionários
-          </a>
+  <!-- WRAPPER ESCALADO -->
+  <div id="desktop-fit" class="desktop-fit">
+    <div class="container">
+      <header class="form-header">
+        <div class="header-content">
+          <i class="fas fa-user-tie header-icon"></i>
+          <h1>AVALIAÇÃO DE CANDIDATO</h1>
+          <h2>Sistema de Gestão de Recursos Humanos</h2>
+          <p>Preencha as informações do candidato para análise e processo seletivo</p>
         </div>
-      </form>
+      </header>
+
+      <div class="form-container">
+        <div id="okMsg" class="success"><i class="fas fa-check-circle"></i> Avaliação enviada!</div>
+        <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Enviando...</div>
+
+        <!-- === FORM COMPLETO === -->
+        <form id="candidateForm">
+          <!-- 1. Dados pessoais -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-user"></i><h3>Dados Pessoais do Candidato</h3></div>
+            <div class="block-content">
+              <div class="form-grid">
+                <div class="col-12">
+                  <label for="nome">Nome Completo *</label>
+                  <input id="nome" name="nome" type="text" required/>
+                </div>
+                <div class="col-3">
+                  <label for="idade">Idade</label>
+                  <input id="idade" name="idade" type="number" min="14" max="90" placeholder="ex.: 28"/>
+                </div>
+                <div class="col-3">
+                  <label for="telefone">Telefone</label>
+                  <input id="telefone" name="telefone" type="tel" placeholder="(xx) xxxxx-xxxx"/>
+                </div>
+                <div class="col-3">
+                  <label for="email">E-mail</label>
+                  <input id="email" name="email" type="email" placeholder="email@dominio.com"/>
+                </div>
+                <div class="col-3">
+                  <label for="funcao_prevista">Função pretendida *</label>
+                  <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Passo — Avaliando as Competências -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-clipboard-check"></i><h3>2º Passo — Avaliando as Competências</h3></div>
+            <div class="block-content">
+              <!-- Foco em Resultado -->
+              <div class="q-block">
+                <div class="q-title">FOCO EM RESULTADO — Conte-me sobre algum resultado inesperado, onde você tenha ultrapassado as expectativas ou metas.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="foco_resultado_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="foco_resultado_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="foco_resultado_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill">
+                    <input type="checkbox" data-toggle="#obs_foco_resultado"><span class="dot"></span>Adicionar observação
+                  </label>
+                </div>
+                <div class="q-inline" id="obs_foco_resultado" style="display:none; margin-top:10px">
+                  <label>Observação</label>
+                  <textarea name="foco_resultado_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+
+              <!-- Atitude -->
+              <div class="q-block">
+                <div class="q-title">ATITUDE — Conte-me uma situação onde você trouxe uma ideia para melhorar o resultado da equipe ou do setor.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="atitude_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="atitude_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="atitude_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill">
+                    <input type="checkbox" data-toggle="#obs_atitude"><span class="dot"></span>Adicionar observação
+                  </label>
+                </div>
+                <div class="q-inline" id="obs_atitude" style="display:none; margin-top:10px">
+                  <label>Observação</label>
+                  <textarea name="atitude_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+
+              <!-- Comunicação -->
+              <div class="q-block">
+                <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill">
+                    <input type="checkbox" data-toggle="#obs_comunicacao"><span class="dot"></span>Adicionar observação
+                  </label>
+                </div>
+                <div class="q-inline" id="obs_comunicacao" style="display:none; margin-top:10px">
+                  <label>Observação</label>
+                  <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Competências Específicas -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-layer-group"></i><h3>Competências Específicas</h3></div>
+            <div class="block-content">
+              <!-- Domínio Técnico -->
+              <div class="q-block">
+                <div class="q-title">DOMÍNIO TÉCNICO — Situação em que o conhecimento técnico fez a diferença.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="dominio_tecnico_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill"><input type="checkbox" data-toggle="#obs_dominio_tecnico"><span class="dot"></span>Adicionar observação</label>
+                </div>
+                <div class="q-inline" id="obs_dominio_tecnico" style="display:none; margin-top:10px">
+                  <label>Observação</label><textarea name="dominio_tecnico_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+
+              <!-- Trabalho em Equipe -->
+              <div class="q-block">
+                <div class="q-title">TRABALHO EM EQUIPE — Situação em que não gostava de um colega e como fez para trabalhar junto.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="trabalho_equipe_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill"><input type="checkbox" data-toggle="#obs_trabalho_equipe"><span class="dot"></span>Adicionar observação</label>
+                </div>
+                <div class="q-inline" id="obs_trabalho_equipe" style="display:none; margin-top:10px">
+                  <label>Observação</label><textarea name="trabalho_equipe_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+
+              <!-- Solução de Problemas -->
+              <div class="q-block">
+                <div class="q-title">SOLUÇÃO DE PROBLEMAS — Situação em que teve que resolver um problema complexo.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="solucao_problemas_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill"><input type="checkbox" data-toggle="#obs_solucao_problemas"><span class="dot"></span>Adicionar observação</label>
+                </div>
+                <div class="q-inline" id="obs_solucao_problemas" style="display:none; margin-top:10px">
+                  <label>Observação</label><textarea name="solucao_problemas_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+
+              <!-- Relacionamento (movido para mais ao final) -->
+              <div class="q-block">
+                <div class="q-title">RELACIONAMENTO — Conte-me uma situação onde teve um desentendimento com um colega de trabalho e como foi resolvido.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="relacionamento_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="relacionamento_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="relacionamento_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill">
+                    <input type="checkbox" data-toggle="#obs_relacionamento"><span class="dot"></span>Adicionar observação
+                  </label>
+                </div>
+                <div class="q-inline" id="obs_relacionamento" style="display:none; margin-top:10px">
+                  <label>Observação</label>
+                  <textarea name="relacionamento_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Pontos & considerações -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-comment-dots"></i><h3>Pontos & Considerações</h3></div>
+            <div class="block-content">
+              <div class="form-grid">
+                <div class="col-6">
+                  <label for="pontos_fortes">Pontos Fortes</label>
+                  <textarea id="pontos_fortes" name="pontos_fortes" placeholder="Destaques positivos do candidato..."></textarea>
+                </div>
+                <div class="col-6">
+                  <label for="pontos_desenvolver">Pontos a Desenvolver</label>
+                  <textarea id="pontos_desenvolver" name="pontos_desenvolver" placeholder="Aspectos que precisam evoluir..."></textarea>
+                </div>
+                <div class="col-12">
+                  <label for="consideracoes">Considerações</label>
+                  <textarea id="consideracoes" name="consideracoes" placeholder="Observações adicionais..."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Escolaridade -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-user-graduate"></i><h3>3º Passo — Escolaridade</h3></div>
+            <div class="block-content">
+              <div class="q-block">
+                <div class="q-title">Grau de Instrução</div>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Fundamental"><span class="dot"></span>Ensino Fundamental</label>
+                  <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio"><span class="dot"></span>Ensino Médio</label>
+                  <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Médio Cursando ou Incompleto"><span class="dot"></span>Ensino Médio Cursando/Incompleto</label>
+                  <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior"><span class="dot"></span>Ensino Superior</label>
+                  <label class="pill"><input type="radio" name="grau_instrucao" value="Ensino Superior Cursando ou Incompleto"><span class="dot"></span>Superior Cursando/Incompleto</label>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="col-12">
+                  <label>Em caso de cursos que está estudando, o candidato:</label>
+                  <div class="radio-row" style="margin-top:8px">
+                    <label class="pill"><input type="radio" name="curso_estado" value="Já está realizando"><span class="dot"></span>Já está realizando</label>
+                    <label class="pill"><input type="radio" name="curso_estado" value="Ainda irá realizar"><span class="dot"></span>Ainda irá realizar</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="curso_escolhido">Em caso de curso superior: Curso escolhido</label>
+                  <input id="curso_escolhido" name="curso_escolhido" type="text" />
+                </div>
+                <div class="col-6">
+                  <label for="curso_motivo">Por que escolheu o curso?</label>
+                  <input id="curso_motivo" name="curso_motivo" type="text" />
+                </div>
+                <div class="col-12">
+                  <label>Pretende seguir carreira na área?</label>
+                  <div class="radio-row" style="margin-top:8px">
+                    <label class="pill"><input type="radio" name="carreira_area" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="carreira_area" value="Não"><span class="dot"></span>Não</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Aspectos pessoais e familiares -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-people-roof"></i><h3>4º Passo — Aspectos Pessoais e Familiares</h3></div>
+            <div class="block-content">
+              <div class="form-grid">
+                <div class="col-12">
+                  <label>Mora com:</label>
+                  <div class="radio-row" style="margin-top:8px">
+                    <label class="pill"><input type="radio" name="mora_com" value="Pais"><span class="dot"></span>Pais</label>
+                    <label class="pill"><input type="radio" name="mora_com" value="Marido/Esposa"><span class="dot"></span>Marido/Esposa</label>
+                    <label class="pill"><input type="radio" name="mora_com" value="Sozinho"><span class="dot"></span>Sozinho</label>
+                    <label class="pill"><input type="radio" name="mora_com" value="Outros"><span class="dot"></span>Outros</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="profissao_pais">Profissão dos pais</label>
+                  <input id="profissao_pais" name="profissao_pais" type="text"/>
+                </div>
+                <div class="col-6">
+                  <label for="profissao_conjuge">Do marido/esposa</label>
+                  <input id="profissao_conjuge" name="profissao_conjuge" type="text"/>
+                </div>
+
+                <div class="col-12">
+                  <label>O imóvel onde mora é:</label>
+                  <div class="radio-row" style="margin-top:8px">
+                    <label class="pill"><input type="radio" name="imovel" value="Próprio"><span class="dot"></span>Próprio</label>
+                    <label class="pill"><input type="radio" name="imovel" value="Alugado"><span class="dot"></span>Alugado</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="valor_aluguel">Se alugado, valor (R$)</label>
+                  <input id="valor_aluguel" name="valor_aluguel" type="text" placeholder="ex.: 750,00"/>
+                </div>
+
+                <div class="col-12">
+                  <label>Contribui financeiramente em casa?</label>
+                  <div class="radio-row" style="margin-top:8px">
+                    <label class="pill"><input type="radio" name="contribui_casa" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="contribui_casa" value="Sim"><span class="dot"></span>Sim</label>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label for="quanto_contribui">Se sim, em quanto?</label>
+                  <input id="quanto_contribui" name="quanto_contribui" type="text" placeholder="ex.: 400,00"/>
+                </div>
+
+                <div class="col-4">
+                  <label for="maior_sonho">Qual seu maior sonho?</label>
+                  <input id="maior_sonho" name="maior_sonho" type="text"/>
+                </div>
+                <div class="col-4">
+                  <label for="como_se_define">Como você se define?</label>
+                  <input id="como_se_define" name="como_se_define" type="text"/>
+                </div>
+                <div class="col-4">
+                  <label for="espera_hering">O que espera com a Hering?</label>
+                  <input id="espera_hering" name="espera_hering" type="text"/>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 7. Avaliação Geral -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-star"></i><h3>Avaliação Geral</h3></div>
+            <div class="block-content">
+              <div class="q-block">
+                <div class="q-inline">
+                  <label>O candidato está apto para a vaga? *</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="apto_vaga" value="Sim" required><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="apto_vaga" value="Não" required><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="apto_vaga" value="Em parte" required><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:12px">
+                  <label>Observações gerais</label>
+                  <textarea name="observacoes_gerais" placeholder="Anotações importantes sobre o candidato..."></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. Dados do Avaliador -->
+          <section class="form-block">
+            <div class="block-header"><i class="fas fa-user-check"></i><h3>Dados do Avaliador</h3></div>
+            <div class="block-content">
+              <div class="form-grid">
+                <div class="col-6">
+                  <label for="nome_avaliador">Nome do Avaliador *</label>
+                  <select id="nome_avaliador" name="nome_avaliador" required>
+                    <option value="" hidden>Selecione...</option>
+                    <option>Bruno</option>
+                    <option>Dayane</option>
+                    <option>Lucilene</option>
+                    <option>Meire</option>
+                    <option>Sônia</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label for="cargo_avaliador">Cargo</label>
+                  <input id="cargo_avaliador" name="cargo_avaliador" type="text" value="Gerente" readonly/>
+                </div>
+                <div class="col-6">
+                  <label for="data_avaliacao">Data da Avaliação *</label>
+                  <input id="data_avaliacao" name="data_avaliacao" type="date" required/>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Ações -->
+          <div class="actions">
+            <button id="submitBtn" type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane"></i> Enviar Avaliação
+            </button>
+            <button type="reset" class="btn btn-danger">
+              <i class="fas fa-eraser"></i> Limpar
+            </button>
+            <a class="btn btn-link" href="/avaliacao/home.html">
+              <i class="fas fa-home"></i> Home
+            </a>
+            <a class="btn btn-link" href="/avaliacao/funcionarios.html">
+              <i class="fas fa-users"></i> Lista de Funcionários
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
+  </div><!-- /desktop-fit -->
 
   <script>
     /* === CONFIG GAS === */
