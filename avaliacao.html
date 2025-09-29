@@ -145,6 +145,14 @@
                   <label for="funcao_prevista">Função pretendida *</label>
                   <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
                 </div>
+                <div class="col-6">
+                  <label for="nome_contato_emergencia">Nome do Contato de Emergência</label>
+                  <input id="nome_contato_emergencia" name="nome_contato_emergencia" type="text" placeholder="Nome completo do contato"/>
+                </div>
+                <div class="col-6">
+                  <label for="telefone_contato_emergencia">Telefone do Contato de Emergência</label>
+                  <input id="telefone_contato_emergencia" name="telefone_contato_emergencia" type="tel" placeholder="(xx) xxxxx-xxxx"/>
+                </div>
               </div>
             </div>
           </section>
@@ -199,28 +207,7 @@
                 </div>
               </div>
 
-              <!-- Comunicação -->
-              <div class="q-block">
-                <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
-                <div class="q-inline" style="margin-top:10px">
-                  <label>Evidenciou a competência?</label>
-                  <div class="radio-row">
-                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Sim"><span class="dot"></span>Sim</label>
-                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
-                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
-                  </div>
-                </div>
-                <div class="q-inline" style="margin-top:10px">
-                  <label></label>
-                  <label class="pill">
-                    <input type="checkbox" data-toggle="#obs_comunicacao"><span class="dot"></span>Adicionar observação
-                  </label>
-                </div>
-                <div class="q-inline" id="obs_comunicacao" style="display:none; margin-top:10px">
-                  <label>Observação</label>
-                  <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
-                </div>
-              </div>
+
             </div>
           </section>
 
@@ -287,6 +274,29 @@
                   <label>Observação</label><textarea name="solucao_problemas_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
                 </div>
               </div>
+
+              <!-- Comunicação -->
+              <div class="q-block">
+                <div class="q-title">COMUNICAÇÃO — Conte-me uma situação em que algo que você disse foi interpretado de maneira equivocada pelos colegas ou pelo gestor.</div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label>Evidenciou a competência?</label>
+                  <div class="radio-row">
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Sim"><span class="dot"></span>Sim</label>
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Não"><span class="dot"></span>Não</label>
+                    <label class="pill"><input type="radio" name="comunicacao_ok" value="Em parte"><span class="dot"></span>Em parte</label>
+                  </div>
+                </div>
+                <div class="q-inline" style="margin-top:10px">
+                  <label></label>
+                  <label class="pill">
+                    <input type="checkbox" data-toggle="#obs_comunicacao"><span class="dot"></span>Adicionar observação
+                  </label>
+                </div>
+                <div class="q-inline" id="obs_comunicacao" style="display:none; margin-top:10px">
+                  <label>Observação</label>
+                  <textarea name="comunicacao_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -332,7 +342,6 @@
                   <div class="radio-row" style="margin-top:8px">
                     <label class="pill"><input type="radio" name="curso_estado" value="Já está realizando"><span class="dot"></span>Já está realizando</label>
                     <label class="pill"><input type="radio" name="curso_estado" value="Ainda irá realizar"><span class="dot"></span>Ainda irá realizar</label>
-                    <label class="pill"><input type="radio" name="curso_estado" value="Não é obrigatório"><span class="dot"></span>Não é obrigatório</label>
                   </div>
                 </div>
                 <div class="col-6">
