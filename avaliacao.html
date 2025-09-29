@@ -501,6 +501,18 @@
 
         // FORÇA ENCAIXE UNIVERSAL NA LARGURA (igual sua 2ª foto)
         const scale = vw / BASE_WIDTH;
+
+        /* ====== ALTERAÇÃO SOMENTE PARA DESKTOP ======
+           Se a viewport for >= 1200px (desktop), mantemos o fill-width,
+           mas centralizamos visualmente alterando a origem para o centro.
+           No mobile (<1200), nada muda (continua top-left).
+        */
+        if (vw >= BASE_WIDTH) {
+          root.style.transformOrigin = 'top center';
+        } else {
+          root.style.transformOrigin = 'top left';
+        }
+
         root.style.transform = 'scale(' + scale + ')';
         root.style.width = BASE_WIDTH + 'px';
         root.style.height = (vh / scale) + 'px';
