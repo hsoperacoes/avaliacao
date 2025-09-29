@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Meta viewport ajustada para visualização panorâmica perfeita sem zoom inicial -->
-  <meta name="viewport" content="width=1200, initial-scale=0.25, user-scalable=yes"/>
+  <!-- Mantém a base como device-width; o ajuste de escala é feito via JS para reproduzir o desktop sem pinçar -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
@@ -11,7 +11,7 @@
     /* ===== Desktop-fit (mantém layout desktop e escala no mobile) ===== */
     .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
     html,body{height:100%}
-    body{overflow-x:auto; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
+    body{overflow-x:hidden; margin:0; background:#1a1a1a; color:#eaeaea; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6}
 
     /* ===== Reset & base ===== */
     * { margin:0; padding:0; box-sizing:border-box }
