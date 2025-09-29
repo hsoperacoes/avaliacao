@@ -8,6 +8,46 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 
   <style>
+    /* ===== Overlay de carregamento (full-screen) ===== */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      display: none;                 /* começa escondido */
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+    }
+    .overlay-box{
+      background:#1f1f1f;
+      border:1px solid #333;
+      border-radius:14px;
+      padding:22px 26px;
+      box-shadow:0 6px 28px rgba(0,0,0,.45);
+      color:#eaeaea;
+      min-width: 280px;
+      text-align:center;
+    }
+    .overlay-title{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:10px;
+      color:#00c3ff;
+      letter-spacing:.3px
+    }
+    .spinner{
+      display:inline-block;
+      width:42px; height:42px;
+      border:4px solid #3b3b3b;
+      border-top-color:#00c3ff;
+      border-radius:50%;
+      animation:spin 1s linear infinite;
+      margin:10px 0 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .overlay-sub{ font-size:13px; opacity:.85 }
+
     /* ===== Desktop-fit (mantém layout desktop e escala no mobile) ===== */
     .desktop-fit{ width:1200px; margin:0 auto; transform-origin: top left; will-change: transform; }
     html,body{height:100%}
@@ -102,6 +142,15 @@
   </style>
 </head>
 <body>
+  <!-- Overlay de Carregamento (full-screen) -->
+  <div id="overlay" aria-hidden="true">
+    <div class="overlay-box">
+      <div class="overlay-title"><i class="fas fa-cloud-upload-alt"></i> Enviando sua avaliação</div>
+      <div class="spinner" role="progressbar" aria-label="Carregando"></div>
+      <div class="overlay-sub">Aguarde alguns segundos…</div>
+    </div>
+  </div>
+
   <!-- WRAPPER ESCALADO -->
   <div id="desktop-fit" class="desktop-fit">
     <div class="container">
@@ -206,7 +255,6 @@
                   <textarea name="atitude_situacao" placeholder="Digite sua observação (opcional)..."></textarea>
                 </div>
               </div>
-
 
             </div>
           </section>
@@ -599,16 +647,23 @@
       });
     });
 
-    // Submit handler
+    // Submit handler + Overlay
     const form = document.getElementById('candidateForm');
     const loading = document.getElementById('loading');
     const ok = document.getElementById('okMsg');
     const submitBtn = document.getElementById('submitBtn');
+    const overlay = document.getElementById('overlay');
+
+    function showOverlay(){ overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden','false'); }
+    function hideOverlay(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      // barras de status antigas (mantidas) + overlay novo
       loading.style.display = 'block'; ok.style.display = 'none';
       submitBtn.disabled = true;
+      showOverlay();
+
       const data = formToJSON(e.target);
 
       try{
@@ -619,13 +674,16 @@
           catch(upErr){ console.warn('Falha upsert Sheets, usando localStorage:', upErr); saveApprovedToLocal(data); }
 
           loading.style.display = 'none'; ok.style.display = 'block';
+          hideOverlay();
           setTimeout(() => { window.location.href = '/avaliacao/funcionarios.html'; }, 800);
         } else {
           loading.style.display = 'none'; ok.style.display = 'block';
+          hideOverlay();
           setTimeout(() => { form.reset(); ok.style.display = 'none'; }, 1500);
         }
       }catch(err){
         loading.style.display = 'none'; submitBtn.disabled = false;
+        hideOverlay();
         alert('Não foi possível enviar a avaliação.\n\nDetalhes: ' + err.message);
         console.error(err); return;
       }
