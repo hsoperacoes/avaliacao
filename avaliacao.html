@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <!-- Mantém a base como device-width; o ajuste de escala é feito via JS para reproduzir o desktop sem pinçar -->
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes, viewport-fit=cover"/>
   <title>Sistema de Avaliação de Candidatos</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
@@ -13,7 +12,7 @@
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,.7);
-      display: none;                 /* começa escondido */
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 9999;
@@ -549,18 +548,6 @@
 
         // FORÇA ENCAIXE UNIVERSAL NA LARGURA (igual sua 2ª foto)
         const scale = vw / BASE_WIDTH;
-
-        /* ====== ALTERAÇÃO SOMENTE PARA DESKTOP ======
-           Se a viewport for >= 1200px (desktop), mantemos o fill-width,
-           mas centralizamos visualmente alterando a origem para o centro.
-           No mobile (<1200), nada muda (continua top-left).
-        */
-        if (vw >= BASE_WIDTH) {
-          root.style.transformOrigin = 'top center';
-        } else {
-          root.style.transformOrigin = 'top left';
-        }
-
         root.style.transform = 'scale(' + scale + ')';
         root.style.width = BASE_WIDTH + 'px';
         root.style.height = (vh / scale) + 'px';
