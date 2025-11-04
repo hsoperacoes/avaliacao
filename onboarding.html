@@ -222,9 +222,14 @@
               <i id="toggle5" class="fas fa-chevron-down step-toggle"></i>
             </div>
             <div id="step5" class="step-content">
-              <div class="checklist-item" data-task-id="1.7" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">5.1 - Acionar Amanda para processo. (Registro + Linx + OTO + Academia Hering.)</div></div></div>
-              <div class="checklist-item" data-task-id="5.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">5.2 - Iniciar atendimento com acompanhamento 100% da gerente.</div></div></div>
-
+              <div class="checklist-item" data-task-id="1.7" onclick="onTaskClick(event,this)">
+                <div class="checkbox-custom"></div>
+                <div><div class="item-text">5.1 - Acionar Amanda para processo. (Registro + Linx + OTO + Academia Hering.)</div></div>
+              </div>
+              <div class="checklist-item" data-task-id="5.1" onclick="onTaskClick(event,this)">
+                <div class="checkbox-custom"></div>
+                <div><div class="item-text">5.2 - Iniciar atendimento com acompanhamento 100% da gerente.</div></div>
+              </div>
               <div class="evaluation-container" id="eval-step5">
                 <h4>Avaliação desta etapa</h4>
                 <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
@@ -278,11 +283,11 @@
     const FEEDBACK_AUTO_SEND_ON_COMPLETE = true; // envia link do feedback quando atingir 100%
 
     const STEPS=[
-      {id:1,title:'1º Passo - Gerente.',tasks:['1.1','1.2','1.3','1.4','1.5','1.6','1.7']},
+      {id:1,title:'1º Passo - Gerente.',tasks:['1.1','1.2','1.3','1.4','1.5','1.6']},
       {id:2,title:'2º Passo - Primeiro dia de Trabalho.',tasks:['2.1','2.2','2.3','2.4']},
       {id:3,title:'3º Passo - Segundo Dia.',tasks:['3.1']},
       {id:4,title:'4º Passo - Terceiro dia.',tasks:['4.1']},
-      {id:5,title:'5º Passo - Quarto, Quinto e Sexto dia.',tasks:['5.1']},
+      {id:5,title:'5º Passo - Quarto, Quinto e Sexto dia.',tasks:['1.7','5.1']},
       {id:6,title:'6º Passo - Sétimo dia.',tasks:['6.1']}
     ];
     const ORDERED_TASK_IDS=STEPS.flatMap(s=>s.tasks);
@@ -654,10 +659,9 @@
         const r=getRatings();
         await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
 
-        // 3) Atualiza checkpoints locais e UI
+        // 3) Atualiza check
         lockedIndex=newLockedIndex;
         applySequentialLocking();updateStepStatuses();updateProgressBar();
-        // >>> Garante abertura local da próxima etapa
         lastSavedCheckpoint = checkpointStepIndex();
 
         // 4) Se concluiu 100%, dispara convite de feedback
@@ -670,7 +674,6 @@
         setOverlay(true,'Liberando próxima etapa…','Validando informações no servidor');
         const unlocked = await waitForNextCheckpoint(beforeCheckpoint, {timeoutMs: 15000, intervalMs: 900});
 
-        // feedback visual do botão
         const btn=document.getElementById('saveBtn');
         if (btn) {
           const txt=btn.innerHTML;
@@ -781,7 +784,6 @@
         wrapper.style.marginRight = (scale<1) ? '0' : 'auto';
 
         // ajusta altura visual do container para o conteúdo escalado
-        // (offsetHeight é a altura "não escalada")
         const scaledH = wrapper.offsetHeight * (scale<1 ? scale : 1);
         page.style.height = scaledH + 'px';
       } catch (error) {
