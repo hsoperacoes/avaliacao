@@ -139,9 +139,89 @@
       .q-inline{ grid-template-columns:1fr }
       .col-6{ grid-column: span 12 } .col-4{ grid-column: span 12 } .col-3{ grid-column: span 6 }
     }
+  
+
+    /* ===== HS: seleção de cargo antes do fluxo ===== */
+    .hs-role-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.88);
+      padding: 20px;
+      backdrop-filter: blur(3px);
+    }
+    .hs-role-gate.show { display: flex; }
+    .hs-role-box {
+      width: min(520px, 94vw);
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 16px;
+      box-shadow: 0 16px 45px rgba(0,0,0,.55);
+      padding: 28px;
+      color: #eaeaea;
+      text-align: center;
+    }
+    .hs-role-box i { font-size: 42px; color: #4CAF50; margin-bottom: 14px; }
+    .hs-role-box h2 { margin: 0 0 8px; color: #fff; font-size: 1.7rem; }
+    .hs-role-box p { margin: 0 0 18px; color: #cfcfcf; }
+    .hs-role-options { display: grid; gap: 12px; margin-top: 12px; }
+    .hs-role-btn {
+      width: 100%;
+      border: 2px solid #555;
+      border-radius: 12px;
+      padding: 15px 18px;
+      background: #3a3a3a;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: .2s ease;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .hs-role-btn:hover { border-color:#4CAF50; background:#425442; transform: translateY(-1px); }
+    .hs-role-current {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 18px;
+      background: #3a3a3a;
+      color: #eaeaea;
+      border-left: 4px solid #4CAF50;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+    }
+    .hs-role-change {
+      margin-left: 8px;
+      color: #90caf9;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
+
+  <div id="hsRoleGate" class="hs-role-gate" aria-modal="true" role="dialog">
+    <div class="hs-role-box">
+      <i class="fas fa-briefcase"></i>
+      <h2>Selecione o cargo</h2>
+      <p>Essa escolha será usada na avaliação, funcionários e onboarding.</p>
+      <div class="hs-role-options">
+        <button type="button" class="hs-role-btn" onclick="hsEscolherCargo('VENDEDOR')">Vendedor</button>
+        <button type="button" class="hs-role-btn" onclick="hsEscolherCargo('CAIXA')">Caixa</button>
+        <button type="button" class="hs-role-btn" onclick="hsEscolherCargo('ESTOQUISTA')">Estoquista</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Overlay de Carregamento (full-screen) -->
   <div id="overlay" aria-hidden="true">
     <div class="overlay-box">
@@ -162,6 +242,9 @@
           <p>Preencha as informações do candidato para análise e processo seletivo</p>
         </div>
       </header>
+
+          <div class="hs-role-current"><i class="fas fa-briefcase"></i> Cargo: <span data-hs-cargo-label>—</span><button type="button" class="hs-role-change" onclick="hsTrocarCargo()">Trocar</button></div>
+
 
       <div class="form-container">
         <div id="okMsg" class="success"><i class="fas fa-check-circle"></i> Avaliação enviada!</div>
@@ -192,7 +275,7 @@
                 </div>
                 <div class="col-3">
                   <label for="funcao_prevista">Função pretendida *</label>
-                  <input id="funcao_prevista" name="funcao_prevista" type="text" required placeholder="ex.: Vendedor, Caixa, Estoquista"/>
+                  <input id="funcao_prevista" name="funcao_prevista" type="text" required readonly placeholder="Escolha o cargo na tela inicial"/>
                 </div>
                 <div class="col-6">
                   <label for="nome_contato_emergencia">Nome do Contato de Emergência</label>
@@ -665,6 +748,8 @@
       showOverlay();
 
       const data = formToJSON(e.target);
+      const cargoSelecionado = hsCargoLabel(hsGetCargoSelecionado());
+      if (cargoSelecionado) data.funcao_prevista = cargoSelecionado;
 
       try{
         await sendToGAS({ type:'candidate-eval', data });
@@ -690,5 +775,92 @@
       submitBtn.disabled = false;
     });
   </script>
+
+
+  <script>
+    /* ===== HS: cargo selecionado compartilhado entre páginas ===== */
+    (function(){
+      const STORAGE_KEY = 'hs_cargo_selecionado';
+      const VALIDOS = ['VENDEDOR','CAIXA','ESTOQUISTA'];
+      const LABELS = { VENDEDOR:'Vendedor', CAIXA:'Caixa', ESTOQUISTA:'Estoquista' };
+
+      window.hsNormalizarCargo = function(v){
+        v = String(v || '').trim().toUpperCase();
+        if (v === 'VENDEDORA') v = 'VENDEDOR';
+        if (v === 'ESTOQUE') v = 'ESTOQUISTA';
+        return VALIDOS.includes(v) ? v : '';
+      };
+      window.hsCargoLabel = function(v){
+        v = window.hsNormalizarCargo(v);
+        return LABELS[v] || '';
+      };
+      window.hsGetCargoSelecionado = function(){
+        const params = new URLSearchParams(location.search);
+        const fromUrl = window.hsNormalizarCargo(params.get('cargo'));
+        if (fromUrl) {
+          localStorage.setItem(STORAGE_KEY, fromUrl);
+          return fromUrl;
+        }
+        return window.hsNormalizarCargo(localStorage.getItem(STORAGE_KEY));
+      };
+      window.hsSetCargoSelecionado = function(cargo){
+        cargo = window.hsNormalizarCargo(cargo);
+        if (!cargo) return;
+        localStorage.setItem(STORAGE_KEY, cargo);
+        window.hsAplicarCargoNosLinks();
+      };
+      window.hsTrocarCargo = function(){
+        localStorage.removeItem(STORAGE_KEY);
+        const gate = document.getElementById('hsRoleGate');
+        if (gate) gate.classList.add('show');
+      };
+      window.hsAplicarCargoNosLinks = function(){
+        const cargo = window.hsGetCargoSelecionado();
+        if (!cargo) return;
+        document.querySelectorAll('a[href$=".html"], a[href*=".html?"]').forEach(a => {
+          try {
+            const u = new URL(a.getAttribute('href'), location.href);
+            u.searchParams.set('cargo', cargo);
+            a.setAttribute('href', u.pathname.split('/').pop() + u.search);
+          } catch(e) {}
+        });
+      };
+      window.hsEscolherCargo = function(cargo){
+        window.hsSetCargoSelecionado(cargo);
+        const gate = document.getElementById('hsRoleGate');
+        if (gate) gate.classList.remove('show');
+        window.hsRenderCargoAtual();
+        window.hsPreencherCamposCargo();
+        if (typeof window.hsAfterCargoChange === 'function') window.hsAfterCargoChange();
+      };
+      window.hsRenderCargoAtual = function(){
+        const cargo = window.hsGetCargoSelecionado();
+        document.querySelectorAll('[data-hs-cargo-label]').forEach(el => el.textContent = window.hsCargoLabel(cargo) || 'Não selecionado');
+      };
+      window.hsPreencherCamposCargo = function(){
+        const cargo = window.hsCargoLabel(window.hsGetCargoSelecionado());
+        if (!cargo) return;
+        ['funcao_prevista','employeePosition'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.value = cargo;
+            el.readOnly = true;
+            el.setAttribute('data-cargo-bloqueado','true');
+          }
+        });
+      };
+
+      document.addEventListener('DOMContentLoaded', function(){
+        window.hsAplicarCargoNosLinks();
+        window.hsRenderCargoAtual();
+        window.hsPreencherCamposCargo();
+        const cargo = window.hsGetCargoSelecionado();
+        const deveExibirGate = false || !cargo;
+        const gateEl = document.getElementById('hsRoleGate');
+        if (gateEl && deveExibirGate && !cargo) gateEl.classList.add('show');
+      });
+    })();
+  </script>
+
 </body>
 </html>
