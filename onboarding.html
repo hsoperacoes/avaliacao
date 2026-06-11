@@ -1,796 +1,723 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8"/>
-  <!-- Pinch habilitado; nada de zoom forçado -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5"/>
-  <title>Sistema de Onboarding - Novo Funcionário</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Sistema de Onboarding
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{margin:0;padding:0;background:#1a1a1a;color:#eaeaea;font-family:
-      'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6}
-    body{overflow-x:hidden} /* impede scroll lateral no mobile, como no arquivo de referência */
-
-    /* container que segura o wrapper escalado e dá altura correta à página */
-    #page{position:relative;width:100%;min-height:100vh;overflow-x:hidden}
-
-    /* wrapper é o layout desktop de 1280p que será escalado no mobile */
-    #wrapper{width:1280px;margin:0 auto;transform-origin:top left}
-
-    .container{max-width:1200px;margin:0 auto;padding:0 20px}
-
-    /* Header */
-    .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
-    .header::before{content:
-      '';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
-    @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    .header-content{position:relative;z-index:1}
-    .header-icon{font-size:3em;margin-bottom:20px;color:#4CAF50}
-    .header h1{font-size:2.2em;font-weight:700;margin-bottom:10px}
-    .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
-    .header p{font-size:1.05em;opacity:.9;max-width:700px;margin:0 auto}
-
-    .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
-    .card{background:#3a3a3a;border-radius:12px;padding:25px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.2)}
-    .card h3{display:flex;align-items:center;gap:10px;margin-bottom:15px}
-
-    .employee-info{border-left:4px solid #4CAF50}
-    .employee-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;color:#e0e0e0}
-    .employee-details div{background:#4a4a4a;padding:10px 15px;border-radius:8px}
-    .employee-details strong{color:#4CAF50}
-
-    .progress-overview{background:#3a3a3a;border-radius:12px;padding:25px;margin-bottom:30px;border-left:4px solid #2196F3;box-shadow:0 4px 15px rgba(0,0,0,.2)}
-    .progress-overview h3{color:#2196F3;margin-bottom:15px;display:flex;align-items:center;gap:10px}
-    .progress-bar-container{background:#4a4a4a;border-radius:10px;height:20px;overflow:hidden;margin-bottom:10px}
-    .progress-bar{background:linear-gradient(90deg,#4CAF50,#45a049);height:100%;width:0%;transition:width .5s ease;border-radius:10px}
-    .progress-text{color:#e0e0e0;text-align:center;font-weight:600}
-
-    /* Steps */
-    .step-section{background:#3a3a3a;border-radius:12px;margin-bottom:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);border-left:4px solid #FF9800;overflow:hidden}
-    .step-header{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:#fff;padding:20px 25px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all .3s ease}
-    .step-header:hover{background:linear-gradient(135deg,#F57C00 0%,#E65100 100%)}
-    .step-header i{font-size:1.5em}
-    .step-header h3{font-size:1.1em;font-weight:700;margin:0;flex:1}
-    .step-toggle{font-size:1.2em;transition:transform .3s ease}
-    .step-content{padding:22px;display:none}
-    .step-content.active{display:block}
-    .step-badge{font-size:.78rem;font-weight:800;padding:4px 10px;border-radius:999px;line-height:1;background:#666;color:#fff;opacity:.95}
-    .step-header.done .step-badge{background:#2e7d32}
-    .step-header.done{background:linear-gradient(135deg,#2e7d32 0%,#1b5e20 100%) !important}
-
-    .checklist-item{background:#4a4a4a;border:2px solid #555;border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:14px;cursor:pointer;transition:all .25s ease}
-    .checklist-item:hover{border-color:#4CAF50;background:#525252}
-    .checklist-item.completed{background:#2e5233;border-color:#4CAF50}
-    .checklist-item.completed .item-text{text-decoration:line-through;opacity:.85}
-    .checklist-item.disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.25)}
-    .checkbox-custom{width:22px;height:22px;border:2px solid #777;border-radius:6px;position:relative;flex-shrink:0;margin-top:2px}
-    .checklist-item.completed .checkbox-custom{background:#4CAF50;border-color:#4CAF50}
-    .checklist-item.completed .checkbox-custom::after{content:
-      '✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-weight:800;font-size:15px}
-    .item-text{color:#e0e0e0;font-size:1rem;flex:1}
-    .item-note{font-size:.92rem;color:#cfcfcf;margin-top:6px;font-style:italic}
-
-    .action-buttons{display:flex;gap:14px;justify-content:center;margin-top:26px;padding-top:18px;border-top:2px solid #555;flex-wrap:wrap}
-    .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s ease}
-    .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
-    .btn-secondary{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
-    .btn-info{background:linear-gradient(135deg,#17a2b8 0%,#138496 100%);color:#fff;box-shadow:0 4px 15px rgba(23,162,184,.3)}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-
-    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
-    .toast.show{opacity:1}
-
-    .fade-in{animation:fadeIn .5s ease-in}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-    /* Avaliação (restaurado) */
-    .evaluation-container{display:none;margin-top:15px;padding:15px;background:#444;border-radius:10px;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-    .evaluation-container h4{margin-bottom:12px;color:#fff;font-weight:700}
-    .stars{display:flex;gap:10px;margin-bottom:8px}
-    .star{
-      width:36px;height:36px;border:2px solid #888;border-radius:10px;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;
-      font-size:1rem;color:#ccc;transition:.2s;background:#3a3a3a
-    }
-    .star:hover{transform:translateY(-1px)}
-    .star.selected{background:#4CAF50;border-color:#4CAF50;color:#fff}
-    .eval-note{margin-top:2px;font-size:.9rem;color:#ddd;opacity:.85}
-
-    /* Overlay loading (boot + salvar/espera liberação) */
-    .overlay{position:fixed; inset:0; background:rgba(0,0,0,.72); display:none; align-items:center; justify-content:center; z-index:2000}
-    .overlay .box{background:#2a2a2a; border:1px solid #555; border-radius:12px; padding:22px 26px; color:#e0e0e0; box-shadow:0 12px 28px rgba(0,0,0,.45); text-align:center; min-width:300px}
-    .overlay .spinner{font-size:22px;margin-right:10px}
-    .overlay .sub{display:block;margin-top:8px;color:#cfcfcf;font-size:.95rem}
+   :root {
+  --navy:#071a45;
+  --bg:#edf2f7;
+  --card:#fff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#dbe3ef;
+  --green:#16a34a;
+  --red:#dc2626;
+  --blue:#2563eb;
+  --amber:#f59e0b;
+  --shadow:0 10px 30px rgba(15,23,42,.08)
+}
+* {
+  box-sizing:border-box
+}
+body {
+  font-family:Arial,Segoe UI,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  min-height:100vh
+}
+.top {
+  background:linear-gradient(90deg,#020817,#0f172a,#020617);
+  color:#fff;
+  padding:22px 26px
+}
+.top h1 {
+  margin:0;
+  font-size:28px
+}
+.top p {
+  margin:6px 0 0;
+  color:#cbd5e1
+}
+.wrap {
+  max-width:1180px;
+  margin:24px auto;
+  padding:0 16px
+}
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:22px;
+  margin-bottom:16px
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px
+}
+.btn {
+  border:0;
+  border-radius:14px;
+  padding:12px 18px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:var(--navy);
+  color:#fff
+}
+.btn:hover {
+  filter:brightness(1.06)
+}
+.btn.secondary {
+  background:#64748b
+}
+.btn.green {
+  background:var(--green)
+}
+.btn.red {
+  background:var(--red)
+}
+.btn.blue {
+  background:var(--blue)
+}
+.row {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center
+}
+.muted {
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45
+}
+label {
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#334155;
+  display:block;
+  margin:12px 0 6px
+}
+input,select,textarea {
+  width:100%;
+  padding:13px 14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+  font-size:14px;
+  outline:none
+}
+textarea {
+  min-height:90px;
+  resize:vertical
+}
+input:focus,select:focus,textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(37,99,235,.12)
+}
+.nav {
+  margin-top:14px
+}
+.toast {
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  background:#0f172a;
+  color:#fff;
+  padding:14px 16px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  display:none;
+  z-index:9999
+}
+.toast.show {
+  display:block
+}
+.role-gate {
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.92);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  padding:20px
+}
+.role-box {
+  width:min(520px,94vw);
+  background:#fff;
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 24px 80px rgba(0,0,0,.38)
+}
+.role-box h2 {
+  margin:0 0 8px;
+  color:var(--navy)
+}
+.role-pill {
+  padding:14px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:#f8fafc;
+  cursor:pointer;
+  font-weight:900;
+  text-align:center
+}
+.role-pill:hover {
+  background:#dbeafe;
+  border-color:#93c5fd
+}
+.badge {
+  display:inline-flex;
+  padding:7px 11px;
+  border-radius:999px;
+  background:#e2e8f0;
+  color:#334155;
+  font-size:12px;
+  font-weight:900
+}
+.badge.green {
+  background:#dcfce7;
+  color:#166534
+}
+.badge.amber {
+  background:#fef3c7;
+  color:#92400e
+}
+.hidden {
+  display:none!important
+}
+@media(max-width:700px) {
+  .top h1 {
+    font-size:22px
+  }
+  .wrap {
+    margin:14px auto
+  }
+  .card {
+    padding:16px
+  }
+  
+}
+.step {
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:#fff;
+  margin-bottom:14px;
+  overflow:hidden
+}
+.step-head {
+  padding:16px 18px;
+  background:#f8fafc;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  cursor:pointer
+}
+.step-head h3 {
+  margin:0;
+  color:var(--navy)
+}
+.step-body {
+  padding:16px 18px;
+  display:none
+}
+.step.open .step-body {
+  display:block
+}
+.step.locked {
+  opacity:.55
+}
+.task {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  margin-bottom:8px;
+  cursor:pointer
+}
+.task.done {
+  background:#dcfce7;
+  border-color:#86efac
+}
+.boxcheck {
+  width:22px;
+  height:22px;
+  border:2px solid #94a3b8;
+  border-radius:7px;
+  flex:0 0 auto
+}
+.task.done .boxcheck {
+  background:var(--green);
+  border-color:var(--green)
+}
+.task.done .boxcheck:after {
+  content:'✓';
+  color:#fff;
+  font-weight:900;
+  display:block;
+  text-align:center;
+  line-height:18px
+}
+.note {
+  font-size:13px;
+  color:#64748b;
+  margin-top:4px;
+  line-height:1.4
+}
+.stars {
+  display:flex;
+  gap:8px;
+  margin:8px 0
+}
+.star {
+  width:42px;
+  height:38px;
+  border-radius:12px;
+  background:#e2e8f0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  cursor:pointer
+}
+.star.sel {
+  background:#facc15;
+  color:#713f12
+}
+.progressbar {
+  height:16px;
+  background:#e2e8f0;
+  border-radius:999px;
+  overflow:hidden
+}
+.progressbar span {
+  display:block;
+  height:100%;
+  background:var(--green);
+  width:0
+}
   </style>
-</head>
-<body>
-  <div id="page">
-    <div id="wrapper">
-      <div class="container">
-        <header class="header">
-          <div class="header-content">
-            <i class="fas fa-route header-icon"></i>
-            <h1>SISTEMA DE ONBOARDING</h1>
-            <h2>Jornada do Novo Funcionário</h2>
-            <p>Acompanhe o progresso e marque as etapas concluídas. Para avançar, conclua as tarefas, avalie a etapa e <b>salve o progresso</b>.</p>
-          </div>
-        </header>
-
-        <div class="main-container">
-          <!-- Dados do funcionário -->
-          <section class="card employee-info">
-            <h3><i class="fas fa-user"></i> Informações do Funcionário</h3>
-            <div class="employee-details">
-              <div><strong>Nome:</strong> <span id="employeeName">—</span></div>
-              <div><strong>Cargo:</strong> <span id="employeePosition">—</span></div>
-              <div><strong>Data de Início:</strong> <span id="startDate">—</span></div>
-              <div><strong>Gerente:</strong> <span id="managerName">—</span></div>
-            </div>
-          </section>
-
-          <!-- Progresso -->
-          <section class="card progress-overview">
-            <h3><i class="fas fa-chart-line"></i> Progresso Geral</h3>
-            <div class="progress-bar-container"><div id="progressBar" class="progress-bar"></div></div>
-            <div id="progressText" class="progress-text">0% concluído (0 de 0 tarefas)</div>
-          </section>
-
-          <!-- Etapas -->
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step1')">
-              <i class="fas fa-user-tie"></i><h3>1º Passo - Gerente.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle1" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step1" class="step-content">
-              <div class="checklist-item" data-task-id="1.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.1 - Anúncio de vaga</div></div></div>
-              <div class="checklist-item" data-task-id="1.2" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.2 - Recebimento de currículo</div></div></div>
-              <div class="checklist-item" data-task-id="1.3" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.3 - Compartilhar com Amanda e buscar (Informações)</div></div></div>
-              <div class="checklist-item" data-task-id="1.4" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.4 - Marcar entrevista</div></div></div>
-              <div class="checklist-item" data-task-id="1.5" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.5 - Compartilhar com Silvana para tirar mais uma opinião sobre contratação.</div></div></div>
-              <div class="checklist-item" data-task-id="1.6" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">1.6 - Validar com Jose Eduardo</div></div></div>
-              <div class="evaluation-container" id="eval-step1">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step2')">
-              <i class="fas fa-calendar-day"></i><h3>2º Passo - Primeiro dia de Trabalho.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle2" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step2" class="step-content">
-              <div class="checklist-item" data-task-id="2.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.1 - Fazer integração na empresa</div></div></div>
-              <div class="checklist-item" data-task-id="2.2" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.2 - Apresentar todas Ferramentas</div></div></div>
-              <div class="checklist-item" data-task-id="2.3" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.3 - Apresentar todo estoque</div></div></div>
-              <div class="checklist-item" data-task-id="2.4" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">2.4 - Apresentar chão de loja.</div></div></div>
-              <div class="evaluation-container" id="eval-step2">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step3')">
-              <i class="fas fa-graduation-cap"></i><h3>3º Passo - Segundo Dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle3" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step3" class="step-content">
-              <div class="checklist-item" data-task-id="3.1" onclick="onTaskClick(event,this)">
-                <div class="checkbox-custom"></div>
-                <div>
-                  <div class="item-text">3.1 - Prática com ferramentas e Loja. (Academia Hering, Indeva e Oto)</div>
-                  <div class="item-note">Somente avançar desse passo após completar no Academia Hering as agendas de Boa Vindas, Atendimento 360 e Produto.</div>
-                </div>
-              </div>
-              <div class="evaluation-container" id="eval-step3">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step4')">
-              <i class="fas fa-layer-group"></i><h3>4º Passo - Terceiro dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle4" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step4" class="step-content">
-              <div class="checklist-item" data-task-id="4.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">4.1 - Conhecer Estoque, conhecer ranking de produtos e sua importância no portifólio das vendas</div></div></div>
-              <div class="evaluation-container" id="eval-step4">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step5')">
-              <i class="fas fa-calendar-week"></i><h3>5º Passo - Quarto, Quinto e Sexto dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle5" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step5" class="step-content">
-              <div class="checklist-item" data-task-id="1.7" onclick="onTaskClick(event,this)">
-                <div class="checkbox-custom"></div>
-                <div><div class="item-text">5.1 - Acionar Amanda para processo. (Registro + Linx + OTO + Academia Hering.)</div></div>
-              </div>
-              <div class="checklist-item" data-task-id="5.1" onclick="onTaskClick(event,this)">
-                <div class="checkbox-custom"></div>
-                <div><div class="item-text">5.2 - Iniciar atendimento com acompanhamento 100% da gerente.</div></div>
-              </div>
-              <div class="evaluation-container" id="eval-step5">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="step-section">
-            <div class="step-header" onclick="toggleStep('step6')">
-              <i class="fas fa-check-circle"></i><h3>6º Passo - Sétimo dia.</h3>
-              <span class="step-badge">Em andamento</span>
-              <i id="toggle6" class="fas fa-chevron-down step-toggle"></i>
-            </div>
-            <div id="step6" class="step-content">
-              <div class="checklist-item" data-task-id="6.1" onclick="onTaskClick(event,this)"><div class="checkbox-custom"></div><div><div class="item-text">6.1 - Validação da semana pelo gerente e repassada</div></div></div>
-              <div class="evaluation-container" id="eval-step6">
-                <h4>Avaliação desta etapa</h4>
-                <div class="stars"><div class="star" data-value="1">1</div><div class="star" data-value="2">2</div><div class="star" data-value="3">3</div><div class="star" data-value="4">4</div><div class="star" data-value="5">5</div></div>
-                <div class="eval-note">Escolha uma nota de 1 a 5.</div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Ações (RODAPÉ) -->
-          <div class="action-buttons">
-            <button id="saveBtn" type="button" class="btn btn-primary" onclick="onSaveClick()"><i class="fas fa-save"></i>Salvar Progresso</button>
-            <button type="button" class="btn btn-secondary" onclick="generateReportTXT()"><i class="fas fa-file-alt"></i>Gerar Relatório (TXT)</button>
-            <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
-            <a href="funcionarios.html" class="btn btn-primary"><i class="fas fa-users"></i> Lista</a>
-          </div>
-        </div>
-      </div>
+ </head>
+ <body>
+  <div class="role-gate" id="roleGate">
+   <div class="role-box">
+    <h2>
+     Selecione o cargo
+    </h2>
+    <p class="muted">
+     Essa informação será usada em todo o processo e vai alterar o passo a passo do onboarding.
+    </p>
+    <div class="grid" style="margin-top:16px">
+     <button class="role-pill" onclick="escolherCargo('VENDEDOR')">
+      VENDEDOR
+     </button>
+     <button class="role-pill" onclick="escolherCargo('CAIXA')">
+      CAIXA
+     </button>
+     <button class="role-pill" onclick="escolherCargo('ESTOQUISTA')">
+      ESTOQUISTA
+     </button>
     </div>
+   </div>
   </div>
-
-  <!-- Overlay (boot + salvar) -->
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="box" role="status" aria-live="polite">
-      <span class="spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
-      <span id="overlayMsg">Carregando progresso, aguarde…</span>
-      <span id="overlaySub" class="sub"></span>
+  <div class="top">
+   <h1>
+    SISTEMA DE ONBOARDING
+   </h1>
+   <p>
+    Jornada do Novo Funcionário — cargo:
+    <b data-cargo-label="">
+     —
+    </b>
+   </p>
+   <div class="nav row">
+    <a class="btn secondary" href="home.html">
+     Home
+    </a>
+    <a class="btn secondary" href="funcionarios.html">
+     Lista
+    </a>
+    <button class="btn secondary" onclick="trocarCargo()">
+     Trocar Cargo
+    </button>
+   </div>
+  </div>
+  <main class="wrap">
+   <section class="card">
+    <h2>
+     Informações do Funcionário
+    </h2>
+    <div class="grid">
+     <div>
+      <b>
+       Nome:
+      </b>
+      <span id="empName">
+       —
+      </span>
+     </div>
+     <div>
+      <b>
+       Cargo:
+      </b>
+      <span id="empPosition">
+       —
+      </span>
+     </div>
+     <div>
+      <b>
+       Data de Início:
+      </b>
+      <span id="empStart">
+       —
+      </span>
+     </div>
+     <div>
+      <b>
+       Gerente:
+      </b>
+      <span id="empManager">
+       —
+      </span>
+     </div>
     </div>
+   </section>
+   <section class="card">
+    <h2>
+     Progresso Geral
+    </h2>
+    <div class="progressbar">
+     <span id="bar">
+     </span>
+    </div>
+    <p class="muted" id="progressText">
+     0% concluído
+    </p>
+   </section>
+   <section id="steps">
+   </section>
+   <section class="card row">
+    <button class="btn green" onclick="saveProgress()">
+     <i class="fa-solid fa-save">
+     </i>
+     Salvar Progresso
+    </button>
+    <button class="btn secondary" onclick="generateReportTXT()">
+     <i class="fa-solid fa-file-lines">
+     </i>
+     Gerar Relatório (TXT)
+    </button>
+   </section>
+  </main>
+  <div class="toast" id="toast">
+   Mensagem
   </div>
-
-  <div id="toast" class="toast">Mensagem</div>
-
   <script>
-    /* ====== CONFIG ====== */
-    const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
-    const FEEDBACK_AUTO_SEND_ON_COMPLETE = true; // envia link do feedback quando atingir 100%
-
-    const STEPS=[
-      {id:1,title:'1º Passo - Gerente.',tasks:['1.1','1.2','1.3','1.4','1.5','1.6']},
-      {id:2,title:'2º Passo - Primeiro dia de Trabalho.',tasks:['2.1','2.2','2.3','2.4']},
-      {id:3,title:'3º Passo - Segundo Dia.',tasks:['3.1']},
-      {id:4,title:'4º Passo - Terceiro dia.',tasks:['4.1']},
-      {id:5,title:'5º Passo - Quarto, Quinto e Sexto dia.',tasks:['1.7','5.1']},
-      {id:6,title:'6º Passo - Sétimo dia.',tasks:['6.1']}
-    ];
-    const ORDERED_TASK_IDS=STEPS.flatMap(s=>s.tasks);
-    const DEFAULT_LOCKED_IDS=new Set(['1.1','1.2']);
-
-    let employeeData={id:null,name:'—',position:'—',startDate:'—',manager:'—',email:''};
-    let lockedIndex=-1;
-    let bootPrefilled=false;
-    let ratingsLoaded=false;
-    let lastSavedCheckpoint=0;
-
-    /* ====== Helpers ====== */
-    function ratingsKey(){return'ratings:'+(employeeData.id||'sem_id')}
-    function fbInviteKey(){return 'fbInviteSent:'+(employeeData.id||'sem_id')}
-    function getRatings(){try{return JSON.parse(localStorage.getItem(ratingsKey())||'{}')}catch{return{}}}
-    function setRatings(o){localStorage.setItem(ratingsKey(),JSON.stringify(o||{}))}
-    function hasRating(stepId){const r=getRatings();return!!r[String(stepId)]}
-    function restoreRatingsUI(){
-      const ratings=getRatings();
-      Object.keys(ratings).forEach(stepId=>{
-        const val=ratings[stepId];
-        const container = document.getElementById('eval-step'+stepId);
-        if (container) {
-          container.querySelectorAll('.star').forEach(st=>st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val));
-        }
+   const CARGOS_VALIDOS=['VENDEDOR','CAIXA','ESTOQUISTA'];
+function normalizarCargo(v) {
+  v=String(v||'').trim().toUpperCase();
+  if(v==='VENDEDORA')v='VENDEDOR';
+  if(v==='ESTOQUE')v='ESTOQUISTA';
+  return CARGOS_VALIDOS.includes(v)?v:''
+}
+function getCargoSelecionado() {
+  const p=new URLSearchParams(location.search);
+  return normalizarCargo(p.get('cargo'))||normalizarCargo(localStorage.getItem('hs_cargo_selecionado'))
+}
+function setCargoSelecionado(c) {
+  c=normalizarCargo(c);
+  if(!c)return;
+  localStorage.setItem('hs_cargo_selecionado',c);
+  document.querySelectorAll('[data-cargo-label]').forEach(el=>el.textContent=c);
+  document.querySelectorAll('input[name="funcao_prevista"],#funcao_prevista,#employeePosition').forEach(el=> {
+    if(el)el.value=c
+  });
+  
+}
+function aplicarCargoNosLinks() {
+  const c=getCargoSelecionado();
+  document.querySelectorAll('a[href$=".html"],a[href*=".html?"]').forEach(a=> {
+    try {
+      const u=new URL(a.getAttribute('href'),location.href);if(c)u.searchParams.set('cargo',c);a.setAttribute('href',u.pathname.split('/').pop()+u.search)
+    }
+    catch(e) {
+      
+    }
+    
+  })
+}
+function exigirCargo() {
+  let c=getCargoSelecionado();
+  if(c) {
+    setCargoSelecionado(c);
+    aplicarCargoNosLinks();
+    return c
+  }
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='flex';
+  return ''
+}
+function escolherCargo(c) {
+  setCargoSelecionado(c);
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='none';
+  aplicarCargoNosLinks();
+  if(typeof onCargoChanged==='function')onCargoChanged(c)
+}
+function trocarCargo() {
+  localStorage.removeItem('hs_cargo_selecionado');
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='flex'
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  if(!t) {
+    alert(msg);
+    return
+  }
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600)
+}
+const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+let employee= {
+  id:null,name:'—',position:'—',startDate:'—',manager:'—',email:''
+};
+let ratings= {
+  
+};
+const BASE= {
+  1: {
+    title:'1º Passo - RH.',tasks:[['1.1','Anúncio de vaga'],['1.2','Recebimento de currículo'],['1.3','Compartilhar com Amanda e buscar (Informações)'],['1.4','Marcar entrevista'],['1.5','Compartilhar com Silvana para tirar mais uma opinião sobre contratação.'],['1.6','Validar com Jose Eduardo']]
+  },2: {
+    title:'2º Passo - Primeiro dia de Trabalho.',tasks:[['2.1','Fazer integração na empresa'],['2.2','Apresentar todas Ferramentas'],['2.3','Apresentar todo estoque'],['2.4','Apresentar chão de loja.']]
+  },6: {
+    title:'6º Passo - Sétimo dia.',tasks:[['6.1','Validação da semana pelo gerente e repassada']]
+  }
+  
+};
+function stepsForCargo(c) {
+  const step3= {
+    title:'3º Passo - Academia Hering.',tasks:[['3.1','ACIONAR AMANDA PARA CADASTRO NA ACADEMIA '],['3.2','']]
+  };
+  if(c==='VENDEDOR')step3.tasks[1][1]='Somente avançar desse passo após completar no Academia Hering as agendas de Boa Vindas, BEM VINDO A ACADEMIA HERING, Atendimento 360 e Produto.';
+  if(c==='ESTOQUISTA')step3.tasks[1][1]='Apenas Academia Hering, com os cursos: LP + FQ | ESTOQUE, FP + FQ | bem vindo a academia hering, LP + FQ | boas vindas academia hering.';
+  if(c==='CAIXA')step3.tasks[1][1]='Apenas Academia Hering, com os cursos: bem vindo a academia hering, boas vindas, produtos, processos, sistemas.';
+  const step4= {
+    title:'4º Passo - Terceiro dia.',tasks:[['4.1','Conhecer Estoque, conhecer ranking de produtos e sua importância no portfólio das vendas']]
+  };
+  if(c==='CAIXA')step4.tasks.push(['4.2','CONHECER O SISTEMA DE CAIXA']);
+  let t53='';
+  if(c==='VENDEDOR')t53='Vendedor – Iniciar atendimento com acompanhamento 100% do gerente';
+  if(c==='CAIXA')t53='Caixa – Iniciar processo de lançamento no sistema e fechamento com acompanhamento 100% do gerente';
+  if(c==='ESTOQUISTA')t53='Estoque – Iniciar organização do estoque, conforme orientação e acompanhamento do gerente';
+  const step5= {
+    title:'5º Passo - Quarto, Quinto e Sexto dia.',tasks:[['5.1','Agendar Exame Admissional e recolher documentações'],['5.2','Acionar Amanda para o processo (Registro + Linx + OTO)'],['5.3',t53]]
+  };
+  return [BASE[1],BASE[2],step3,step4,step5,BASE[6]].map((s,i)=>Object.assign( {
+    id:i+1
+  },s))
+}
+function allTaskIds() {
+  return stepsForCargo(getCargoSelecionado()).flatMap(s=>s.tasks.map(t=>t[0]))
+}
+function isDone(id) {
+  const el=document.querySelector(`[data-task="${id}"]`);
+  return el&&el.classList.contains('done')
+}
+function setDone(id,v) {
+  const el=document.querySelector(`[data-task="${id}"]`);
+  if(el)el.classList.toggle('done',!!v)
+}
+function stepDone(s) {
+  return s.tasks.every(t=>isDone(t[0]))&&ratings[s.id]
+}
+function canAccessStep(index) {
+  if(index===0)return true;
+  const st=stepsForCargo(getCargoSelecionado());
+  for(let i=0;i<index;i++)if(!stepDone(st[i]))return false;
+  return true
+}
+function renderSteps() {
+  const c=getCargoSelecionado();
+  const st=stepsForCargo(c);
+  const box=document.getElementById('steps');
+  box.innerHTML=st.map((s,i)=>`<div class="step ${i===0?'open':''}" data-step="${s.id}"><div class="step-head" onclick="toggleStep(${i})"><h3>${s.title}</h3><span class="badge amber">Em andamento</span></div><div class="step-body">${s.tasks.map(([id,txt])=>`<div class="task" data-task="${id}" onclick="taskClick('${id}')"><div class="boxcheck"></div><div><b>$ {
+    id
+  }
+   - $ {
+    txt
+  }
+  </b></div></div>`).join('')}<h4>Avaliação desta etapa</h4><div class="stars">${[1,2,3,4,5].map(n=>`<div class="star" data-step-star="${s.id}" data-v="${n}" onclick="rate(${s.id},${n})">$ {
+    n
+  }
+  </div>`).join('')}</div><p class="note">Escolha uma nota de 1 a 5.</p></div></div>`).join('');
+  ['1.1','1.2','1.3','1.4','1.5','1.6'].forEach(id=>setDone(id,true));
+  applyLocks();
+  restoreRatingUI();
+  updateProgress()
+}
+function toggleStep(i) {
+  if(!canAccessStep(i)) {
+    toast('Conclua e avalie a etapa anterior antes de avançar.');
+    return
+  }
+  document.querySelectorAll('.step').forEach((el,idx)=>el.classList.toggle('open',idx===i?!el.classList.contains('open'):false))
+}
+function taskClick(id) {
+  const idx=stepsForCargo(getCargoSelecionado()).findIndex(s=>s.tasks.some(t=>t[0]===id));
+  if(!canAccessStep(idx)) {
+    toast('Essa etapa ainda está bloqueada.');
+    return
+  }
+  const el=document.querySelector(`[data-task="${id}"]`);
+  if(id.startsWith('1.')) {
+    toast('Etapa do RH já vem marcada. O gerente deve avaliar o primeiro passo para liberar a próxima etapa.');
+    return
+  }
+  el.classList.toggle('done');
+  applyLocks();
+  updateProgress()
+}
+function rate(step,val) {
+  const idx=step-1;
+  if(!canAccessStep(idx)) {
+    toast('Essa etapa ainda está bloqueada.');
+    return
+  }
+  ratings[step]=val;
+  localStorage.setItem('ratings:'+(employee.id||'sem_id'),JSON.stringify(ratings));
+  restoreRatingUI();
+  applyLocks();
+  updateProgress()
+}
+function restoreRatingUI() {
+  document.querySelectorAll('.star').forEach(el=> {
+    const s=el.dataset.stepStar;const v=Number(el.dataset.v);el.classList.toggle('sel',Number(ratings[s]||0)>=v)
+  })
+}
+function applyLocks() {
+  document.querySelectorAll('.step').forEach((el,i)=>el.classList.toggle('locked',!canAccessStep(i)))
+}
+function completedIds() {
+  return allTaskIds().filter(isDone)
+}
+function updateProgress() {
+  const ids=allTaskIds();
+  const done=completedIds().length;
+  const p=ids.length?Math.round(done/ids.length*100):0;
+  document.getElementById('bar').style.width=p+'%';
+  document.getElementById('progressText').textContent=`${p}% concluído (${done} de ${ids.length} tarefas)`;
+  return p
+}
+async function loadEmployee() {
+  try {
+    employee=JSON.parse(localStorage.getItem('currentEmployee')||'{}')
+  }
+  catch(e) {
+    
+  }
+  employee.id=employee.id||employee.employeeId||'local-'+Date.now();
+  employee.position=normalizarCargo(employee.position)||getCargoSelecionado();
+  setCargoSelecionado(employee.position);
+  document.getElementById('empName').textContent=employee.name||'—';
+  document.getElementById('empPosition').textContent=employee.position||'—';
+  document.getElementById('empStart').textContent=employee.startDate||'—';
+  document.getElementById('empManager').textContent=employee.manager||'—';
+  try {
+    ratings=JSON.parse(localStorage.getItem('ratings:'+(employee.id||'sem_id'))||'{}')
+  }
+  catch(e) {
+    ratings= {
+      
+    }
+    
+  }
+  
+}
+async function loadSaved() {
+  try {
+    const r=await fetch(GAS_WEB_APP_URL+'?type=onboarding-load&id='+encodeURIComponent(employee.id)+'&_='+Date.now(), {
+      cache:'no-store'
+    });
+    const out=await r.json();
+    if(out.ok&&out.record) {
+      (out.record.completedTasks||[]).forEach(id=>setDone(id,true));
+      
+    }
+    
+  }
+  catch(e) {
+    
+  }
+  ['1.1','1.2','1.3','1.4','1.5','1.6'].forEach(id=>setDone(id,true));
+  applyLocks();
+  updateProgress()
+}
+async function saveProgress() {
+  const p=updateProgress();
+  const st=p>=100?'completed':p>0?'in-progress':'pending';
+  const steps=stepsForCargo(getCargoSelecionado());
+  const last=[...steps].reverse().find(stepDone);
+  const record= {
+    id:employee.id,employeeId:employee.id,name:employee.name,position:getCargoSelecionado(),startDate:employee.startDate,manager:employee.manager,email:employee.email,completedTasks:completedIds(),progressPct:p,progress:p,status:st,lastStepNumber:last?.id||'',lastStepTitle:last?.title||''
+  };
+  try {
+    const r=await fetch(GAS_WEB_APP_URL, {
+      method:'POST',headers: {
+        'Content-Type':'text/plain'
+      },body:JSON.stringify( {
+        type:'onboarding-save',record,notify:false
       })
-    }
-    function computeContiguousCompletedIndex(){let idx=-1;for(let i=0;i<ORDERED_TASK_IDS.length;i++){if(isTaskCompleted(ORDERED_TASK_IDS[i]))idx=i;else break}return idx}
-    function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}}
-    function markTaskUI(taskId,completed){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);if(el)el.classList.toggle('completed',!!completed)}
-    function isTaskCompleted(taskId){const el=document.querySelector(`.checklist-item[data-task-id="${taskId}"]`);return!!el&&el.classList.contains('completed')}
-    function getTaskPosition(taskId){const idx=ORDERED_TASK_IDS.indexOf(taskId);let acc=0,stepIndex=0,localIndex=idx;for(let i=0;i<STEPS.length;i++){if(idx<acc+STEPS[i].tasks.length){stepIndex=i;localIndex=idx-acc;break}acc+=STEPS[i].tasks.length}return{stepIndex,localIndex}}
-    function stepIndexOfTask(taskId){return getTaskPosition(taskId).stepIndex}
-    function getCompletedTaskIds(){return ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id))}
-    function lastCompletedStep(){let last={stepNumber:null,stepTitle:null};for(const s of STEPS){if(isStepDone(s))last={stepNumber:s.id,stepTitle:s.title};else break}return last}
-    function checkpointStepIndex(){
-      if(lockedIndex<0)return 0;
-      const s=stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
-      let firstIdx=0;for(let i=0;i<s;i++)firstIdx+=STEPS[i].tasks.length;
-      const lastIdxInStep=firstIdx+STEPS[s].tasks.length-1;
-      if(lockedIndex>=lastIdxInStep)return Math.min(s+1,STEPS.length-1);
-      return s;
-    }
-    function isStepDone(s){return s.tasks.every(t=>isTaskCompleted(t))&&hasRating(s.id)}
-
-    /* ====== OVERLAY control ====== */
-    const overlayEl = document.getElementById('overlay');
-    const overlayMsg = document.getElementById('overlayMsg');
-    const overlaySub = document.getElementById('overlaySub');
-
-    function setOverlay(show, msg='Processando…', sub=''){
-      try {
-        if (overlayMsg) overlayMsg.textContent = msg;
-        if (overlaySub) overlaySub.textContent = sub || '';
-        if (overlayEl) {
-          overlayEl.style.display = show ? 'flex' : 'none';
-          overlayEl.setAttribute('aria-hidden', show ? 'false' : 'true');
-        }
-        document.body.style.pointerEvents = show ? 'none' : 'auto';
-      } catch (error) {
-        console.error('Erro ao controlar overlay:', error);
-      }
-    }
-
-    // Poll no GAS até a próxima etapa estar realmente liberada
-    async function waitForNextCheckpoint(previousCheckpoint, {timeoutMs=15000, intervalMs=900} = {}) {
-      const start = Date.now();
-      while (Date.now() - start < timeoutMs) {
-        try {
-          const r = await fetch(`${GAS_WEB_APP_URL}?type=onboarding-load&id=${encodeURIComponent(employeeData.id)}`, {cache:'no-store'});
-          const out = await r.json();
-          if (out?.ok && out.record) {
-            // Rehidrata UI
-            ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
-            (out.record.completedTasks || []).forEach(id => markTaskUI(id,true));
-            lockedIndex = (typeof out.record.lockedIndex === 'number')
-              ? out.record.lockedIndex
-              : computeContiguousCompletedIndex();
-
-            applySequentialLocking();
-            updateStepStatuses();
-            updateProgressBar();
-
-            const cp = checkpointStepIndex();
-            if (cp > previousCheckpoint) {
-              // >>> ATUALIZA checkpoint local quando liberar <<<
-              lastSavedCheckpoint = cp;
-              return true; // liberou!
-            }
-          }
-        } catch(e) {
-          console.warn('Erro no polling:', e);
-        }
-        await new Promise(r => setTimeout(r, intervalMs));
-      }
-      return false; // estourou tempo
-    }
-
-    /* ====== Boot ====== */
-    document.addEventListener('DOMContentLoaded',()=>{
-      try {
-        setOverlay(true,'Carregando progresso, aguarde…');
-        loadCurrentEmployee(); 
-        renderEmployeeInfo();
-        prefillIfNew();
-        fetchEmployeeFull();
-        hydrateFromBackend().finally(()=>{
-          try {
-            applySequentialLocking();
-            updateProgressBar();
-            updateStepStatuses();
-            updateEvaluations();
-            restoreRatingsUI();
-            toggleStep('step1');
-            document.querySelectorAll('.step-section').forEach((s,i)=>{s.style.animationDelay=(i*0.06)+'s';s.classList.add('fade-in')});
-            lastSavedCheckpoint=checkpointStepIndex();
-            scheduleScale(); // Chama a função de escala no carregamento
-          } catch (error) {
-            console.error('Erro na finalização do boot:', error);
-          } finally {
-            setOverlay(false);
-          }
-        });
-      } catch (error) {
-        console.error('Erro durante o boot:', error);
-        setOverlay(false);
-        showToast('Erro durante a inicialização. Sistema carregado com configurações padrão.');
-      }
     });
-
-    function loadCurrentEmployee(){
-      try {
-        const s=localStorage.getItem('currentEmployee');
-        if(s){
-          const e=JSON.parse(s);
-          employeeData={id:e.id,name:e.name,position:e.position,startDate:formatDate(e.startDate),manager:e.manager,email:e.email||''}
-        }
-      } catch (error) {
-        console.error('Erro ao carregar dados do funcionário:', error);
-      }
-    }
-
-    function renderEmployeeInfo(){
-      try {
-        const nameEl = document.getElementById('employeeName');
-        const positionEl = document.getElementById('employeePosition');
-        const startDateEl = document.getElementById('startDate');
-        const managerEl = document.getElementById('managerName');
-        
-        if (nameEl) nameEl.textContent=employeeData.name;
-        if (positionEl) positionEl.textContent=employeeData.position;
-        if (startDateEl) startDateEl.textContent=employeeData.startDate;
-        if (managerEl) managerEl.textContent=employeeData.manager;
-      } catch (error) {
-        console.error('Erro ao renderizar informações do funcionário:', error);
-      }
-    }
-
-    function formatDate(s){
-      try {
-        const d=new Date(s);
-        return isNaN(d)?String(s):d.toLocaleDateString('pt-BR');
-      } catch (error) {
-        return String(s || '');
-      }
-    }
-
-    function prefillIfNew(){
-      try {
-        markTaskUI('1.1',true);
-        markTaskUI('1.2',true);
-        bootPrefilled=true;
-        lockedIndex=Math.max(lockedIndex,ORDERED_TASK_IDS.indexOf('1.2'));
-      } catch (error) {
-        console.error('Erro no prefill:', error);
-      }
-    }
-
-    async function fetchEmployeeFull(){
-      if(!employeeData.id) return;
-      try{
-        const r=await fetch(`${GAS_WEB_APP_URL}?type=employees-get&id=${encodeURIComponent(employeeData.id)}`,{cache:'no-store'});
-        const out=await r.json();
-        if(out?.ok && out.record){
-          employeeData.email = out.record.email || '';
-        }
-      }catch(e){
-        console.warn('fetchEmployeeFull falhou:', e);
-      }
-    }
-
-    async function hydrateFromBackend(){
-      if(!employeeData.id) return;
-      try{
-        const r=await fetch(GAS_WEB_APP_URL+'?type=onboarding-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store'});
-        const out=await r.json(); if(out?.ok&&out.record){
-          bootPrefilled=false;ORDERED_TASK_IDS.forEach(id => markTaskUI(id,false));
-          (out.record.completedTasks||[]).forEach(id => markTaskUI(id,true));
-          lockedIndex=(typeof out.record.lockedIndex==='number')?out.record.lockedIndex:computeContiguousCompletedIndex();
-        }
-      }catch(e){console.warn('onboarding-load falhou:',e)}
-      try{
-        const r=await fetch(GAS_WEB_APP_URL+'?type=ratings-load&id='+encodeURIComponent(employeeData.id),{cache:'no-store'});
-        const out=await r.json(); if(out?.ok&&out.ratings){setRatings(out.ratings);ratingsLoaded=true}
-      }catch(e){console.warn('ratings-load falhou:',e)}
-    }
-
-    /* ====== UI ====== */
-    function toggleStep(stepDomId){
-      try {
-        const content=document.getElementById(stepDomId);
-        const toggle=document.getElementById('toggle'+stepDomId.slice(-1));
-        const stepNum=parseInt(stepDomId.replace('step',''),10);
-        const nextAllowed=lastSavedCheckpoint+1;
-        if(stepNum>nextAllowed){showToast('Para abrir esta etapa, conclua as anteriores, avalie e clique em "Salvar Progresso".');return}
-        document.querySelectorAll('.step-content').forEach(s=>{if(s.id!==stepDomId)s.classList.remove('active')});
-        document.querySelectorAll('.step-toggle').forEach(i=>{if(i.id!=='toggle'+stepDomId.slice(-1))i.style.transform='rotate(0)'});
-        if (content) {
-          content.classList.toggle('active');
-          if (toggle) toggle.style.transform=content.classList.contains('active')?'rotate(180deg)':'rotate(0)';
-        }
-      } catch (error) {
-        console.error('Erro ao alternar etapa:', error);
-      }
-    }
-
-    function onTaskClick(ev,el){
-      try {
-        if(el.classList.contains('disabled')){showToast('Conclua as etapas anteriores primeiro.');return}
-        const id=el.dataset.taskId;const idx=ORDERED_TASK_IDS.indexOf(id);const next=nextAvailableTaskId();const isDone=el.classList.contains('completed');
-        if((DEFAULT_LOCKED_IDS.has(id)&&bootPrefilled)||(isDone&&idx<=lockedIndex)){showToast(DEFAULT_LOCKED_IDS.has(id)?'Essa tarefa é padrão do processo e não pode ser desmarcada.':'Essa etapa já foi confirmada anteriormente.');return}
-        if(!isDone&&id!==next){showToast('Você só pode concluir a próxima tarefa disponível.');return}
-        el.classList.toggle('completed');
-        applySequentialLocking();updateProgressBar();maybeOpenNextStep(id);updateStepStatuses();updateEvaluations();
-      } catch (error) {
-        console.error('Erro no clique da tarefa:', error);
-      }
-    }
-
-    function maybeOpenNextStep(taskId){
-      try {
-        const {stepIndex}=getTaskPosition(taskId);
-        const step=STEPS[stepIndex];
-        if(!step.tasks.every(t=>isTaskCompleted(t)))return;
-        if(!hasRating(step.id)){const c=document.getElementById('eval-step'+step.id);if(c)c.style.display='block';showToast('Avalie esta etapa para liberar a próxima.');return}
-        if(checkpointStepIndex()===stepIndex){showToast('Clique em "Salvar Progresso" para liberar a próxima etapa.');return}
-        if(stepIndex<STEPS.length-1)toggleStep('step'+STEPS[stepIndex+1].id);
-      } catch (error) {
-        console.error('Erro ao abrir próxima etapa:', error);
-      }
-    }
-
-    function nextAvailableTaskId(){
-      try {
-        for(const step of STEPS){
-          for(const id of step.tasks){if(!isTaskCompleted(id))return id}
-          if(!hasRating(step.id))return null
-        }
-        return null;
-      } catch (error) {
-        console.error('Erro ao obter próxima tarefa:', error);
-        return null;
-      }
-    }
-
-    function applySequentialLocking(){
-      try {
-        const next=nextAvailableTaskId();
-        document.querySelectorAll('.checklist-item').forEach(el=>{
-          const id=el.dataset.taskId;if(!id)return;
-          const idx=ORDERED_TASK_IDS.indexOf(id);
-          const mustLock=(idx<=lockedIndex)||(DEFAULT_LOCKED_IDS.has(id)&&bootPrefilled);
-          if(mustLock){el.classList.add('disabled');return}
-          if(isTaskCompleted(id)||(next&&id===next)){el.classList.remove('disabled')}else{el.classList.add('disabled')}
-        });
-      } catch (error) {
-        console.error('Erro no bloqueio sequencial:', error);
-      }
-    }
-
-    function updateProgressBar(){
-      try {
-        const all=ORDERED_TASK_IDS.length;
-        const done=ORDERED_TASK_IDS.filter(id=>isTaskCompleted(id)).length;
-        const pct=all?Math.round((done/all)*100):0;
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        if (progressBar) progressBar.style.width=pct+'%';
-        if (progressText) progressText.textContent=`${pct}% concluído (${done} de ${all} tarefas)`;
-      } catch (error) {
-        console.error('Erro ao atualizar barra de progresso:', error);
-      }
-    }
-
-    function updateStepStatuses(){
-      try {
-        STEPS.forEach(step=>{
-          const stepEl = document.querySelector(`#step${step.id}`);
-          if (!stepEl) return;
-          const header=stepEl.previousElementSibling;
-          if(!header)return;
-          let badge=header.querySelector('.step-badge');
-          if(!badge){
-            badge=document.createElement('span');badge.className='step-badge';
-            const chev=header.querySelector('.step-toggle');header.insertBefore(badge,chev)
-          }
-          header.classList.toggle('done',isStepDone(step));
-          badge.textContent=isStepDone(step)?'Concluído':'Em andamento';
-        });
-      } catch (error) {
-        console.error('Erro ao atualizar status das etapas:', error);
-      }
-    }
-
-    function updateEvaluations(){
-      try {
-        STEPS.forEach(s=>{const c=document.getElementById('eval-step'+s.id);if(c)c.style.display=s.tasks.every(t=>isTaskCompleted(t))?'block':'none'})
-      } catch (error) {
-        console.error('Erro ao atualizar avaliações:', error);
-      }
-    }
-
-    document.addEventListener('click',async e=>{
-      if(!e.target.classList.contains('star'))return;
-      try {
-        const val=parseInt(e.target.dataset.value,10);
-        const container=e.target.closest('.evaluation-container');
-        const stepId=parseInt(container.id.replace('eval-step',''),10);
-        const parent=container.querySelector('.stars');
-        parent.querySelectorAll('.star').forEach(st=>{st.classList.toggle('selected',parseInt(st.dataset.value,10)<=val)});
-        const r=getRatings();r[String(stepId)]=val;setRatings(r);
-        try{
-          await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
-        }catch(err){console.warn('ratings-save falhou',err)}
-        applySequentialLocking();updateStepStatuses();
-        // >>> Atualiza checkpoint local após avaliar a etapa <<<
-        lastSavedCheckpoint = checkpointStepIndex();
-      } catch (error) {
-        console.error('Erro ao avaliar etapa:', error);
-      }
-    });
-
-    /* ====== SAVE / REPORT / FEEDBACK ====== */
-    async function onSaveClick(){
-      try {
-        // Mantém overlay durante todo o fluxo
-        setOverlay(true,'Salvando progresso…','Sincronizando com a planilha');
-        const beforeCheckpoint = checkpointStepIndex();
-        const reportText=buildTxtReport();
-
-        const completed=getCompletedTaskIds();
-        const pct=ORDERED_TASK_IDS.length?Math.round((completed.length/ORDERED_TASK_IDS.length)*100):0;
-        const stepInfo=lastCompletedStep();
-        const newLockedIndex=computeContiguousCompletedIndex();
-
-        const payload={type:'onboarding-save',notify:true,record:{
-          id:employeeData.id,name:employeeData.name,position:employeeData.position,startDate:employeeData.startDate,manager:employeeData.manager,
-          onboardingData:{completedTasks:completed,lockedIndex:newLockedIndex},
-          progress:pct,status:pct===0?'pending':(pct===100?'completed':'in-progress'),
-          lastStepNumber:stepInfo.stepNumber,lastStepTitle:stepInfo.stepTitle
-        },reportText};
-
-        // 1) Salvar Onboarding (dispara e-mail do relatório no GAS)
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha ao salvar');
-
-        // 2) Salvar Ratings
-        setOverlay(true,'Enviando avaliação…','Atualizando notas da etapa');
-        const r=getRatings();
-        await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
-
-        // 3) Atualiza check
-        lockedIndex=newLockedIndex;
-        applySequentialLocking();updateStepStatuses();updateProgressBar();
-        lastSavedCheckpoint = checkpointStepIndex();
-
-        // 4) Se concluiu 100%, dispara convite de feedback
-        if (FEEDBACK_AUTO_SEND_ON_COMPLETE && pct===100){
-          setOverlay(true,'Enviando convite de feedback…','Aguarde enquanto preparamos o e-mail');
-          await ensureFeedbackInviteSent();
-        }
-
-        // 5) Espera liberação REAL da próxima etapa (poll no GAS) com timeout
-        setOverlay(true,'Liberando próxima etapa…','Validando informações no servidor');
-        const unlocked = await waitForNextCheckpoint(beforeCheckpoint, {timeoutMs: 15000, intervalMs: 900});
-
-        const btn=document.getElementById('saveBtn');
-        if (btn) {
-          const txt=btn.innerHTML;
-          btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
-          setTimeout(()=>btn.innerHTML=txt,1500);
-        }
-
-        showToast(unlocked ? 'Progresso salvo e próxima etapa liberada.' : 'Progresso salvo. A liberação pode levar alguns instantes.');
-      }catch(err){
-        console.error(err);
-        showToast('Falha ao contatar o Web App.');
-      }finally{
-        setOverlay(false);
-      }
-    }
-
-    async function ensureFeedbackInviteSent(){
-      try{
-        if (localStorage.getItem(fbInviteKey())==='yes') return; // já enviou
-        const body={type:'feedback-send', employeeId: employeeData.id};
-        const r=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});
-        const out=await r.json();
-        if(out?.ok){
-          localStorage.setItem(fbInviteKey(),'yes');
-          showToast('Convite de feedback enviado por e-mail.');
-        }else{
-          console.warn('feedback-send falhou',out);
-        }
-      }catch(e){
-        console.warn('feedback-send erro',e);
-      }
-    }
-
-    function buildTxtReport(){
-      try {
-        const completed=getCompletedTaskIds();
-        const pending=ORDERED_TASK_IDS.filter(id=>!completed.includes(id));
-        const all=ORDERED_TASK_IDS.length,done=completed.length,pct=all?Math.round((done/all)*100):0;
-        const today=new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});const ratings=getRatings();
-        const lines=[
-          'RELATÓRIO DE ONBOARDING','',
-          `Funcionário: ${employeeData.name}`,
-          `Cargo: ${employeeData.position}`,
-          `Data de Início: ${employeeData.startDate}`,
-          `Gerente: ${employeeData.manager}`,
-          `Data do Relatório: ${today}`,
-          '','',
-          'PROGRESSO GERAL',
-          `Total de tarefas: ${all}`,
-          `Tarefas concluídas: ${done}`,
-          `Percentual: ${pct}%`,
-          '','',
-          'TAREFAS CONCLUÍDAS:',
-          ...completed.map(id=>'✓ '+getTaskTextById(id)),
-          '','',
-          'TAREFAS PENDENTES:',
-          ...pending.map(id=>'○ '+getTaskTextById(id)),
-          '','',
-          'AVALIAÇÕES POR ETAPA (1–5):',
-          ...STEPS.map(s=>`- ${s.title}: ${ratings[String(s.id)]?ratings[String(s.id)]+'/5':'sem avaliação'}`)
-        ];
-        return lines.join('\n');
-      } catch (error) {
-        console.error('Erro ao construir relatório:', error);
-        return 'Erro ao gerar relatório';
-      }
-    }
-
-    function generateReportTXT(){
-      try {
-        const content=buildTxtReport();
-        const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        const safe=(employeeData.name||'Funcionario').replace(/\s+/g,'_');
-        const iso=new Date().toISOString().slice(0,10);
-        a.href=url;a.download=`relatorio_onboarding_${safe}_${iso}.txt`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Erro ao gerar relatório:', error);
-        showToast('Erro ao gerar relatório');
-      }
-    }
-
-    function getTaskTextById(id){
-      try {
-        const el=document.querySelector(`.checklist-item[data-task-id="${id}"] .item-text`);
-        return el?el.textContent.trim():id;
-      } catch (error) {
-        return id;
-      }
-    }
-
-    // Adiciona as funções de escala para mobile
-    let scaleRaf=null;
-    function scheduleScale(){ cancelAnimationFrame(scaleRaf); scaleRaf=requestAnimationFrame(applyScale); }
-    function applyScale(){
-      try {
-        const base=1280;
-        const wrapper=document.getElementById('wrapper');
-        const page=document.getElementById('page');
-        if(!wrapper||!page) return;
-
-        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth||0);
-        const scale = Math.min(1, vw / base);  // desktop => 1; mobile => <1
-
-        wrapper.style.transform = (scale<1) ? `scale(${scale})` : 'none';
-        wrapper.style.marginLeft = (scale<1) ? '0' : 'auto';
-        wrapper.style.marginRight = (scale<1) ? '0' : 'auto';
-
-        // ajusta altura visual do container para o conteúdo escalado
-        const scaledH = wrapper.offsetHeight * (scale<1 ? scale : 1);
-        page.style.height = scaledH + 'px';
-      } catch (error) {
-        console.error('Erro ao aplicar escala:', error);
-      }
-    }
-    window.addEventListener('resize', scheduleScale);
+    const out=await r.json();
+    if(!out.ok)throw new Error(out.error||'Erro ao salvar');
+    toast('Progresso salvo com sucesso.')
+  }
+  catch(e) {
+    localStorage.setItem('onboarding-local:'+employee.id,JSON.stringify(record));
+    toast('Sem backend. Progresso salvo neste dispositivo.')
+  }
+  
+}
+function generateReportTXT() {
+  const st=stepsForCargo(getCargoSelecionado());
+  let lines=[`Funcionário: ${employee.name||'—'}`,`Cargo: ${getCargoSelecionado()}`,`Gerente: ${employee.manager||'—'}`,`Progresso: ${updateProgress()}%`,''];
+  st.forEach(s=> {
+    lines.push(s.title);s.tasks.forEach(([id,txt])=>lines.push(` - [${isDone(id)?'x':' '}] ${id} - ${txt}`));lines.push(` Avaliação: ${ratings[s.id]||'—'}`,'')
+  });
+  const blob=new Blob([lines.join('\n')], {
+    type:'text/plain;charset=utf-8'
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='relatorio_onboarding_'+(employee.name||'funcionario').replace(/\W+/g,'_')+'.txt';
+  a.click();
+  URL.revokeObjectURL(a.href)
+}
+function onCargoChanged(c) {
+  if(employee)employee.position=c;
+  renderSteps()
+}
+document.addEventListener('DOMContentLoaded',async()=> {
+  exigirCargo();await loadEmployee();renderSteps();await loadSaved()
+});
   </script>
-</body>
+ </body>
 </html>
