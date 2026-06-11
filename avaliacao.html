@@ -133,6 +133,8 @@
 
     .success{ display:none; background:#2e7d32; color:#fff; border-radius:10px; padding:16px; text-align:center; margin-bottom:18px }
     .loading{ display:none; color:#4CAF50; text-align:center; margin-bottom:12px }
+    .campo-obrigatorio-aviso{display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#5a2a2a;border:2px solid #f44336;color:#fff;font-weight:700}
+    .campo-obrigatorio-aviso.show{display:block}
 
     /* Apenas para telas menores que 800px (não muda layout, só evita apertos em linhas específicas) */
     @media(max-width:800px){
@@ -513,11 +515,12 @@
               <div class="q-block">
                 <div class="q-inline">
                   <label>O candidato está apto para a vaga? *</label>
-                  <div class="radio-row">
+                  <div class="radio-row" id="aptoVagaRadioRow">
                     <label class="pill"><input type="radio" name="apto_vaga" value="Sim" required><span class="dot"></span>Sim</label>
                     <label class="pill"><input type="radio" name="apto_vaga" value="Não" required><span class="dot"></span>Não</label>
                     <label class="pill"><input type="radio" name="apto_vaga" value="Em parte" required><span class="dot"></span>Em parte</label>
                   </div>
+                  <div id="aptoVagaAviso" class="campo-obrigatorio-aviso">Selecione uma opção em “O candidato está apto para a vaga?” para enviar a avaliação.</div>
                 </div>
                 <div class="q-inline" style="margin-top:12px">
                   <label>Observações gerais</label>
@@ -726,8 +729,46 @@
     function showOverlay(){ overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden','false'); }
     function hideOverlay(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); }
 
+    function mostrarAvisoAptoVaga(){
+      const aviso = document.getElementById('aptoVagaAviso');
+      const bloco = document.getElementById('aptoVagaRadioRow') || aviso;
+      if (aviso) aviso.classList.add('show');
+      if (bloco) bloco.scrollIntoView({ behavior:'smooth', block:'center' });
+      const primeiro = document.querySelector('input[name="apto_vaga"]');
+      if (primeiro) {
+        primeiro.setCustomValidity('Selecione se o candidato está apto para a vaga.');
+        setTimeout(() => primeiro.reportValidity(), 250);
+      }
+    }
+
+    function limparAvisoAptoVaga(){
+      const aviso = document.getElementById('aptoVagaAviso');
+      if (aviso) aviso.classList.remove('show');
+      document.querySelectorAll('input[name="apto_vaga"]').forEach(r => r.setCustomValidity(''));
+    }
+
+    document.querySelectorAll('input[name="apto_vaga"]').forEach(radio => {
+      radio.addEventListener('change', limparAvisoAptoVaga);
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const aptoMarcado = form.querySelector('input[name="apto_vaga"]:checked');
+      if (!aptoMarcado) {
+        mostrarAvisoAptoVaga();
+        loading.style.display = 'none';
+        ok.style.display = 'none';
+        submitBtn.disabled = false;
+        hideOverlay();
+        return;
+      }
+      limparAvisoAptoVaga();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
       // barras de status antigas (mantidas) + overlay novo
       loading.style.display = 'block'; ok.style.display = 'none';
       submitBtn.disabled = true;
