@@ -1,566 +1,441 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <!-- Pinch habilitado; nada de zoom forçado -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5">
-  <title>Lista de Funcionários - Sistema de RH</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   Lista de Funcionários
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <style>
-    /* Base */
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:#1a1a1a;color:#333;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;line-height:1.6}
-    body{overflow-x:hidden} /* impede scroll lateral no mobile */
-    /* container que segura o wrapper escalado e dá altura correta à página */
-    #page{position:relative;width:100%;min-height:100vh;overflow-x:hidden}
-
-    /* wrapper é o layout desktop de 1280p que será escalado no mobile */
-    #wrapper{width:1280px;margin:0 auto;transform-origin:top left}
-
-    .container{max-width:1400px;margin:0 auto;padding:0 20px}
-
-    /* Header */
-    .header{background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);color:#fff;padding:40px 30px;text-align:center;border-radius:15px 15px 0 0;box-shadow:0 4px 20px rgba(0,0,0,.3);position:relative;overflow:hidden}
-    .header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);animation:rotate 30s linear infinite}
-    @keyframes rotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    .header-content{position:relative;z-index:1}
-    .header-icon{font-size:3em;margin-bottom:20px;color:#FF9800}
-    .header h1{font-size:2.2em;font-weight:700;margin-bottom:10px}
-    .header h2{font-size:1.4em;font-weight:400;margin-bottom:15px;color:#ecf0f1}
-    .header p{font-size:1.1em;opacity:.9;max-width:600px;margin:0 auto}
-
-    /* Main */
-    .main-container{background:#2a2a2a;border-radius:0 0 15px 15px;box-shadow:0 4px 20px rgba(0,0,0,.3);padding:30px}
-    .action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;flex-wrap:wrap;gap:15px}
-    .search-container{display:flex;gap:15px;align-items:center;flex:1;max-width:500px}
-    .search-input{flex:1;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
-    .search-input:focus{outline:none;border-color:#FF9800;box-shadow:0 0 0 3px rgba(255,152,0,.2)}
-    .filter-select{background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em;min-width:150px}
-
-    .btn{display:flex;align-items:center;gap:10px;padding:12px 20px;border:none;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;transition:all .3s ease;text-decoration:none}
-    .btn-primary{background:linear-gradient(135deg,#4CAF50 0%,#45a049 100%);color:#fff;box-shadow:0 4px 15px rgba(76,175,80,.3)}
-    .btn-secondary{background:linear-gradient(135deg,#FF9800 0%,#F57C00 100%);color:#fff;box-shadow:0 4px 15px rgba(255,152,0,.3)}
-    .btn-info{background:linear-gradient(135deg,#2196F3 0%,#1976D2 100%);color:#fff;box-shadow:0 4px 15px rgba(33,150,243,.3)}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-
-    .employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px;margin-bottom:30px}
-    .employee-card{background:#3a3a3a;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.2);transition:all .3s ease;border-left:4px solid #FF9800;position:relative;overflow:hidden}
-    .employee-card:hover{transform:translateY(-5px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
-    .employee-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-    .employee-info h3{color:#fff;font-size:1.3em;margin-bottom:5px}
-    .employee-info .position{color:#FF9800;font-weight:600;margin-bottom:5px}
-    .employee-info .start-date{color:#bbb;font-size:.9em}
-
-    .status-badge{padding:4px 10px;border-radius:16px;font-size:.75em;font-weight:800;text-transform:uppercase;background:#666;color:#fff;opacity:.95}
-    .status-badge.pending{background:#FFF3E0;color:#F57C00}
-    .status-badge.in-progress{background:#E3F2FD;color:#1976D2}
-    .status-badge.completed{background:#E8F5E8;color:#388E3C}
-
-    .manager-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;font-size:.78em;font-weight:700;background:#424242;color:#e0e0e0;white-space:nowrap}
-    .manager-chip i{font-size:.9em;color:#FFB300}
-
-    .progress-section{margin-bottom:20px}
-    .progress-label{color:#ddd;font-size:.9em;margin-bottom:8px;display:flex;justify-content:space-between}
-    .progress-bar-container{background:#4a4a4a;border-radius:10px;height:8px;overflow:hidden}
-    .progress-bar{height:100%;border-radius:10px;transition:width .5s ease}
-    .progress-bar.pending{background:linear-gradient(90deg,#FF9800,#F57C00)}
-    .progress-bar.in-progress{background:linear-gradient(90deg,#2196F3,#1976D2)}
-    .progress-bar.completed{background:linear-gradient(90deg,#4CAF50,#45a049)}
-
-    .employee-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn-small{padding:8px 15px;font-size:.9em;border-radius:6px}
-
-    .empty-state{text-align:center;padding:60px 20px;color:#888}
-    .empty-state i{font-size:4em;margin-bottom:20px;color:#555}
-    .empty-state h3{font-size:1.5em;margin-bottom:10px}
-    .empty-state p{font-size:1.1em;margin-bottom:25px}
-
-    .fade-in{animation:fadeIn .6s ease-in}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-
-    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:9999}
-    .toast.show{opacity:1}
-
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;justify-content:center;align-items:center}
-    .modal-content{background:#2a2a2a;border-radius:15px;padding:30px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:15px;border-bottom:2px solid #555}
-    .close-modal{background:none;border:none;color:#fff;font-size:1.5em;cursor:pointer;padding:5px}
-    .pin-input{width:100%;background:#3a3a3a;border:2px solid #555;border-radius:8px;padding:12px 15px;color:#e0e0e0;font-size:1em}
-
-    /* Loader overlay */
-    .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(1px)}
-    .loader-box{background:#2a2a2a;border:1px solid #444;border-radius:14px;padding:26px 28px;min-width:280px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
-    .spinner{width:52px;height:52px;border:5px solid #555;border-top-color:#4CAF50;border-radius:50%;margin:0 auto 14px;animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .loader-title{color:#fff;font-weight:700;margin-bottom:4px}
-    .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
+   :root {
+  --navy:#071a45;
+  --bg:#edf2f7;
+  --card:#fff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#dbe3ef;
+  --green:#16a34a;
+  --red:#dc2626;
+  --blue:#2563eb;
+  --amber:#f59e0b;
+  --shadow:0 10px 30px rgba(15,23,42,.08)
+}
+* {
+  box-sizing:border-box
+}
+body {
+  font-family:Arial,Segoe UI,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  margin:0;
+  min-height:100vh
+}
+.top {
+  background:linear-gradient(90deg,#020817,#0f172a,#020617);
+  color:#fff;
+  padding:22px 26px
+}
+.top h1 {
+  margin:0;
+  font-size:28px
+}
+.top p {
+  margin:6px 0 0;
+  color:#cbd5e1
+}
+.wrap {
+  max-width:1180px;
+  margin:24px auto;
+  padding:0 16px
+}
+.card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  padding:22px;
+  margin-bottom:16px
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px
+}
+.btn {
+  border:0;
+  border-radius:14px;
+  padding:12px 18px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:var(--navy);
+  color:#fff
+}
+.btn:hover {
+  filter:brightness(1.06)
+}
+.btn.secondary {
+  background:#64748b
+}
+.btn.green {
+  background:var(--green)
+}
+.btn.red {
+  background:var(--red)
+}
+.btn.blue {
+  background:var(--blue)
+}
+.row {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center
+}
+.muted {
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45
+}
+label {
+  font-size:13px;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#334155;
+  display:block;
+  margin:12px 0 6px
+}
+input,select,textarea {
+  width:100%;
+  padding:13px 14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:#fff;
+  font-size:14px;
+  outline:none
+}
+textarea {
+  min-height:90px;
+  resize:vertical
+}
+input:focus,select:focus,textarea:focus {
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(37,99,235,.12)
+}
+.nav {
+  margin-top:14px
+}
+.toast {
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  background:#0f172a;
+  color:#fff;
+  padding:14px 16px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  display:none;
+  z-index:9999
+}
+.toast.show {
+  display:block
+}
+.role-gate {
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.92);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  padding:20px
+}
+.role-box {
+  width:min(520px,94vw);
+  background:#fff;
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 24px 80px rgba(0,0,0,.38)
+}
+.role-box h2 {
+  margin:0 0 8px;
+  color:var(--navy)
+}
+.role-pill {
+  padding:14px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:#f8fafc;
+  cursor:pointer;
+  font-weight:900;
+  text-align:center
+}
+.role-pill:hover {
+  background:#dbeafe;
+  border-color:#93c5fd
+}
+.badge {
+  display:inline-flex;
+  padding:7px 11px;
+  border-radius:999px;
+  background:#e2e8f0;
+  color:#334155;
+  font-size:12px;
+  font-weight:900
+}
+.badge.green {
+  background:#dcfce7;
+  color:#166534
+}
+.badge.amber {
+  background:#fef3c7;
+  color:#92400e
+}
+.hidden {
+  display:none!important
+}
+@media(max-width:700px) {
+  .top h1 {
+    font-size:22px
+  }
+  .wrap {
+    margin:14px auto
+  }
+  .card {
+    padding:16px
+  }
+  
+}
+.emp {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+  padding:14px 0
+}
+.emp:last-child {
+  border-bottom:none
+}
+dialog {
+  border:0;
+  border-radius:24px;
+  box-shadow:0 24px 80px rgba(0,0,0,.28);
+  max-width:620px;
+  width:94vw
+}
+dialog::backdrop {
+  background:rgba(2,6,23,.65)
+}
   </style>
-</head>
-<body>
-  <div id="page">
-    <div id="wrapper">
-      <div class="container">
-        <header class="header">
-          <div class="header-content">
-            <i class="fas fa-users header-icon"></i>
-            <h1>LISTA DE FUNCIONÁRIOS</h1>
-            <h2>Gestão de Onboarding</h2>
-            <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
-          </div>
-        </header>
-
-        <div class="main-container">
-          <div class="action-bar">
-            <div class="search-container">
-              <input type="text" class="search-input" id="searchInput" placeholder="Buscar funcionário...">
-              <select class="filter-select" id="statusFilter">
-                <option value="">Todos os status</option>
-                <option value="pending">Pendente</option>
-                <option value="in-progress">Em andamento</option>
-                <option value="completed">Concluído</option>
-              </select>
-            </div>
-            <div style="display:flex;gap:15px;flex-wrap:wrap;">
-              <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Funcionário</button>
-              <button class="btn btn-primary" onclick="reloadFromBackend()"><i class="fas fa-rotate"></i> Sincronizar</button>
-              <a href="home.html" class="btn btn-info"><i class="fas fa-home"></i> Home</a>
-            </div>
-          </div>
-
-          <div class="employees-grid" id="employeesGrid"></div>
-
-          <div class="empty-state" id="emptyState" style="display:none;">
-            <i class="fas fa-users-slash"></i>
-            <h3>Nenhum funcionário encontrado</h3>
-            <p>Adicione funcionários aprovados para começar o processo de onboarding</p>
-            <button class="btn btn-secondary" onclick="openAddEmployeeModal()"><i class="fas fa-user-plus"></i> Adicionar Primeiro Funcionário</button>
-          </div>
-        </div>
-      </div>
+ </head>
+ <body>
+  <div class="role-gate" id="roleGate">
+   <div class="role-box">
+    <h2>
+     Selecione o cargo
+    </h2>
+    <p class="muted">
+     Essa informação será usada em todo o processo e vai alterar o passo a passo do onboarding.
+    </p>
+    <div class="grid" style="margin-top:16px">
+     <button class="role-pill" onclick="escolherCargo('VENDEDOR')">
+      VENDEDOR
+     </button>
+     <button class="role-pill" onclick="escolherCargo('CAIXA')">
+      CAIXA
+     </button>
+     <button class="role-pill" onclick="escolherCargo('ESTOQUISTA')">
+      ESTOQUISTA
+     </button>
     </div>
+   </div>
   </div>
-
-  <!-- Loader -->
-  <div id="loader" class="loader-overlay" aria-hidden="true">
-    <div class="loader-box">
-      <div class="spinner"></div>
-      <div class="loader-title">Carregando funcionários…</div>
-      <div class="loader-sub">Aguarde enquanto buscamos os dados</div>
+  <div class="top">
+   <h1>
+    LISTA DE FUNCIONÁRIOS
+   </h1>
+   <p>
+    Gestão de onboarding — cargo selecionado:
+    <b data-cargo-label="">
+     —
+    </b>
+   </p>
+   <div class="nav row">
+    <a class="btn secondary" href="home.html">
+     Home
+    </a>
+    <button class="btn green" onclick="openAdd()">
+     Adicionar Funcionário
+    </button>
+    <button class="btn secondary" onclick="loadEmployees()">
+     Sincronizar
+    </button>
+    <button class="btn secondary" onclick="trocarCargo()">
+     Trocar Cargo
+    </button>
+   </div>
+  </div>
+  <main class="wrap">
+   <section class="card">
+    <div class="row">
+     <select id="statusFilter" onchange="render()">
+      <option value="">
+       Todos os status
+      </option>
+      <option value="pending">
+       Pendente
+      </option>
+      <option value="in-progress">
+       Em andamento
+      </option>
+      <option value="completed">
+       Concluído
+      </option>
+     </select>
     </div>
-  </div>
-
-  <!-- Modal: adicionar funcionário -->
-  <div class="modal" id="addEmployeeModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 style="color:#fff;font-size:1.5em"><i class="fas fa-user-plus"></i> Adicionar Funcionário</h3>
-        <button class="close-modal" onclick="closeAddEmployeeModal()"><i class="fas fa-times"></i></button>
-      </div>
-      <form id="addEmployeeForm">
-        <div class="form-group">
-          <label for="employeeName" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Nome Completo *</label>
-          <input type="text" id="employeeName" required class="pin-input">
-        </div>
-        <div class="form-group">
-          <label for="employeePosition" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Cargo *</label>
-          <input type="text" id="employeePosition" required class="pin-input">
-        </div>
-        <div class="form-group">
-          <label for="employeeStartDate" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Data de Início *</label>
-          <input type="date" id="employeeStartDate" required class="pin-input">
-        </div>
-        <div class="form-group">
-          <label for="employeeManager" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Gerente Responsável *</label>
-          <input type="text" id="employeeManager" required class="pin-input">
-        </div>
-        <div class="form-group">
-          <label for="employeeEmail" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">E-mail</label>
-          <input type="email" id="employeeEmail" class="pin-input">
-        </div>
-        <div style="display:flex;gap:15px;justify-content:flex-end;margin-top:25px;">
-          <button type="button" class="btn" style="background:#666" onclick="closeAddEmployeeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Funcionário</button>
-        </div>
-      </form>
+    <div id="list" style="margin-top:12px">
     </div>
-  </div>
-
-  <!-- Modal: PIN -->
-  <div class="modal" id="pinModal">
-    <div class="modal-content" style="max-width:420px">
-      <div class="modal-header">
-        <h3 style="color:#fff;font-size:1.3em"><i class="fas fa-key"></i> Confirme com PIN</h3>
-        <button class="close-modal" onclick="closePinModal()"><i class="fas fa-times"></i></button>
-      </div>
-      <div>
-        <p id="pinModalText" style="color:#ddd;margin-bottom:12px">Para prosseguir, digite seu PIN.</p>
-        <input id="pinInput" type="password" class="pin-input" placeholder="Digite seu PIN" autocomplete="new-password">
-        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:18px">
-          <button class="btn" style="background:#666" onclick="closePinModal()">Cancelar</button>
-          <button id="pinConfirmBtn" class="btn btn-primary"><i class="fas fa-check"></i> Confirmar</button>
-        </div>
-      </div>
+   </section>
+  </main>
+  <dialog id="addDialog">
+   <form id="addForm">
+    <h2>
+     Adicionar Funcionário
+    </h2>
+    <div class="grid">
+     <div>
+      <label>
+       Nome Completo *
+      </label>
+      <input id="employeeName" required=""/>
+     </div>
+     <div>
+      <label>
+       Cargo *
+      </label>
+      <input id="employeePosition" readonly="" required=""/>
+     </div>
+     <div>
+      <label>
+       Data de Início *
+      </label>
+      <input id="employeeStartDate" required="" type="date"/>
+     </div>
+     <div>
+      <label>
+       Gerente Responsável *
+      </label>
+      <input id="employeeManager" required=""/>
+     </div>
+     <div>
+      <label>
+       E-mail
+      </label>
+      <input id="employeeEmail" type="email"/>
+     </div>
     </div>
+    <div class="row" style="margin-top:18px">
+     <button class="btn green" type="submit">
+      Salvar Funcionário
+     </button>
+     <button class="btn secondary" onclick="addDialog.close()" type="button">
+      Cancelar
+     </button>
+    </div>
+   </form>
+  </dialog>
+  <div class="toast" id="toast">
+   Mensagem
   </div>
-
-  <div id="toast" class="toast">Mensagem</div>
-
   <script>
-    /* ===== CONFIG ===== */
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
-    const TOTAL_TASKS=15, DEFAULT_DONE=2, SEEDED_PCT=Math.round((DEFAULT_DONE/TOTAL_TASKS)*100);
-
-    let employees=[];
-    let pinContext = { action:null, employeeId:null, managerName:'' };
-
-    /* ===== Loader helpers ===== */
-    const loaderEl = document.getElementById('loader');
-    function showLoader(msg='Carregando funcionários…', sub='Aguarde enquanto buscamos os dados'){
-      loaderEl.querySelector('.loader-title').textContent = msg;
-      loaderEl.querySelector('.loader-sub').textContent = sub;
-      loaderEl.style.display='flex';
-      loaderEl.setAttribute('aria-hidden','false');
+   const CARGOS_VALIDOS=['VENDEDOR','CAIXA','ESTOQUISTA'];
+function normalizarCargo(v) {
+  v=String(v||'').trim().toUpperCase();
+  if(v==='VENDEDORA')v='VENDEDOR';
+  if(v==='ESTOQUE')v='ESTOQUISTA';
+  return CARGOS_VALIDOS.includes(v)?v:''
+}
+function getCargoSelecionado() {
+  const p=new URLSearchParams(location.search);
+  return normalizarCargo(p.get('cargo'))||normalizarCargo(localStorage.getItem('hs_cargo_selecionado'))
+}
+function setCargoSelecionado(c) {
+  c=normalizarCargo(c);
+  if(!c)return;
+  localStorage.setItem('hs_cargo_selecionado',c);
+  document.querySelectorAll('[data-cargo-label]').forEach(el=>el.textContent=c);
+  document.querySelectorAll('input[name="funcao_prevista"],#funcao_prevista,#employeePosition').forEach(el=> {
+    if(el)el.value=c
+  });
+  
+}
+function aplicarCargoNosLinks() {
+  const c=getCargoSelecionado();
+  document.querySelectorAll('a[href$=".html"],a[href*=".html?"]').forEach(a=> {
+    try {
+      const u=new URL(a.getAttribute('href'),location.href);if(c)u.searchParams.set('cargo',c);a.setAttribute('href',u.pathname.split('/').pop()+u.search)
     }
-    function hideLoader(){
-      loaderEl.style.display='none';
-      loaderEl.setAttribute('aria-hidden','true');
+    catch(e) {
+      
     }
-
-    /* ===== Utilitários ===== */
-    function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-    function escapeJs(s){return String(s||'').replace(/['"\\]/g,'\\$&')}
-    function formatDate(d){if(!d)return'—';const dt=new Date(d);return isNaN(dt)?String(d):dt.toLocaleDateString('pt-BR')}
-    function getStatusText(s){const map={'pending':'Pendente','in-progress':'Em Andamento','completed':'Concluído'};return map[s]||s||'Pendente'}
-    function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-
-    /* ===== Denylist local ===== */
-    function getRemovedSet(){const raw=localStorage.getItem('employees_removed');try{return new Set(JSON.parse(raw||'[]'))}catch(_){return new Set()}}
-    function markRemoved(id){const s=getRemovedSet();s.add(String(id));localStorage.setItem('employees_removed',JSON.stringify([...s]))}
-    function clearLocalCaches(){localStorage.removeItem('employees');localStorage.removeItem('employees_sync');localStorage.removeItem('currentEmployee')}
-
-    /* ===== Normalização ===== */
-    function derivePct(rec){
-      const fromBackend=Math.max(Number(rec.progressPct||0), Number(rec.progress||0));
-      if(fromBackend>0) return fromBackend;
-      const st=String(rec.status||'').toLowerCase();
-      return (st===''||st==='pending')?SEEDED_PCT:0;
-    }
-    function computeStatus(p, rec){
-      const locked = String(rec?.locked || 'yes') !== 'no';
-      if (locked) return 'pending';
-      if (p>=100) return 'completed';
-      if (p>0) return 'in-progress';
-      return 'pending';
-    }
-    function normalizeEmployee(rec){
-      const id=rec.employeeId||rec.id||String(Date.now());
-      const pct=derivePct(rec);
-      return {
-        id, employeeId:id,
-        name:rec.name||'', position:rec.position||'', startDate:rec.startDate||'',
-        manager:rec.manager||'', email:rec.email||'',
-        progressPct:pct, progress:pct,
-        locked:String(rec.locked||'yes'),
-        validatedBy:Array.isArray(rec.validatedBy)?rec.validatedBy:[]
-      };
-    }
-    function saveEmployeesLocal(arr){
-      localStorage.setItem('employees_sync', JSON.stringify(arr));
-      const legacy=arr.map(e=>({...e, progress:e.progressPct}));
-      localStorage.setItem('employees', JSON.stringify(legacy));
-    }
-
-    /* ===== Backend ===== */
-    async function fetchEmployeesFromBackend(){
-      const url = GAS_WEB_APP_URL + '?type=employees-list&include_archived=false&_=' + Date.now();
-      const res = await fetch(url, { cache:'no-store' });
-      if(!res.ok) throw new Error('Falha HTTP ('+res.status+')');
-      const data = await res.json();
-      const rows = Array.isArray(data.items)?data.items:(Array.isArray(data.employees)?data.employees:[]);
-      return rows;
-    }
-
-    /* ===== Render ===== */
-    function renderEmployees(filtered=null){
-      const grid=document.getElementById('employeesGrid');
-      const emptyState=document.getElementById('emptyState');
-      const list=(filtered||employees);
-
-      if(!list.length){ grid.style.display='none'; emptyState.style.display='block'; scheduleScale(); return; }
-      grid.style.display='grid'; emptyState.style.display='none';
-
-      grid.innerHTML=list.map(emp=>{
-        const pct=typeof emp.progressPct==='number'?emp.progressPct:derivePct(emp);
-        const stt=computeStatus(pct, emp);
-        const isLocked=String(emp.locked||'yes')!=='no';
-        const vBy=(emp.validatedBy||[]).join(', ');
-        const id = (emp.employeeId||emp.id);
-        const concludeBtn = (pct>=100)
-          ? `<button class="btn btn-small" style="background:#2e7d32;color:#fff" onclick="concludeEmployeeSecured('${id}')"><i class="fas fa-check-double"></i> Concluir</button>`
-          : '';
-        return `
-          <div class="employee-card fade-in">
-            <div class="employee-header">
-              <div class="employee-info">
-                <h3>${escapeHtml(emp.name)}</h3>
-                <div class="position">${escapeHtml(emp.position||'')}</div>
-                <div class="start-date">Início: ${formatDate(emp.startDate)}</div>
-                ${vBy?`<div class="start-date">Validador(es): ${escapeHtml(vBy)}</div>`:''}
-              </div>
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
-                <span class="manager-chip" title="Gerente que cadastrou"><i class="fas fa-user-tie"></i> Gerente: ${escapeHtml(emp.manager || '—')}</span>
-                ${isLocked
-                  ? '<span class="status-badge" title="Aguardando validação"><i class="fas fa-lock"></i></span>'
-                  : '<span class="status-badge" style="background:#2e7d32;color:#fff" title="Validado"><i class="fas fa-lock-open"></i></span>'
-                }
-                <div class="status-badge ${stt}">${getStatusText(stt)}</div>
-              </div>
-            </div>
-            <div class="progress-section">
-              <div class="progress-label"><span>Progresso do Onboarding</span><span>${pct}%</span></div>
-              <div class="progress-bar-container"><div class="progress-bar ${stt}" style="width:${pct}%"></div></div>
-            </div>
-            <div class="employee-actions">
-              <button class="btn btn-info btn-small" onclick="startOnboardingSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-play"></i> Onboarding</button>
-              <button class="btn btn-secondary btn-small" onclick="viewDetailsSecured('${id}')"><i class="fas fa-eye"></i> Detalhes</button>
-              ${isLocked?`<button class="btn btn-primary btn-small" onclick="validateEmployee('${id}')"><i class="fas fa-unlock"></i> Validar</button>`:''}
-              <button class="btn btn-small" style="background:#f44336;color:#fff" onclick="removeEmployeeSecured('${id}', '${escapeJs(emp.manager||'')}')"><i class="fas fa-trash"></i> Remover</button>
-              ${concludeBtn}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      scheduleScale(); /* reescala após montar a grid */
-    }
-
-    /* ===== Eventos UI ===== */
-    function setupEventListeners(){
-      document.getElementById('searchInput').addEventListener('input', filterEmployees);
-      document.getElementById('statusFilter').addEventListener('change', filterEmployees);
-      document.getElementById('addEmployeeForm').addEventListener('submit', handleAddEmployee);
-      document.getElementById('addEmployeeModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeAddEmployeeModal(); });
-
-      document.getElementById('pinModal').addEventListener('click', e=>{ if(e.target===e.currentTarget) closePinModal(); });
-      document.getElementById('pinConfirmBtn').addEventListener('click', confirmPinAction);
-      document.getElementById('pinInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); confirmPinAction(); } });
-
-      window.addEventListener('resize', scheduleScale, {passive:true});
-      window.addEventListener('orientationchange', scheduleScale, {passive:true});
-    }
-
-    function filterEmployees(){
-      const term=document.getElementById('searchInput').value.toLowerCase();
-      const status=document.getElementById('statusFilter').value;
-      const filtered=employees.filter(e=>{
-        const matchesSearch=(e.name||'').toLowerCase().includes(term)||(e.position||'').toLowerCase().includes(term);
-        const pct=derivePct(e); const stt=computeStatus(pct, e);
-        const matchesStatus=!status || stt===status;
-        return matchesSearch && matchesStatus;
-      });
-      renderEmployees(filtered);
-    }
-
-    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
-    function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
-
-    async function handleAddEmployee(e){
-      e.preventDefault();
-      const record={
-        id:'emp-'+Date.now(),
-        name:document.getElementById('employeeName').value.trim(),
-        position:document.getElementById('employeePosition').value.trim(),
-        startDate:document.getElementById('employeeStartDate').value,
-        manager:document.getElementById('employeeManager').value.trim(),
-        email:document.getElementById('employeeEmail').value.trim(),
-        status:'pending', progress:0, locked:'yes'
-      };
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro ao salvar');
-        const newEmp=normalizeEmployee({ ...record, employeeId: out.employeeId || record.id });
-        employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
-        toast('Funcionário salvo (Sheets) e sincronizado.');
-      }catch(err){
-        const newEmp=normalizeEmployee(record); employees.push(newEmp); saveEmployeesLocal(employees); renderEmployees(); closeAddEmployeeModal();
-        toast('Sem backend. Salvo apenas neste dispositivo.');
-      }
-    }
-
-    /* ===== Fluxos com PIN ===== */
-    function viewDetailsSecured(id){
-      pinContext = { action:'details', employeeId:id, managerName:'' };
-      document.getElementById('pinModalText').textContent = 'Para ver os detalhes, digite o PIN de validador (master).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    async function validateEmployee(id){
-      const pin=prompt('PIN do validador (para desbloquear):');
-      if(!pin) return;
-      try{
-        const res=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employee-validate',id,pin})});
-        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Falha na validação');
-        const idx=employees.findIndex(e=>(e.employeeId||e.id)===id);
-        if(idx>=0){ employees[idx].locked='no'; employees[idx].validatedBy=out.validators||[]; saveEmployeesLocal(employees); renderEmployees(); }
-        toast(`Validado por ${out.validator}`);
-      }catch(err){ toast(String(err.message||err)); }
-    }
-    function startOnboardingSecured(id, managerName){
-      const emp=employees.find(e=>(e.employeeId||e.id)===id);
-      if(!emp) return;
-      if(String(emp.locked||'yes')!=='no'){ toast('Este candidato ainda não foi validado por um gestor.'); return; }
-      pinContext = { action:'start', employeeId:id, managerName:managerName||'' };
-      document.getElementById('pinModalText').textContent = 'Digite o PIN do gerente para iniciar o onboarding.';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    function removeEmployeeSecured(id, managerName){
-      pinContext = { action:'remove', employeeId:id, managerName:managerName||'' };
-      document.getElementById('pinModalText').textContent = 'Para remover este candidato, digite seu PIN (master ou do gerente).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-    function concludeEmployeeSecured(id){
-      pinContext = { action:'conclude', employeeId:id, managerName:'' };
-      document.getElementById('pinModalText').textContent = 'Para concluir e arquivar este onboarding, digite o PIN de validador (master).';
-      document.getElementById('pinInput').value='';
-      openPinModal();
-    }
-
-    function openPinModal(){ const m=document.getElementById('pinModal'); m.style.display='flex'; setTimeout(()=>document.getElementById('pinInput').focus(),0); }
-    function closePinModal(){ document.getElementById('pinModal').style.display='none'; }
-
-    async function confirmPinAction(){
-      const pin = document.getElementById('pinInput').value.trim();
-      if(!pin){ toast('Informe o PIN.'); return; }
-
-      try{
-        if(pinContext.action==='details'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN inválido');
-          closePinModal();
-          const e=employees.find(x=>(x.employeeId||x.id)===pinContext.employeeId); if(!e) return;
-          const pct=derivePct(e); const stt=computeStatus(pct, e);
-          alert(`Detalhes do Funcionário:\n\nNome: ${e.name}\nCargo: ${e.position}\nData de Início: ${formatDate(e.startDate)}\nGerente: ${e.manager}\nE-mail: ${e.email || 'Não informado'}\nStatus: ${getStatusText(stt)}\nProgresso: ${pct}%\n\n(Aprovado por: ${(e.validatedBy||[]).join(', ')||'—'})`);
-        }
-
-        if(pinContext.action==='start'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:pinContext.managerName,pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN do gerente inválido');
-          closePinModal();
-          const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId); if(!emp) return;
-          const pct=derivePct(emp);
-          const payload={ id:pinContext.employeeId, name:emp.name, position:emp.position, startDate:emp.startDate, manager:emp.manager, progress:pct };
-          localStorage.setItem('currentEmployee', JSON.stringify(payload));
-          window.location.href='onboarding.html';
-        }
-
-        if(pinContext.action==='remove'){
-          let ok=false;
-          try{ const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})}); const out = await r.json(); ok = !!out.ok; }catch(_){}
-          if(!ok){
-            const emp=employees.find(e=>(e.employeeId||e.id)===pinContext.employeeId);
-            const r2 = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'manager-auth',manager:emp?.manager||'',pin})});
-            const out2 = await r2.json(); ok = !!out2.ok;
-          }
-          if(!ok) throw new Error('PIN inválido para esta ação.');
-
-          const delRes = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})});
-          const delOut = await delRes.json(); if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
-
-          markRemoved(pinContext.employeeId);
-          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
-          saveEmployeesLocal(employees);
-          clearLocalCaches();
-          renderEmployees();
-          closePinModal();
-          toast('Candidato removido (arquivado na planilha).');
-          await reloadFromBackend();
-        }
-
-        if(pinContext.action==='conclude'){
-          const r = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'validator-auth',pin})});
-          const out = await r.json(); if(!out.ok) throw new Error(out.error||'PIN de master inválido');
-
-          const res = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete',id:pinContext.employeeId,mode:'soft',reason:'concluded',pin,role:'master'})});
-          const out2 = await res.json(); if(!out2.ok) throw new Error(out2.error||'Falha ao arquivar');
-
-          markRemoved(pinContext.employeeId);
-          employees = employees.filter(e => (e.employeeId||e.id)!==pinContext.employeeId);
-          saveEmployeesLocal(employees);
-          renderEmployees();
-          closePinModal();
-          toast('Onboarding concluído e arquivado.');
-          await reloadFromBackend();
-        }
-
-      }catch(err){ toast(String(err.message||err)); }
-    }
-
-    /* ===== Fluxo principal ===== */
-    document.addEventListener('DOMContentLoaded', async ()=>{
-      setupEventListeners();
-      const today=new Date().toISOString().split('T')[0];
-      const startDateInput=document.getElementById('employeeStartDate'); if(startDateInput) startDateInput.value=today;
-      await loadEmployees();
-      scheduleScale(); /* garante escala inicial no mobile */
-    });
-
-    async function loadEmployees(){
-      showLoader();
-      try{
-        let items=await fetchEmployeesFromBackend();
-        items = items.filter(r => String(r.status||'').toLowerCase() !== 'archived');
-        const removed = getRemovedSet();
-        employees = items.map(normalizeEmployee).filter(e => !removed.has(String(e.employeeId||e.id)));
-        saveEmployeesLocal(employees);
-        renderEmployees();
-      }catch(err){
-        const saved=localStorage.getItem('employees_sync')||localStorage.getItem('employees');
-        const removed = getRemovedSet();
-        employees = saved?JSON.parse(saved):[];
-        employees = employees.filter(e => {
-          const st = String(e.status||'').toLowerCase();
-          const id = String(e.employeeId||e.id);
-          return st !== 'archived' && !removed.has(id);
-        });
-        renderEmployees();
-        toast('Sem conexão com o backend. Carregado do dispositivo.');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function reloadFromBackend(){
-      showLoader('Sincronizando…','Atualizando dados com o servidor');
-      try{
-        employees=[]; renderEmployees();
-        await loadEmployees();
-      }catch(_){ hideLoader(); }
-    }
-
-    /* ===== Escala automática para mobile (sem afetar desktop) ===== */
-    let scaleRaf=null;
-    function scheduleScale(){ cancelAnimationFrame(scaleRaf); scaleRaf=requestAnimationFrame(applyScale); }
-    function applyScale(){
-      const base=1280;
-      const wrapper=document.getElementById('wrapper');
-      const page=document.getElementById('page');
-      if(!wrapper||!page) return;
-
-      const vw = Math.max(document.documentElement.clientWidth, window.innerWidth||0);
-      const scale = Math.min(1, vw / base);  // desktop => 1; mobile => <1
-
-      wrapper.style.transform = (scale<1) ? `scale(${scale})` : 'none';
-      wrapper.style.marginLeft = (scale<1) ? '0' : 'auto';
-      wrapper.style.marginRight = (scale<1) ? '0' : 'auto';
-
-      // ajusta altura visual do container para o conteúdo escalado
-      // (offsetHeight é a altura "não escalada")
-      const scaledH = wrapper.offsetHeight * (scale<1 ? scale : 1);
-      page.style.height = scaledH + 'px';
-    }
+    
+  })
+}
+function exigirCargo() {
+  let c=getCargoSelecionado();
+  if(c) {
+    setCargoSelecionado(c);
+    aplicarCargoNosLinks();
+    return c
+  }
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='flex';
+  return ''
+}
+function escolherCargo(c) {
+  setCargoSelecionado(c);
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='none';
+  aplicarCargoNosLinks();
+  if(typeof onCargoChanged==='function')onCargoChanged(c)
+}
+function trocarCargo() {
+  localStorage.removeItem('hs_cargo_selecionado');
+  const gate=document.getElementById('roleGate');
+  if(gate)gate.style.display='flex'
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  if(!t) {
+    alert(msg);
+    return
+  }
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600)
+}
+const GAS_WEB_APP_URL='https://script.google.com/macros/s/AKfycbzx7fZB5WPpdAI7nUADWhzWZF83CyTKIl50jkOeJanoPao9t1eecOQ5CrshZksO5A5e/exec';
+let employees=[];
+function pct(e) {
+  return Math.max(Number(e.progressPct||0),Number(e.progress||0))
+}
+function statusText(s) {
+  return {
+    'pending':'Pendente','in-progress':'Em andamento','completed':'Concluído','archived':'Arquivado'
+  }
+  [s]||s||'Pendente'
+}
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}async function loadEmployees(){document.getElementById('list').innerHTML='<p class="muted">Carregando funcionários…</p>';try{const r=await fetch(GAS_WEB_APP_URL+'?type=employees-list&include_archived=false&_='+Date.now(),{cache:'no-store'});const out=await r.json();employees=(out.items||out.employees||[]).filter(e=>String(e.status||'').toLowerCase()!=='archived');localStorage.setItem('employees_sync',JSON.stringify(employees));}catch(e){employees=JSON.parse(localStorage.getItem('employees_sync')||'[]');toast('Sem backend. Carregado do dispositivo.')}render()}function render(){const f=document.getElementById('statusFilter').value;let arr=employees;if(f)arr=arr.filter(e=>(e.status||'pending')===f);const box=document.getElementById('list');if(!arr.length){box.innerHTML='<div class="card" style="box-shadow:none"><h3>Nenhum funcionário encontrado</h3><p class="muted">Adicione funcionários aprovados para começar o processo de onboarding.</p></div>';return}box.innerHTML=arr.map(e=>{const id=e.employeeId||e.id;const p=pct(e);const st=e.status||(p>=100?'completed':p>0?'in-progress':'pending');return `<div class="emp"><div><b>${esc(e.name)}</b><div class="muted">Cargo: ${esc(e.position)} | Gerente: ${esc(e.manager)} | Progresso: ${p}%</div><span class="badge $ {
+    st==='completed'?'green':'amber'
+  }
+  ">${statusText(st)}</span></div><div class="row"><button class="btn blue" onclick="startOnboarding('${id}')">Onboarding</button><button class="btn secondary" onclick="details('${id}')">Detalhes</button></div></div>`}).join('')}function openAdd(){setCargoSelecionado(getCargoSelecionado());document.getElementById('employeeStartDate').value=new Date().toISOString().slice(0,10);addDialog.showModal()}document.getElementById('addForm').addEventListener('submit',async e=>{e.preventDefault();const c=getCargoSelecionado();const record={id:'emp-'+Date.now(),name:employeeName.value.trim(),position:c,startDate:employeeStartDate.value,manager:employeeManager.value.trim(),email:employeeEmail.value.trim(),status:'pending',progress:0,locked:'no'};try{const r=await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-upsert',record})});const out=await r.json();if(!out.ok)throw new Error(out.error||'Erro ao salvar');record.employeeId=out.employeeId||record.id;employees.push(record);localStorage.setItem('employees_sync',JSON.stringify(employees));render();addDialog.close();toast('Funcionário salvo.')}catch(err){employees.push(record);localStorage.setItem('employees_sync',JSON.stringify(employees));render();addDialog.close();toast('Salvo localmente.')}});function startOnboarding(id){const emp=employees.find(e=>(e.employeeId||e.id)===id);if(!emp)return;localStorage.setItem('currentEmployee',JSON.stringify({id:id,name:emp.name,position:emp.position,startDate:emp.startDate,manager:emp.manager,email:emp.email,progress:pct(emp)}));setCargoSelecionado(emp.position||getCargoSelecionado());location.href='onboarding.html?cargo='+encodeURIComponent(getCargoSelecionado())}function details(id){const e=employees.find(x=>(x.employeeId||x.id)===id);if(e)alert(`Nome: ${e.name}\nCargo: ${e.position}\nGerente: ${e.manager}\nProgresso: ${pct(e)}%`)}function onCargoChanged(c){const el=document.getElementById('employeePosition');if(el)el.value=c}document.addEventListener('DOMContentLoaded',()=>{const c=exigirCargo();if(c)onCargoChanged(c);loadEmployees()});
   </script>
-</body>
+ </body>
 </html>
