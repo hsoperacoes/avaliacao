@@ -95,9 +95,11 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader-title{color:#fff;font-weight:700;margin-bottom:4px}
     .loader-sub{color:#ddd;opacity:.9;font-size:.95rem}
+
   </style>
 </head>
 <body>
+
   <div id="page">
     <div id="wrapper">
       <div class="container">
@@ -109,7 +111,6 @@
             <p>Gerencie funcionários aprovados e acompanhe seus processos de integração</p>
           </div>
         </header>
-
         <div class="main-container">
           <div class="action-bar">
             <div class="search-container">
@@ -164,7 +165,7 @@
         </div>
         <div class="form-group">
           <label for="employeePosition" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Cargo *</label>
-          <input type="text" id="employeePosition" required class="pin-input">
+          <input type="text" id="employeePosition" required class="pin-input" readonly>
         </div>
         <div class="form-group">
           <label for="employeeStartDate" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Data de Início *</label>
@@ -362,7 +363,7 @@
       renderEmployees(filtered);
     }
 
-    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; }
+    function openAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='flex'; if (window.hsPreencherCamposCargo) window.hsPreencherCamposCargo(); }
     function closeAddEmployeeModal(){ document.getElementById('addEmployeeModal').style.display='none'; document.getElementById('addEmployeeForm').reset(); document.getElementById('employeeStartDate').value=new Date().toISOString().split('T')[0]; }
 
     async function handleAddEmployee(e){
@@ -370,7 +371,7 @@
       const record={
         id:'emp-'+Date.now(),
         name:document.getElementById('employeeName').value.trim(),
-        position:document.getElementById('employeePosition').value.trim(),
+        position:(window.hsCargoLabel ? (hsCargoLabel(hsGetCargoSelecionado()) || document.getElementById('employeePosition').value.trim()) : document.getElementById('employeePosition').value.trim()),
         startDate:document.getElementById('employeeStartDate').value,
         manager:document.getElementById('employeeManager').value.trim(),
         email:document.getElementById('employeeEmail').value.trim(),
@@ -562,5 +563,88 @@
       page.style.height = scaledH + 'px';
     }
   </script>
+
+
+  <script>
+    /* ===== HS: cargo selecionado compartilhado entre páginas ===== */
+    (function(){
+      const STORAGE_KEY = 'hs_cargo_selecionado';
+      const VALIDOS = ['VENDEDOR','CAIXA','ESTOQUISTA'];
+      const LABELS = { VENDEDOR:'Vendedor', CAIXA:'Caixa', ESTOQUISTA:'Estoquista' };
+
+      window.hsNormalizarCargo = function(v){
+        v = String(v || '').trim().toUpperCase();
+        if (v === 'VENDEDORA') v = 'VENDEDOR';
+        if (v === 'ESTOQUE') v = 'ESTOQUISTA';
+        return VALIDOS.includes(v) ? v : '';
+      };
+      window.hsCargoLabel = function(v){
+        v = window.hsNormalizarCargo(v);
+        return LABELS[v] || '';
+      };
+      window.hsGetCargoSelecionado = function(){
+        const params = new URLSearchParams(location.search);
+        const fromUrl = window.hsNormalizarCargo(params.get('cargo'));
+        if (fromUrl) {
+          localStorage.setItem(STORAGE_KEY, fromUrl);
+          return fromUrl;
+        }
+        return window.hsNormalizarCargo(localStorage.getItem(STORAGE_KEY));
+      };
+      window.hsSetCargoSelecionado = function(cargo){
+        cargo = window.hsNormalizarCargo(cargo);
+        if (!cargo) return;
+        localStorage.setItem(STORAGE_KEY, cargo);
+        window.hsAplicarCargoNosLinks();
+      };
+      window.hsTrocarCargo = function(){
+        localStorage.removeItem(STORAGE_KEY);
+        window.location.href = 'avaliacao.html';
+      };
+      window.hsAplicarCargoNosLinks = function(){
+        const cargo = window.hsGetCargoSelecionado();
+        if (!cargo) return;
+        document.querySelectorAll('a[href$=".html"], a[href*=".html?"]').forEach(a => {
+          try {
+            const u = new URL(a.getAttribute('href'), location.href);
+            u.searchParams.set('cargo', cargo);
+            a.setAttribute('href', u.pathname.split('/').pop() + u.search);
+          } catch(e) {}
+        });
+      };
+      window.hsEscolherCargo = function(cargo){
+        window.hsSetCargoSelecionado(cargo);
+        const gate = document.getElementById('hsRoleGate');
+        if (gate) gate.classList.remove('show');
+        window.hsRenderCargoAtual();
+        window.hsPreencherCamposCargo();
+        if (typeof window.hsAfterCargoChange === 'function') window.hsAfterCargoChange();
+      };
+      window.hsRenderCargoAtual = function(){
+        const cargo = window.hsGetCargoSelecionado();
+        document.querySelectorAll('[data-hs-cargo-label]').forEach(el => el.textContent = window.hsCargoLabel(cargo) || 'Não selecionado');
+      };
+      window.hsPreencherCamposCargo = function(){
+        const cargo = window.hsCargoLabel(window.hsGetCargoSelecionado());
+        if (!cargo) return;
+        ['funcao_prevista','employeePosition'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.value = cargo;
+            el.readOnly = true;
+            el.setAttribute('data-cargo-bloqueado','true');
+          }
+        });
+      };
+
+      document.addEventListener('DOMContentLoaded', function(){
+        window.hsAplicarCargoNosLinks();
+        window.hsRenderCargoAtual();
+        window.hsPreencherCamposCargo();
+        window.hsGetCargoSelecionado();
+      });
+    })();
+  </script>
+
 </body>
 </html>
