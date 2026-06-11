@@ -289,10 +289,10 @@
     function getStepsForCargo(cargo){
       const c = normalizarCargo(cargo);
       const step3Text = c === 'Caixa'
-        ? '3.2 - Apenas Academia Hering: Bem-vindo à Academia Hering, Boas Vindas, Produtos, Processos e Sistemas.'
+        ? '3.2 - Apenas Academia Hering, com esses cursos: Bem-vindo à Academia Hering, Boas Vindas, Produtos, Processos e Sistemas.'
         : c === 'Estoquista'
-          ? '3.2 - Apenas Academia Hering: LP + FQ | ESTOQUE; FP + FQ | Bem-vindo à Academia Hering; LP + FQ | Boas-vindas Academia Hering.'
-          : '3.2 - Somente avançar desse passo após completar no Academia Hering as agendas de Boas Vindas, Bem-vindo à Academia Hering, Atendimento 360 e Produto.';
+          ? '3.2 - Apenas Academia Hering, com esses cursos: LP + FQ | ESTOQUE; FP + FQ | Bem-vindo à Academia Hering; LP + FQ | Boas-vindas Academia Hering.'
+          : '3.2 - Somente avançar desse passo após completar no Academia Hering as agendas de Boa Vindas, BEM VINDO A ACADEMIA HERING, Atendimento 360 e Produto.';
       const step5Text = c === 'Caixa'
         ? '5.3 - Caixa – Iniciar processo de lançamento no sistema e fechamento com acompanhamento 100% do gerente.'
         : c === 'Estoquista'
@@ -307,7 +307,7 @@
         {id:6,title:'6º Passo - Sétimo dia.',tasks:['6.1']}
       ];
       const texts = {
-        '3.1':'3.1 - Acionar Amanda para cadastro na Academia',
+        '3.1':'3.1 - ACIONAR AMANDA PARA CADASTRO NA ACADEMIA',
         '3.2':step3Text,
         '4.2':'4.2 - Conhecer o sistema de caixa',
         '5.1':'5.1 – Agendar Exame Admissional e recolher documentações',
@@ -345,7 +345,7 @@
       setStepTasksDOM(4, STEPS.find(s=>s.id===4).tasks, cfg.texts);
       setStepTasksDOM(5, STEPS.find(s=>s.id===5).tasks, cfg.texts);
     }
-    const DEFAULT_LOCKED_IDS=new Set(['1.1','1.2']);
+    const DEFAULT_LOCKED_IDS=new Set(['1.1','1.2','1.3','1.4','1.5','1.6']);
 
     let employeeData={id:null,name:'—',position:'—',startDate:'—',manager:'—',email:''};
     let lockedIndex=-1;
@@ -382,7 +382,8 @@
       const s=stepIndexOfTask(ORDERED_TASK_IDS[lockedIndex]);
       let firstIdx=0;for(let i=0;i<s;i++)firstIdx+=STEPS[i].tasks.length;
       const lastIdxInStep=firstIdx+STEPS[s].tasks.length-1;
-      if(lockedIndex>=lastIdxInStep)return Math.min(s+1,STEPS.length-1);
+      // Só libera a próxima etapa quando todas as tarefas da etapa atual estiverem concluídas E avaliadas.
+      if(lockedIndex>=lastIdxInStep && hasRating(STEPS[s].id))return Math.min(s+1,STEPS.length-1);
       return s;
     }
     function isStepDone(s){return s.tasks.every(t=>isTaskCompleted(t))&&hasRating(s.id)}
@@ -451,6 +452,7 @@
         fetchEmployeeFull();
         hydrateFromBackend().finally(()=>{
           try {
+            garantirEtapa1PadraoMarcada();
             applySequentialLocking();
             updateProgressBar();
             updateStepStatuses();
@@ -512,12 +514,23 @@
 
     function prefillIfNew(){
       try {
-        markTaskUI('1.1',true);
-        markTaskUI('1.2',true);
+        ['1.1','1.2','1.3','1.4','1.5','1.6'].forEach(id => markTaskUI(id,true));
         bootPrefilled=true;
-        lockedIndex=Math.max(lockedIndex,ORDERED_TASK_IDS.indexOf('1.2'));
+        // Mantém a etapa 1 já marcada, mas NÃO libera a etapa 2 automaticamente.
+        // A liberação depende da avaliação da etapa e do salvamento do progresso.
+        lockedIndex=Math.max(lockedIndex,-1);
       } catch (error) {
         console.error('Erro no prefill:', error);
+      }
+    }
+
+    function garantirEtapa1PadraoMarcada(){
+      try {
+        ['1.1','1.2','1.3','1.4','1.5','1.6'].forEach(id => markTaskUI(id,true));
+        // Se ainda não existe avaliação da etapa 1, a etapa 2 permanece bloqueada.
+        if (!hasRating(1)) lockedIndex = Math.min(lockedIndex, -1);
+      } catch (error) {
+        console.error('Erro ao garantir etapa 1 padrão:', error);
       }
     }
 
@@ -678,8 +691,6 @@
           await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'ratings-save',employeeId:employeeData.id,ratings:r})});
         }catch(err){console.warn('ratings-save falhou',err)}
         applySequentialLocking();updateStepStatuses();
-        // >>> Atualiza checkpoint local após avaliar a etapa <<<
-        lastSavedCheckpoint = checkpointStepIndex();
       } catch (error) {
         console.error('Erro ao avaliar etapa:', error);
       }
@@ -694,6 +705,14 @@
         const reportText=buildTxtReport();
 
         const completed=getCompletedTaskIds();
+        const etapaCompletaSemAvaliacao = STEPS.find(s => s.tasks.every(t => isTaskCompleted(t)) && !hasRating(s.id));
+        if (etapaCompletaSemAvaliacao) {
+          setOverlay(false);
+          toggleStep('step'+etapaCompletaSemAvaliacao.id);
+          updateEvaluations();
+          showToast('Avalie a etapa '+etapaCompletaSemAvaliacao.id+' antes de salvar e liberar a próxima.');
+          return;
+        }
         const pct=ORDERED_TASK_IDS.length?Math.round((completed.length/ORDERED_TASK_IDS.length)*100):0;
         const stepInfo=lastCompletedStep();
         const newLockedIndex=computeContiguousCompletedIndex();
