@@ -635,7 +635,6 @@
       const cargoFinal = normalizarCargo(cargo);
       const campo = document.getElementById('funcao_prevista');
       if (campo) campo.value = cargoFinal;
-      if (cargoFinal) localStorage.setItem('cargoCandidatoSelecionado', cargoFinal);
       return cargoFinal;
     }
 
@@ -690,16 +689,14 @@
 
     // Data padrão + toggles
     document.addEventListener('DOMContentLoaded', () => {
-      const cargoSalvo = normalizarCargo(localStorage.getItem('cargoCandidatoSelecionado'));
+      // A seleção de cargo agora é sempre solicitada nesta tela (não fica
+      // presa a um valor salvo de uma avaliação anterior no navegador).
+      const campoFuncao = document.getElementById('funcao_prevista');
+      if (campoFuncao) campoFuncao.value = '';
       const selCargo = document.getElementById('cargoInicial');
+      if (selCargo) selCargo.value = '';
       const gateCargo = document.getElementById('cargoGate');
-      if (cargoSalvo) {
-        if (selCargo) selCargo.value = cargoSalvo;
-        aplicarCargoSelecionado(cargoSalvo);
-        if (gateCargo) gateCargo.style.display = 'none';
-      } else if (gateCargo) {
-        gateCargo.style.display = 'flex';
-      }
+      if (gateCargo) gateCargo.style.display = 'flex';
 
       const today = new Date().toISOString().split('T')[0];
       const d = document.getElementById('data_avaliacao');
