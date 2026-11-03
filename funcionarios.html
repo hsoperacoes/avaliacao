@@ -172,7 +172,11 @@
         </div>
         <div class="form-group">
           <label for="employeeManager" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">Gerente Responsável *</label>
-          <input type="text" id="employeeManager" required class="pin-input">
+          <input type="text" id="employeeManager" required class="pin-input" list="gerentesSugeridos" autocomplete="off">
+          <datalist id="gerentesSugeridos">
+            <option value="Danielle"></option>
+            <option value="Rafaela"></option>
+          </datalist>
         </div>
         <div class="form-group">
           <label for="employeeEmail" style="display:block;color:#e0e0e0;font-weight:600;margin-bottom:8px">E-mail</label>
@@ -466,7 +470,7 @@
           }
           if(!ok) throw new Error('PIN inválido para esta ação.');
 
-          const delRes = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin})});
+          const delRes = await fetch(GAS_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({type:'employees-delete', id:pinContext.employeeId, mode:'soft', reason:'removed', pin, manager:emp?.manager||pinContext.managerName||''})});
           const delOut = await delRes.json(); if(!delOut.ok) throw new Error(delOut.error||'Falha ao remover');
 
           markRemoved(pinContext.employeeId);
